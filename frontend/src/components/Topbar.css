@@ -1,4 +1,3 @@
-/* TOPBAR */
 #topbar {
   position: fixed;
   top: 0;
@@ -30,31 +29,6 @@
   font-size: 26px;
 }
 
-.tb-nav {
-  display: flex;
-  gap: 4px;
-}
-.tb-navbtn {
-  padding: 7px 16px;
-  border-radius: var(--r24);
-  font-size: 13px;
-  font-weight: 800;
-  border: none;
-  cursor: pointer;
-  font-family: var(--ff);
-  transition: all 0.15s;
-  color: var(--gy4);
-  background: none;
-}
-.tb-navbtn:hover {
-  background: var(--gy);
-  color: var(--dk);
-}
-.tb-navbtn.on {
-  background: var(--orL);
-  color: var(--or);
-}
-
 .tb-streak {
   display: flex;
   align-items: center;
@@ -78,15 +52,4 @@
   font-size: 13px;
   font-weight: 800;
   color: var(--or);
-}
-
-/* MAIN LAYOUT */
-#app {
-  margin-top: 56px;
-  display: flex;
-  min-height: calc(100vh - 56px);
-}
-#main {
-  flex: 1;
-  padding: 28px 32px 60px;
 }
