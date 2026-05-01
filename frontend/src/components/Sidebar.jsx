@@ -12,6 +12,17 @@ function Sidebar() {
         <div className="sb-cobot-txt">오늘도 같이 수련하자!</div>
       </div>
 
+      <div className="sb-progress">
+        <div className="sb-proglbl">
+          <span>오늘의 진도</span>
+          <span>3/8</span>
+        </div>
+        <div className="sb-progbar">
+          <div className="sb-progfill" style={{ width: "40%" }}></div>
+        </div>
+      </div>
+
+
       <div className="sb-section">메뉴</div>
 
       <Link
@@ -26,7 +37,6 @@ function Sidebar() {
         className={`sb-btn ${location.pathname === "/track" ? "on" : ""}`}
       >
         <span className="sb-icon">📚</span> 학습 트랙
-        <span className="sb-badge">3</span>
       </Link>
 
       <Link
@@ -36,15 +46,13 @@ function Sidebar() {
         <span className="sb-icon">⚡</span> 데일리 태스크
       </Link>
 
-      <div className="sb-progress">
-        <div className="sb-proglbl">
-          <span>오늘의 진도</span>
-          <span>40%</span>
-        </div>
-        <div className="sb-progbar">
-          <div className="sb-progfill" style={{ width: "40%" }}></div>
-        </div>
-      </div>
+      <Link
+        to="/review"
+        className={`sb-btn ${location.pathname === "/review" ? "on" : ""}`}
+      >
+        <span className="sb-icon">⚡</span> 오답 노트
+      </Link>
+
     </div>
   );
 }
