@@ -50,7 +50,6 @@ export default function DailyTask() {
         </div>
       </div>
 
-      {/* 🔵 채점중 모달 */}
       {isGrading && (
         <div className="modal-overlay">
           <div className="modal">
@@ -59,7 +58,6 @@ export default function DailyTask() {
         </div>
       )}
 
-      {/* 🟢 결과 모달 */}
       {isResultOpen && (
         <div className="modal-overlay">
           <div className="modal">

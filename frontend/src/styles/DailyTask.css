@@ -7,7 +7,7 @@
 .page-inner {
   display: flex;
   flex-direction: column;
-  gap: 15px;  /* 👉 이 값 키우면 간격 넓어짐 */
+  gap: 15px;
 }
 
 .header-card {
@@ -29,7 +29,6 @@
   color: #6b7280;
 }
 
-/* 퀴즈 카드 wrapper */
 .quiz-wrapper {
   background: #ffffff;
   border-radius: 16px;
@@ -78,7 +77,6 @@
   box-shadow: 0 10px 30px rgba(0,0,0,0.1);
 }
 
-/* 결과 버튼 */
 .result-btn {
   width: 100%;
   background: #f97316;
@@ -94,7 +92,6 @@
   background: #ea580c;
 }
 
-/* 닫기 버튼 */
 .close-btn {
   width: 100%;
   background: #e5e7eb;
