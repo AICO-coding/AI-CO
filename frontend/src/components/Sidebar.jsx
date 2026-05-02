@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import "./Sidebar.css";
+import "../styles/Sidebar.css"
 import cobot from '../assets/cobot.png';
 
 function Sidebar() {
