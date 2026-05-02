@@ -1,14 +1,16 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Home from "./pages/Home";
+import Topbar from "./components/Topbar";
 import Sidebar from "./components/Sidebar";
+import Home from "./pages/Home";
+import "./App.css";
 
 function App() {
   return (
     <BrowserRouter>
-      <div style={{ display: "flex" }}>
+      <Topbar />
+      <div id="app">
         <Sidebar />
-
-        <div style={{ flex: 1, padding: "20px" }}>
+        <div id="main">
           <Routes>
             <Route path="/" element={<Home />} />
           </Routes>

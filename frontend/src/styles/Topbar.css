@@ -1,4 +1,3 @@
-/* TOPBAR */
 #topbar {
   position: fixed;
   top: 0;
@@ -13,6 +12,12 @@
   height: 56px;
   gap: 12px;
 }
+
+.tb-logo-img {
+  width: 32px;
+  height: 32px;
+}
+
 .tb-logo {
   font-size: 22px;
   font-weight: 900;
@@ -28,31 +33,6 @@
 }
 .tb-logo-cobot {
   font-size: 26px;
-}
-
-.tb-nav {
-  display: flex;
-  gap: 4px;
-}
-.tb-navbtn {
-  padding: 7px 16px;
-  border-radius: var(--r24);
-  font-size: 13px;
-  font-weight: 800;
-  border: none;
-  cursor: pointer;
-  font-family: var(--ff);
-  transition: all 0.15s;
-  color: var(--gy4);
-  background: none;
-}
-.tb-navbtn:hover {
-  background: var(--gy);
-  color: var(--dk);
-}
-.tb-navbtn.on {
-  background: var(--orL);
-  color: var(--or);
 }
 
 .tb-streak {
@@ -78,15 +58,4 @@
   font-size: 13px;
   font-weight: 800;
   color: var(--or);
-}
-
-/* MAIN LAYOUT */
-#app {
-  margin-top: 56px;
-  display: flex;
-  min-height: calc(100vh - 56px);
-}
-#main {
-  flex: 1;
-  padding: 28px 32px 60px;
 }
