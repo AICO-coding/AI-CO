@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import "./Sidebar.css";
+import cobot from '../assets/cobot.png';
 
 function Sidebar() {
   const location = useLocation();
@@ -7,7 +8,7 @@ function Sidebar() {
   return (
     <div id="sidebar">
       <div className="sb-cobot">
-        <span className="sb-cobot-img">🤖</span>
+        <img src={cobot} alt="코봇" className="sb-cobot-img" />
         <div className="sb-cobot-txt">안녕! 나는 코봇이야</div>
         <div className="sb-cobot-txt">오늘도 같이 수련하자!</div>
       </div>

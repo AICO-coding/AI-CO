@@ -37,6 +37,7 @@
   font-family: var(--ff);
   text-align: left;
   width: calc(100% - 20px);
+  text-decoration: none;
 }
 .sb-btn:hover {
   background: var(--gy);
@@ -93,12 +94,17 @@
 .sb-cobot {
   padding: 16px 20px;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 .sb-cobot-img {
-  font-size: 52px;
+  width: 100px;
+  height: 160px;
   display: block;
-  margin-bottom: 6px;
+  margin: 0 auto 6px;
   animation: bobble 3s ease-in-out infinite;
+  object-fit: contain;
 }
 .sb-cobot-txt {
   font-size: 12px;
