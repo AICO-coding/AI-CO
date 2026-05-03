@@ -1,0 +1,212 @@
+.home-wrap {
+  max-width: 900px;
+}
+
+/* 히어로 카드 */
+.home-hero {
+  background: linear-gradient(135deg, var(--or), var(--or3));
+  border-radius: var(--r24);
+  padding: 36px 40px;
+  color: #fff;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  box-shadow: var(--shadow) rgba(230, 88, 0, .35);
+}
+.hero-cobot {
+  width: 160px;
+  height: 160px;
+  object-fit: contain;
+  flex-shrink: 0;
+  animation: bobble 2s ease-in-out infinite;
+}
+.hero-title {
+  font-size: 26px;
+  font-weight: 900;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+.hero-sub {
+  font-size: 14px;
+  opacity: .9;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+.hero-btn {
+  display: inline-block;
+  padding: 12px 28px;
+  background: #fff;
+  color: var(--or);
+  border-radius: var(--r24);
+  font-size: 14px;
+  font-weight: 900;
+  text-decoration: none;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, .15);
+  transition: all .15s;
+  font-family: var(--ff);
+}
+.hero-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 rgba(0, 0, 0, .15);
+}
+.hero-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, .15);
+}
+
+/* 섹션 타이틀 */
+.sec-title {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--dk);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sec-title::after {
+  content: '';
+  flex: 1;
+  height: 2px;
+  background: var(--gy2);
+}
+
+/* 데일리 카드 */
+.daily-card {
+  background: var(--wh);
+  border: 2px solid var(--or);
+  border-radius: var(--r16);
+  padding: 18px 20px;
+  margin-bottom: 24px;
+  cursor: pointer;
+  transition: all .15s;
+  box-shadow: 0 4px 0 var(--orB);
+  text-decoration: none;
+  display: block;
+  color: var(--dk);
+}
+.daily-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--orB);
+}
+.daily-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.daily-title {
+  font-size: 16px;
+  font-weight: 900;
+}
+.daily-badge {
+  background: var(--ye);
+  color: var(--ye2);
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: var(--r24);
+}
+.daily-prog-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.daily-prog-wrap {
+  flex: 1;
+  background: var(--gy2);
+  border-radius: 20px;
+  height: 10px;
+  overflow: hidden;
+}
+.daily-prog-fill {
+  height: 100%;
+  border-radius: 20px;
+  background: var(--or);
+  transition: width .5s;
+}
+.daily-prog-txt {
+  font-size: 13px;
+  font-weight: 900;
+  color: var(--or);
+  flex-shrink: 0;
+}
+.daily-info {
+  font-size: 12px;
+  color: var(--gy4);
+  font-weight: 600;
+}
+
+/* 학습 트랙 그리드 */
+.track-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.track-card {
+  background: var(--wh);
+  border-radius: var(--r16);
+  padding: 20px;
+  cursor: pointer;
+  border: 2px solid var(--gy2);
+  transition: all .18s;
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+  color: var(--dk);
+  display: block;
+}
+.track-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 5px;
+}
+.tc-ml::before { background: var(--or); }
+.tc-cv::before { background: var(--gr); }
+.tc-nlp::before { background: var(--pu); }
+
+.track-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .1);
+}
+.tc-emoji {
+  font-size: 36px;
+  margin-bottom: 10px;
+  display: block;
+}
+.tc-name {
+  font-size: 16px;
+  font-weight: 900;
+  margin-bottom: 4px;
+}
+.tc-sub {
+  font-size: 12px;
+  color: var(--gy4);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.tc-prog-wrap {
+  background: var(--gy2);
+  border-radius: 20px;
+  height: 7px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.tc-prog {
+  height: 100%;
+  border-radius: 20px;
+  transition: width .5s;
+}
+.tc-prog-ml { background: var(--or); }
+.tc-prog-cv { background: var(--gr); }
+.tc-prog-nlp { background: var(--pu); }
+.tc-info {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gy4);
+}
