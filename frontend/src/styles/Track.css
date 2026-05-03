@@ -1,5 +1,5 @@
 .track-wrap {
-  max-width: 900px;
+  width: 100%;
 }
 
 .track-page-title {
@@ -31,6 +31,9 @@
   transition: all .18s;
   position: relative;
   overflow: hidden;
+  text-decoration: none;
+  color: var(--dk);
+  display: block;
 }
 .track-page-card::before {
   content: '';
@@ -41,7 +44,6 @@
 .tc-ml::before { background: var(--or); }
 .tc-cv::before { background: var(--gr); }
 .tc-nlp::before { background: var(--pu); }
-
 .track-page-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, .1);
@@ -95,6 +97,8 @@
   margin-bottom: 20px;
   padding: 0;
   transition: color .12s;
+  text-decoration: none;
+  display: inline-block;
 }
 .track-back:hover { color: var(--dk); }
 
