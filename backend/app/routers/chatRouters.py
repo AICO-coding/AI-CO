@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.models.userModels import User
 from app.core.database import get_db
 from app.schemas.chatSchemas import ChatRequest, ChatResponse, ChatHistoryResponse
-from backend.app.services.chatbot.chat_messages import save_chat_messages, fetch_today_history
+from app.services.chatbot.chat_messages import save_chat_messages, fetch_today_history
 
 router = APIRouter(prefix="/chat", tags=["Chat"])
 
