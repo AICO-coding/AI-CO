@@ -48,10 +48,10 @@ function Sidebar() {
       </Link>
 
       <Link
-        to="/review"
-        className={`sb-btn ${location.pathname === "/review" ? "on" : ""}`}
+        to="/wrong-answer"
+        className={`sb-btn ${location.pathname === "/wrong-answer" ? "on" : ""}`}
       >
-        <span className="sb-icon">⚡</span> 오답 노트
+        <span className="sb-icon">📝</span> 오답 노트
       </Link>
 
     </div>
