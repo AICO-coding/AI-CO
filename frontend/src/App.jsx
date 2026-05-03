@@ -3,6 +3,7 @@ import Topbar from "./components/Topbar";
 import Sidebar from "./components/Sidebar";
 import Home from "./pages/Home";
 import DailyTask from "./pages/DailyTask";
+import Track from "./pages/Track";
 import "./App.css";
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/daily" element={<DailyTask />} />
+            <Route path="/track" element={<Track />} />
           </Routes>
         </div>
       </div>
