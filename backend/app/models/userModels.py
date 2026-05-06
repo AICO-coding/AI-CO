@@ -9,6 +9,8 @@ class User(Base):
     id = Column(BigInteger, primary_key=True, index=True, autoincrement=True)
 
     google_id = Column(String(255), unique=True, nullable=False, index=True)
+    email = Column(String(255), nullable=True)
+    gender = Column(String(10), nullable=True)
     nickname = Column(String(50), nullable=True)
     xp = Column(Integer, nullable=False, default=0)
 

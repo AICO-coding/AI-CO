@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-#from app.core.security import get_current_user
+from app.core.security import get_current_user
 from app.models.userModels import User
 from app.core.database import get_db
 from app.schemas.chatSchemas import ChatRequest, ChatResponse, ChatHistoryResponse
@@ -81,7 +81,6 @@ def _generate_reply(track: str, chapter: str, message: str) -> str:
 
 
 
-##### 테스트용
 # POST /chat
 @router.post(
     "",
@@ -92,10 +91,8 @@ def _generate_reply(track: str, chapter: str, message: str) -> str:
 def chat(
     body: ChatRequest,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
-    # 로그인/JWT 연동 전 테스트용
-    current_user_id = 1
-
     if not body.track or not body.chapter or not body.message.strip():
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -110,7 +107,7 @@ def chat(
 
     saved = save_chat_messages(
         db=db,
-        user_id=current_user_id,
+        user_id=current_user.id,
         track=body.track,
         chapter=body.chapter,
         user_message=body.message,
@@ -132,11 +129,9 @@ def chat(
 )
 def get_chat_history(
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
-    # 로그인/JWT 연동 전 테스트용
-    current_user_id = 1
-
-    history = fetch_today_history(db, user_id=current_user_id)
+    history = fetch_today_history(db, user_id=current_user.id)
 
     if not history:
         raise HTTPException(
