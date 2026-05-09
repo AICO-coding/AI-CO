@@ -7,6 +7,8 @@ from alembic import context
 from app.core.database import Base
 from app.models.userModels import User
 from app.models.chatModels import ChatMessage
+from app.models.problemModels import Problem
+from app.models.noteModels import WrongAnswer
 
 # Alembic Config 객체
 config = context.config
