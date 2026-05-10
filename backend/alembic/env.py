@@ -9,6 +9,8 @@ from app.models.userModels import User
 from app.models.chatModels import ChatMessage
 from app.models.problemModels import Problem
 from app.models.noteModels import WrongAnswer
+from app.models.lessonModels import Lesson
+from app.models.progressModels import Progress
 
 # Alembic Config 객체
 config = context.config
