@@ -1,4 +1,4 @@
-from sqlalchemy import Column, BigInteger, String, DateTime
+from sqlalchemy import Column, BigInteger, String, DateTime, Text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
@@ -16,8 +16,9 @@ class Problem(Base):
 
     content = Column(JSONB, nullable=False)
     answer = Column(JSONB, nullable=False)
+    explanation = Column(Text, nullable=True)
     hints = Column(JSONB, nullable=True)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    wrong_answers = relationship("WrongAnswer", back_populates="problem")
+    wrong_answers = relationship("WrongAnswer", back_populates="track_problem")
