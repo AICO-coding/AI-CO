@@ -19,9 +19,6 @@ from app.schemas.noteSchemas import (
 )
 
 
-TEMP_USER_ID = 1
-
-
 def to_date_string(dt: datetime) -> str:
     return dt.date().isoformat()
 
@@ -92,6 +89,7 @@ def make_wrong_answer_detail(wrong_answer: WrongAnswer) -> WrongAnswerDetailResp
 def create_wrong_answer_service(
     request: WrongAnswerCreateRequest,
     db: Session,
+    user_id: int,
 ) -> WrongAnswerDetailResponse:
     problem = (
         db.query(Problem)
@@ -103,7 +101,7 @@ def create_wrong_answer_service(
         raise HTTPException(status_code=404, detail="Problem not found")
 
     wrong_answer = WrongAnswer(
-        user_id=TEMP_USER_ID,
+        user_id=user_id,
         problem_id=request.problemId,
         source_type=request.sourceType,
         user_answer=request.userAnswer,
@@ -119,6 +117,7 @@ def create_wrong_answer_service(
         db.query(WrongAnswer)
         .options(joinedload(WrongAnswer.problem))
         .filter(WrongAnswer.id == wrong_answer.id)
+        .filter(WrongAnswer.user_id == user_id)
         .first()
     )
 
@@ -127,6 +126,7 @@ def create_wrong_answer_service(
 
 def get_wrong_answers_service(
     db: Session,
+    user_id: int,
     track: str | None = None,
     source_type: str | None = None,
     is_resolved: bool | None = None,
@@ -135,7 +135,7 @@ def get_wrong_answers_service(
         db.query(WrongAnswer)
         .options(joinedload(WrongAnswer.problem))
         .join(Problem, WrongAnswer.problem_id == Problem.id)
-        .filter(WrongAnswer.user_id == TEMP_USER_ID)
+        .filter(WrongAnswer.user_id == user_id)
     )
 
     if track is not None:
@@ -163,6 +163,7 @@ def get_wrong_answers_service(
 
 def get_review_wrong_answers_service(
     db: Session,
+    user_id: int,
     limit: int = 5,
     track: str | None = None,
     source_type: str | None = None,
@@ -171,7 +172,7 @@ def get_review_wrong_answers_service(
         db.query(WrongAnswer)
         .options(joinedload(WrongAnswer.problem))
         .join(Problem, WrongAnswer.problem_id == Problem.id)
-        .filter(WrongAnswer.user_id == TEMP_USER_ID)
+        .filter(WrongAnswer.user_id == user_id)
         .filter(WrongAnswer.is_resolved == False)
     )
 
@@ -205,6 +206,7 @@ def get_review_wrong_answers_service(
 def submit_review_answers_service(
     request: ReviewSubmitRequest,
     db: Session,
+    user_id: int,
 ) -> ReviewSubmitResponse:
     results: list[ReviewResultItem] = []
     correct_count = 0
@@ -214,7 +216,7 @@ def submit_review_answers_service(
             db.query(WrongAnswer)
             .options(joinedload(WrongAnswer.problem))
             .filter(WrongAnswer.id == item.wrongAnswerId)
-            .filter(WrongAnswer.user_id == TEMP_USER_ID)
+            .filter(WrongAnswer.user_id == user_id)
             .first()
         )
 
@@ -256,12 +258,13 @@ def submit_review_answers_service(
 def get_wrong_answer_detail_service(
     wrong_answer_id: int,
     db: Session,
+    user_id: int,
 ) -> WrongAnswerDetailResponse:
     wrong_answer = (
         db.query(WrongAnswer)
         .options(joinedload(WrongAnswer.problem))
         .filter(WrongAnswer.id == wrong_answer_id)
-        .filter(WrongAnswer.user_id == TEMP_USER_ID)
+        .filter(WrongAnswer.user_id == user_id)
         .first()
     )
 
@@ -274,11 +277,12 @@ def get_wrong_answer_detail_service(
 def delete_wrong_answer_service(
     wrong_answer_id: int,
     db: Session,
+    user_id: int,
 ) -> DeleteWrongAnswerResponse:
     wrong_answer = (
         db.query(WrongAnswer)
         .filter(WrongAnswer.id == wrong_answer_id)
-        .filter(WrongAnswer.user_id == TEMP_USER_ID)
+        .filter(WrongAnswer.user_id == user_id)
         .first()
     )
 
