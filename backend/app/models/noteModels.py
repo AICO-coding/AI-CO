@@ -11,9 +11,11 @@ class WrongAnswer(Base):
     id = Column(BigInteger, primary_key=True, index=True)
 
     user_id = Column(BigInteger, ForeignKey("users.id"), nullable=False)
-    problem_id = Column(BigInteger, ForeignKey("problems.id"), nullable=False)
 
-    source_type = Column(String(30), nullable=False)
+    track_problem_id = Column(BigInteger, ForeignKey("problems.id"), nullable=True)
+    daily_problem_id = Column(BigInteger, ForeignKey("daily_problems.id"), nullable=True)
+
+    source_type = Column(String(30), nullable=False)  # learning / daily
     user_answer = Column(JSONB, nullable=False)
 
     is_resolved = Column(Boolean, nullable=False, default=False)
@@ -22,4 +24,5 @@ class WrongAnswer(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     last_reviewed_at = Column(DateTime(timezone=True), nullable=True)
 
-    problem = relationship("Problem", back_populates="wrong_answers")
+    track_problem = relationship("Problem", back_populates="wrong_answers")
+    daily_problem = relationship("DailyProblem", back_populates="wrong_answers")
