@@ -255,3 +255,15 @@
   color: var(--gy3);
 }
 .chap-active .chap-arrow { color: var(--or); }
+/* ── 파트 구분 라벨 ── */
+.chap-part-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--gy4);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 16px 4px 8px;
+}
+.chap-part-label:first-child {
+  padding-top: 0;
+}
