@@ -26,11 +26,15 @@ class WrongAnswerListResponse(BaseModel):
 
 
 class ProblemDetailResponse(BaseModel):
-    track: str = Field(..., description="트랙명", example="ML")
-    chapter: str = Field(..., description="챕터명", example="선형 회귀")
-    problemType: str = Field(..., description="문제 유형", example="multiple_choice")
+    sourceType: str = Field(..., description="문제 출처: learning 또는 daily")
+    trackProblemId: int | None = Field(default=None, description="학습 트랙 문제 ID")
+    dailyProblemId: int | None = Field(default=None, description="데일리 문제 ID")
+    track: str | None = Field(default=None, description="트랙명")
+    chapter: str | None = Field(default=None, description="챕터명")
+    problemType: str | None = Field(default=None, description="문제 유형")
     content: Any = Field(..., description="문제 내용")
     answer: Any = Field(..., description="정답")
+    explanation: str | None = Field(default=None, description="해설")
     hints: Any = Field(default=None, description="힌트")
 
 

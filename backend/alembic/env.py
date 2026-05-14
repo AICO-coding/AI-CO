@@ -11,6 +11,7 @@ from app.models.problemModels import Problem
 from app.models.noteModels import WrongAnswer
 from app.models.lessonModels import Lesson
 from app.models.progressModels import Progress
+from app.models.dailyModels import DailyProblem, DailyResult
 
 # Alembic Config 객체
 config = context.config

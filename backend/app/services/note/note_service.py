@@ -1,9 +1,11 @@
 from datetime import datetime, timezone
 from typing import Any
 from fastapi import HTTPException
+from sqlalchemy import or_
 from sqlalchemy.orm import Session, joinedload
 from app.models.noteModels import WrongAnswer
 from app.models.problemModels import Problem
+from app.models.dailyModels import DailyProblem
 from app.schemas.noteSchemas import (
     WrongAnswerCreateRequest,
     WrongAnswerListItem,
@@ -17,6 +19,10 @@ from app.schemas.noteSchemas import (
     ReviewResultItem,
     DeleteWrongAnswerResponse,
 )
+
+
+SOURCE_LEARNING = "learning"
+SOURCE_DAILY = "daily"
 
 
 def to_date_string(dt: datetime) -> str:
@@ -42,47 +48,211 @@ def normalize_answer(answer: Any) -> Any:
     return answer
 
 
-def make_problem_detail(problem: Problem) -> ProblemDetailResponse:
+def get_track_problem_id(wrong_answer: WrongAnswer) -> int | None:
+    return wrong_answer.track_problem_id
+
+
+def get_daily_problem_id(wrong_answer: WrongAnswer) -> int | None:
+    return wrong_answer.daily_problem_id
+
+
+def validate_source_type(source_type: str) -> None:
+    if source_type not in [SOURCE_LEARNING, SOURCE_DAILY]:
+        raise HTTPException(
+            status_code=400,
+            detail="sourceType must be learning or daily",
+        )
+
+
+def get_learning_problem(
+    db: Session,
+    problem_id: int,
+) -> Problem:
+    problem = (
+        db.query(Problem)
+        .filter(Problem.id == problem_id)
+        .first()
+    )
+
+    if problem is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Learning problem not found",
+        )
+
+    return problem
+
+
+def get_daily_problem(
+    db: Session,
+    daily_problem_id: int,
+    user_id: int,
+) -> DailyProblem:
+    daily_problem = (
+        db.query(DailyProblem)
+        .filter(DailyProblem.id == daily_problem_id)
+        .filter(DailyProblem.user_id == user_id)
+        .first()
+    )
+
+    if daily_problem is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Daily problem not found",
+        )
+
+    return daily_problem
+
+
+def make_learning_problem_detail(problem: Problem) -> ProblemDetailResponse:
     return ProblemDetailResponse(
+        sourceType=SOURCE_LEARNING,
+        trackProblemId=problem.id,
+        dailyProblemId=None,
         track=problem.track,
         chapter=problem.chapter,
         problemType=problem.problem_type,
         content=problem.content,
         answer=problem.answer,
+        explanation=problem.explanation,
         hints=problem.hints,
     )
 
 
-def make_wrong_answer_list_item(wrong_answer: WrongAnswer) -> WrongAnswerListItem:
-    problem = wrong_answer.problem
-
-    return WrongAnswerListItem(
-        id=wrong_answer.id,
-        problemId=wrong_answer.problem_id,
+def make_daily_problem_detail(problem: DailyProblem) -> ProblemDetailResponse:
+    return ProblemDetailResponse(
+        sourceType=SOURCE_DAILY,
+        trackProblemId=None,
+        dailyProblemId=problem.id,
         track=problem.track,
         chapter=problem.chapter,
         problemType=problem.problem_type,
-        sourceType=wrong_answer.source_type,
-        isResolved=wrong_answer.is_resolved,
-        reviewCount=wrong_answer.review_count,
-        date=to_date_string(wrong_answer.created_at),
+        content=problem.content,
+        answer=problem.answer,
+        explanation=problem.explanation,
+        hints=problem.hints,
+    )
+
+
+def make_problem_detail_from_wrong_answer(
+    wrong_answer: WrongAnswer,
+) -> ProblemDetailResponse:
+    if wrong_answer.source_type == SOURCE_LEARNING:
+        if wrong_answer.track_problem is None:
+            raise HTTPException(
+                status_code=404,
+                detail="Learning problem not found",
+            )
+
+        return make_learning_problem_detail(wrong_answer.track_problem)
+
+    if wrong_answer.source_type == SOURCE_DAILY:
+        if wrong_answer.daily_problem is None:
+            raise HTTPException(
+                status_code=404,
+                detail="Daily problem not found",
+            )
+
+        return make_daily_problem_detail(wrong_answer.daily_problem)
+
+    raise HTTPException(
+        status_code=400,
+        detail="Invalid sourceType",
+    )
+
+
+def get_correct_answer_from_wrong_answer(wrong_answer: WrongAnswer) -> Any:
+    if wrong_answer.source_type == SOURCE_LEARNING:
+        if wrong_answer.track_problem is None:
+            raise HTTPException(
+                status_code=404,
+                detail="Learning problem not found",
+            )
+
+        return wrong_answer.track_problem.answer
+
+    if wrong_answer.source_type == SOURCE_DAILY:
+        if wrong_answer.daily_problem is None:
+            raise HTTPException(
+                status_code=404,
+                detail="Daily problem not found",
+            )
+
+        return wrong_answer.daily_problem.answer
+
+    raise HTTPException(
+        status_code=400,
+        detail="Invalid sourceType",
+    )
+
+
+def make_wrong_answer_list_item(wrong_answer: WrongAnswer) -> WrongAnswerListItem:
+    if wrong_answer.source_type == SOURCE_LEARNING:
+        problem = wrong_answer.track_problem
+
+        if problem is None:
+            raise HTTPException(
+                status_code=404,
+                detail="Learning problem not found",
+            )
+
+        return WrongAnswerListItem(
+            id=wrong_answer.id,
+            sourceType=wrong_answer.source_type,
+            trackProblemId=wrong_answer.track_problem_id,
+            dailyProblemId=None,
+            track=problem.track,
+            chapter=problem.chapter,
+            problemType=problem.problem_type,
+            isResolved=wrong_answer.is_resolved,
+            reviewCount=wrong_answer.review_count,
+            date=to_date_string(wrong_answer.created_at),
+        )
+
+    if wrong_answer.source_type == SOURCE_DAILY:
+        problem = wrong_answer.daily_problem
+
+        if problem is None:
+            raise HTTPException(
+                status_code=404,
+                detail="Daily problem not found",
+            )
+
+        return WrongAnswerListItem(
+            id=wrong_answer.id,
+            sourceType=wrong_answer.source_type,
+            trackProblemId=None,
+            dailyProblemId=wrong_answer.daily_problem_id,
+            track=problem.track,
+            chapter=problem.chapter,
+            problemType=problem.problem_type,
+            isResolved=wrong_answer.is_resolved,
+            reviewCount=wrong_answer.review_count,
+            date=to_date_string(wrong_answer.created_at),
+        )
+
+    raise HTTPException(
+        status_code=400,
+        detail="Invalid sourceType",
     )
 
 
 def make_wrong_answer_detail(wrong_answer: WrongAnswer) -> WrongAnswerDetailResponse:
-    problem = wrong_answer.problem
+    problem_detail = make_problem_detail_from_wrong_answer(wrong_answer)
+    correct_answer = get_correct_answer_from_wrong_answer(wrong_answer)
 
     return WrongAnswerDetailResponse(
         id=wrong_answer.id,
-        problemId=wrong_answer.problem_id,
         sourceType=wrong_answer.source_type,
+        trackProblemId=wrong_answer.track_problem_id,
+        dailyProblemId=wrong_answer.daily_problem_id,
         userAnswer=wrong_answer.user_answer,
-        correctAnswer=problem.answer,
+        correctAnswer=correct_answer,
         isResolved=wrong_answer.is_resolved,
         reviewCount=wrong_answer.review_count,
         date=to_date_string(wrong_answer.created_at),
         lastReviewedAt=wrong_answer.last_reviewed_at,
-        problem=make_problem_detail(problem),
+        problem=problem_detail,
     )
 
 
@@ -91,23 +261,40 @@ def create_wrong_answer_service(
     db: Session,
     user_id: int,
 ) -> WrongAnswerDetailResponse:
-    problem = (
-        db.query(Problem)
-        .filter(Problem.id == request.problemId)
-        .first()
-    )
+    validate_source_type(request.sourceType)
 
-    if problem is None:
-        raise HTTPException(status_code=404, detail="Problem not found")
+    if request.sourceType == SOURCE_LEARNING:
+        problem = get_learning_problem(
+            db=db,
+            problem_id=request.problemId,
+        )
 
-    wrong_answer = WrongAnswer(
-        user_id=user_id,
-        problem_id=request.problemId,
-        source_type=request.sourceType,
-        user_answer=request.userAnswer,
-        is_resolved=False,
-        review_count=0,
-    )
+        wrong_answer = WrongAnswer(
+            user_id=user_id,
+            source_type=SOURCE_LEARNING,
+            track_problem_id=problem.id,
+            daily_problem_id=None,
+            user_answer=request.userAnswer,
+            is_resolved=False,
+            review_count=0,
+        )
+
+    else:
+        daily_problem = get_daily_problem(
+            db=db,
+            daily_problem_id=request.problemId,
+            user_id=user_id,
+        )
+
+        wrong_answer = WrongAnswer(
+            user_id=user_id,
+            source_type=SOURCE_DAILY,
+            track_problem_id=None,
+            daily_problem_id=daily_problem.id,
+            user_answer=request.userAnswer,
+            is_resolved=False,
+            review_count=0,
+        )
 
     db.add(wrong_answer)
     db.commit()
@@ -115,11 +302,20 @@ def create_wrong_answer_service(
 
     wrong_answer = (
         db.query(WrongAnswer)
-        .options(joinedload(WrongAnswer.problem))
+        .options(
+            joinedload(WrongAnswer.track_problem),
+            joinedload(WrongAnswer.daily_problem),
+        )
         .filter(WrongAnswer.id == wrong_answer.id)
         .filter(WrongAnswer.user_id == user_id)
         .first()
     )
+
+    if wrong_answer is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Wrong answer not found",
+        )
 
     return make_wrong_answer_detail(wrong_answer)
 
@@ -133,19 +329,32 @@ def get_wrong_answers_service(
 ) -> WrongAnswerListResponse:
     query = (
         db.query(WrongAnswer)
-        .options(joinedload(WrongAnswer.problem))
-        .join(Problem, WrongAnswer.problem_id == Problem.id)
+        .options(
+            joinedload(WrongAnswer.track_problem),
+            joinedload(WrongAnswer.daily_problem),
+        )
         .filter(WrongAnswer.user_id == user_id)
     )
 
-    if track is not None:
-        query = query.filter(Problem.track == track)
-
     if source_type is not None:
+        validate_source_type(source_type)
         query = query.filter(WrongAnswer.source_type == source_type)
 
     if is_resolved is not None:
         query = query.filter(WrongAnswer.is_resolved == is_resolved)
+
+    if track is not None:
+        query = (
+            query
+            .outerjoin(Problem, WrongAnswer.track_problem_id == Problem.id)
+            .outerjoin(DailyProblem, WrongAnswer.daily_problem_id == DailyProblem.id)
+            .filter(
+                or_(
+                    Problem.track == track,
+                    DailyProblem.track == track,
+                )
+            )
+        )
 
     wrong_answers = (
         query
@@ -170,17 +379,30 @@ def get_review_wrong_answers_service(
 ) -> ReviewProblemResponse:
     query = (
         db.query(WrongAnswer)
-        .options(joinedload(WrongAnswer.problem))
-        .join(Problem, WrongAnswer.problem_id == Problem.id)
+        .options(
+            joinedload(WrongAnswer.track_problem),
+            joinedload(WrongAnswer.daily_problem),
+        )
         .filter(WrongAnswer.user_id == user_id)
         .filter(WrongAnswer.is_resolved == False)
     )
 
-    if track is not None:
-        query = query.filter(Problem.track == track)
-
     if source_type is not None:
+        validate_source_type(source_type)
         query = query.filter(WrongAnswer.source_type == source_type)
+
+    if track is not None:
+        query = (
+            query
+            .outerjoin(Problem, WrongAnswer.track_problem_id == Problem.id)
+            .outerjoin(DailyProblem, WrongAnswer.daily_problem_id == DailyProblem.id)
+            .filter(
+                or_(
+                    Problem.track == track,
+                    DailyProblem.track == track,
+                )
+            )
+        )
 
     wrong_answers = (
         query
@@ -189,17 +411,24 @@ def get_review_wrong_answers_service(
         .all()
     )
 
-    return ReviewProblemResponse(
-        wrongAnswers=[
+    review_items: list[ReviewProblemItem] = []
+
+    for item in wrong_answers:
+        problem_detail = make_problem_detail_from_wrong_answer(item)
+
+        review_items.append(
             ReviewProblemItem(
                 wrongAnswerId=item.id,
-                problemId=item.problem_id,
                 sourceType=item.source_type,
+                trackProblemId=item.track_problem_id,
+                dailyProblemId=item.daily_problem_id,
                 userAnswer=item.user_answer,
-                problem=make_problem_detail(item.problem),
+                problem=problem_detail,
             )
-            for item in wrong_answers
-        ]
+        )
+
+    return ReviewProblemResponse(
+        wrongAnswers=review_items
     )
 
 
@@ -214,7 +443,10 @@ def submit_review_answers_service(
     for item in request.answers:
         wrong_answer = (
             db.query(WrongAnswer)
-            .options(joinedload(WrongAnswer.problem))
+            .options(
+                joinedload(WrongAnswer.track_problem),
+                joinedload(WrongAnswer.daily_problem),
+            )
             .filter(WrongAnswer.id == item.wrongAnswerId)
             .filter(WrongAnswer.user_id == user_id)
             .first()
@@ -227,7 +459,9 @@ def submit_review_answers_service(
             )
 
         user_answer = normalize_answer(item.answer)
-        correct_answer = normalize_answer(wrong_answer.problem.answer)
+        correct_answer = normalize_answer(
+            get_correct_answer_from_wrong_answer(wrong_answer)
+        )
 
         is_correct = user_answer == correct_answer
 
@@ -241,7 +475,9 @@ def submit_review_answers_service(
         results.append(
             ReviewResultItem(
                 wrongAnswerId=wrong_answer.id,
-                problemId=wrong_answer.problem_id,
+                sourceType=wrong_answer.source_type,
+                trackProblemId=wrong_answer.track_problem_id,
+                dailyProblemId=wrong_answer.daily_problem_id,
                 isCorrect=is_correct,
             )
         )
@@ -262,14 +498,20 @@ def get_wrong_answer_detail_service(
 ) -> WrongAnswerDetailResponse:
     wrong_answer = (
         db.query(WrongAnswer)
-        .options(joinedload(WrongAnswer.problem))
+        .options(
+            joinedload(WrongAnswer.track_problem),
+            joinedload(WrongAnswer.daily_problem),
+        )
         .filter(WrongAnswer.id == wrong_answer_id)
         .filter(WrongAnswer.user_id == user_id)
         .first()
     )
 
     if wrong_answer is None:
-        raise HTTPException(status_code=404, detail="Wrong answer not found")
+        raise HTTPException(
+            status_code=404,
+            detail="Wrong answer not found",
+        )
 
     return make_wrong_answer_detail(wrong_answer)
 
@@ -287,7 +529,10 @@ def delete_wrong_answer_service(
     )
 
     if wrong_answer is None:
-        raise HTTPException(status_code=404, detail="Wrong answer not found")
+        raise HTTPException(
+            status_code=404,
+            detail="Wrong answer not found",
+        )
 
     db.delete(wrong_answer)
     db.commit()
