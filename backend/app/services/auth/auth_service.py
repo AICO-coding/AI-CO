@@ -1,4 +1,5 @@
 from typing import Optional
+
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 from sqlalchemy.orm import Session
@@ -16,6 +17,7 @@ def verify_google_token(id_token_str: str) -> dict:
             GOOGLE_CLIENT_ID,
         )
         return idinfo
+
     except ValueError:
         raise ValueError("유효하지 않은 Google ID 토큰입니다.")
 
@@ -25,18 +27,35 @@ def get_user_by_google_id(db: Session, google_id: str) -> Optional[User]:
     return db.query(User).filter(User.google_id == google_id).first()
 
 
-def create_user(db: Session, google_id: str, email: str, gender: str) -> User:
-    """신규 유저 생성"""
-    user = User(google_id=google_id, email=email, gender=gender)
+def create_user(
+    db: Session,
+    google_id: str,
+    email: str,
+    gender: str = "UNKNOWN",
+) -> User:
+    """
+    신규 유저 생성:
+    자동 회원가입 시 gender는 기본값 UNKNOWN으로 저장합
+    이후 프론트에서 추가 정보 입력을 받으면 별도 API로 수정 가능
+    """
+    user = User(
+        google_id=google_id,
+        email=email,
+        gender=gender,
+    )
+
     db.add(user)
     db.commit()
     db.refresh(user)
+
     return user
 
 
 def update_nickname(db: Session, user: User, nickname: str) -> User:
     """닉네임 업데이트"""
     user.nickname = nickname
+
     db.commit()
     db.refresh(user)
+
     return user

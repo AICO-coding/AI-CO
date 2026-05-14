@@ -9,7 +9,6 @@ from app.models.userModels import User
 from app.schemas.userSchemas import (
     GoogleLoginRequest,
     GoogleLoginResponse,
-    GoogleNewUserResponse,
     SignupRequest,
     SignupResponse,
     NicknameRequest,
@@ -27,15 +26,16 @@ from app.services.auth.auth_service import (
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
-@router.post("/google/login", summary="Google ID Token 검증 후 로그인")
+@router.post("/google/login", response_model=GoogleLoginResponse, summary="Google ID Token 검증 후 로그인")
 def google_login(
     body: GoogleLoginRequest,
     db: Session = Depends(get_db),
-) -> GoogleLoginResponse | GoogleNewUserResponse:
+):
     """
     Google ID Token으로 로그인
-    - 기존 회원: userId, nickname, accessToken, refreshToken 반환
-    - 신규 회원: googleId 반환 (회원가입 필요)
+
+    - 기존 회원: accessToken, refreshToken 반환
+    - 신규 회원: 자동 회원가입 후 accessToken, refreshToken 반환
     """
     try:
         idinfo = verify_google_token(body.idToken)
@@ -46,15 +46,27 @@ def google_login(
         )
 
     google_id: str = idinfo["sub"]
+    email: str = idinfo.get("email")
 
-    # 유저 조회
+    if not email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Google 계정 이메일 정보를 가져올 수 없습니다.",
+        )
+
+    # 기존 유저 조회
     user = get_user_by_google_id(db, google_id)
-    
-    if user is None:
-        # 신규 회원: googleId만 반환
-        return GoogleNewUserResponse(googleId=google_id)
 
-    # 기존 회원: 토큰 발급
+    # 신규 회원이면 자동 회원가입
+    if user is None:
+        user = create_user(
+            db=db,
+            google_id=google_id,
+            email=email,
+            gender="UNKNOWN",
+        )
+
+    # 기존 회원이든 신규 회원이든 토큰 발급
     access_token = create_access_token(user.id)
     refresh_token = create_refresh_token(user.id)
 
@@ -71,16 +83,38 @@ def google_signup(
     body: SignupRequest,
     db: Session = Depends(get_db),
 ):
-    """신규 회원 가입"""
-    # 필수값 검증
+    """
+    신규 회원 가입
+
+    주의:
+    현재 /auth/google/login에서 신규 회원 자동 가입을 처리하므로,
+    이 API는 기존 프론트 흐름 호환용으로 남겨둘 수 있습니다.
+    """
     if not body.googleId or not body.email or not body.gender:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="필수 정보를 모두 입력해야 합니다.",
         )
 
+    # 이미 가입된 유저인지 확인
+    existing_user = get_user_by_google_id(db, body.googleId)
+    if existing_user is not None:
+        access_token = create_access_token(existing_user.id)
+        refresh_token = create_refresh_token(existing_user.id)
+
+        return SignupResponse(
+            userId=existing_user.id,
+            accessToken=access_token,
+            refreshToken=refresh_token,
+        )
+
     # 신규 유저 생성
-    user = create_user(db, body.googleId, body.email, body.gender)
+    user = create_user(
+        db=db,
+        google_id=body.googleId,
+        email=body.email,
+        gender=body.gender,
+    )
 
     # 토큰 발급
     access_token = create_access_token(user.id)
@@ -101,6 +135,7 @@ def set_nickname(
 ):
     """닉네임 설정"""
     user = update_nickname(db, current_user, body.nickname)
+
     return NicknameResponse(
         message="닉네임이 설정되었습니다.",
         nickname=user.nickname,
@@ -115,14 +150,19 @@ def refresh_token(
     """Refresh Token으로 새 Access Token 발급"""
     try:
         payload = jwt.decode(
-            body.refreshToken, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM]
+            body.refreshToken,
+            JWT_SECRET_KEY,
+            algorithms=[JWT_ALGORITHM],
         )
+
         user_id: str = payload.get("sub")
+
         if user_id is None or payload.get("type") != "refresh":
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid or expired refresh token",
             )
+
     except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -130,6 +170,7 @@ def refresh_token(
         )
 
     user = db.query(User).filter(User.id == int(user_id)).first()
+
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -137,4 +178,5 @@ def refresh_token(
         )
 
     access_token = create_access_token(user.id)
+
     return RefreshResponse(accessToken=access_token)
