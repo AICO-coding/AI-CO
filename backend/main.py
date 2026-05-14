@@ -5,8 +5,17 @@ from app.routers.userRouters import router as user_router
 from app.routers.chatRouters import router as chat_router
 from app.routers.noteRouters import router as note_router
 from app.routers.progressRouters import router as progress_router
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(auth_router)
 app.include_router(user_router)
