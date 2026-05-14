@@ -9,49 +9,45 @@ export default function Login() {
   const navigate = useNavigate();
 
   const handleSuccess = async (credentialResponse) => {
-  try {
-    const token = credentialResponse.credential;
+    try {
+      const token = credentialResponse.credential;
+      const response = await axios.post(
+        "http://192.168.0.4:8000/auth/google/login",
+        {
+          idToken: token,
+        }
+      );
+      localStorage.setItem(
+        "accessToken",
+        response.data.accessToken
+      );
 
-    const response = await axios.post(
-      "http://192.168.0.4:8000/auth/google/login",
-      {
-        idToken: token,
-      }
-    );
+      localStorage.setItem(
+        "refreshToken",
+        response.data.refreshToken
+      );
 
-    localStorage.setItem(
-      "accessToken",
-      response.data.accessToken
-    );
-
-    localStorage.setItem(
-      "refreshToken",
-      response.data.refreshToken
-    );
-
-    localStorage.setItem(
-      "userId",
-      response.data.userId
-    );
-
-    if (response.data.nickname) {
+      localStorage.setItem(
+        "userId",
+        response.data.userId
+      );
 
       localStorage.setItem(
         "nickname",
-        response.data.nickname
+        response.data.nickname || ""
       );
+      if (!response.data.nickname) {
+        navigate("/nickname");
+        return;
+      }
       navigate("/home");
 
-    } else {
-      navigate("/nickname");
+    } catch (error) {
+      console.error(error.response?.data);
+
+      alert("로그인 실패");
     }
-
-  } catch (error) {
-    console.error(error.response?.data);
-
-    alert("로그인 실패");
-  }
-};
+  };
 
   return (
     <div className="login-page">
