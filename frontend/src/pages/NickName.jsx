@@ -13,7 +13,7 @@ export default function Nickname() {
         localStorage.getItem("accessToken");
 
       await axios.post(
-        "http://192.168.0.4:8000/auth/nickname",
+        "http://210.125.96.59:8000/auth/nickname",
         {
           nickname,
         },

@@ -12,7 +12,7 @@ export default function Login() {
     try {
       const token = credentialResponse.credential;
       const response = await axios.post(
-        "http://192.168.0.4:8000/auth/google/login",
+        "http://210.125.96.59:8000/auth/google/login",
         {
           idToken: token,
         }

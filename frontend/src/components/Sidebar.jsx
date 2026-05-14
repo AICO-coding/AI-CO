@@ -18,7 +18,7 @@ function Sidebar() {
           localStorage.getItem("accessToken");
 
         const response = await axios.get(
-          "http://192.168.0.4:8000/users",
+          "http://210.125.96.59:8000/users",
           {
             headers: {
               Authorization: `Bearer ${accessToken}`,
