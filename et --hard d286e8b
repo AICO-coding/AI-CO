@@ -1,0 +1,24 @@
+[33m6e21a6f[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32msy[m[33m)[m HEAD@{0}: pull origin seo: Merge made by the 'ort' strategy.
+[33md286e8b[m HEAD@{1}: commit: [Feat] 학습 트랙 목업데이터 연동 진행중
+[33mc4562d3[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m HEAD@{2}: pull origin main: Fast-forward
+[33m154f828[m HEAD@{3}: checkout: moving from main to sy
+[33mc4562d3[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m HEAD@{4}: pull origin main: Fast-forward
+[33m675cc8a[m HEAD@{5}: checkout: moving from sy to main
+[33m154f828[m HEAD@{6}: rebase (finish): returning to refs/heads/sy
+[33m154f828[m HEAD@{7}: rebase (start): checkout origin/main
+[33mdf1152c[m[33m ([m[1;31morigin/sy[m[33m)[m HEAD@{8}: reset: moving to df1152c
+[33m154f828[m HEAD@{9}: pull origin main: Fast-forward
+[33mdf1152c[m[33m ([m[1;31morigin/sy[m[33m)[m HEAD@{10}: pull origin main: Merge made by the 'ort' strategy.
+[33m1f0a4c9[m HEAD@{11}: commit: [UI]: 여백 제거
+[33m34d3532[m HEAD@{12}: commit: [Feat]: 학습 트랙 페이지 구현
+[33mbf7cc60[m HEAD@{13}: checkout: moving from sy to sy
+[33mbf7cc60[m HEAD@{14}: pull origin main: Fast-forward
+[33m41dfe1c[m HEAD@{15}: checkout: moving from seo to sy
+[33mac56687[m[33m ([m[1;32mseo[m[33m)[m HEAD@{16}: checkout: moving from sy to seo
+[33m41dfe1c[m HEAD@{17}: commit: [Feat]: assets 추가 및 styles/로 css 옮김
+[33m9b13270[m HEAD@{18}: commit: [Feat]: Sidebar 레이아웃 세팅
+[33m90f9015[m HEAD@{19}: pull origin sy: Fast-forward
+[33m675cc8a[m HEAD@{20}: pull origin main: Fast-forward
+[33m3d32d37[m[33m ([m[1;31morigin/roh[m[33m)[m HEAD@{21}: checkout: moving from main to sy
+[33m675cc8a[m HEAD@{22}: pull --tags origin main: Fast-forward
+[33me06c573[m HEAD@{23}: clone: from https://github.com/AICO-coding/AI-CO.git

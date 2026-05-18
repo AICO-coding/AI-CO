@@ -112,3 +112,28 @@
   color: var(--gy4);
   line-height: 1.5;
 }
+
+.sb-user-info {
+  display: flex;
+  align-items: center;
+  /* justify-content: space-between; */
+  margin-left: 20px;
+  width: 100%;
+}
+
+.sb-user-name {
+  font-size: 18px;
+  font-weight: 700;
+
+  color: #111827;
+}
+
+.sb-user-xp {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #dbeafe;
+  color: #2563eb;
+  margin-left: 100px;
+  font-size: 13px;
+  font-weight: 700;
+}
