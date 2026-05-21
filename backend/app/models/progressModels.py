@@ -21,3 +21,4 @@ class Progress(Base):
     report          = Column(JSONB, nullable=True)
     completed_at    = Column(DateTime(timezone=True), nullable=True)
     last_lesson_id  = Column(BigInteger, ForeignKey("lessons.id", ondelete="SET NULL"), nullable=True)
+    part            = Column(String(), nullable=True)
