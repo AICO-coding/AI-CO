@@ -46,9 +46,14 @@ def get_public_tracks():
     return {
         "tracks": [
             {
-                "track": "ML",
-                "title": "머신러닝",
-                "description": "머신러닝의 기본 개념과 모델 학습 과정을 학습합니다.",
+                "track": "ML-분류",
+                "title": "머신러닝 - 분류",
+                "description": "분류 알고리즘의 기본 개념과 모델 학습 과정을 학습합니다.",
+            },
+            {
+                "track": "ML-회기",
+                "title": "머신러닝 - 회기",
+                "description": "회귀 알고리즘의 기본 개념과 예측 모델 학습 과정을 학습합니다.",
             },
             {
                 "track": "CV",
