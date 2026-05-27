@@ -48,16 +48,12 @@ def get_track_chapters_service(db: Session, user_id: int, track: str) -> dict | 
     if track not in VALID_TRACKS:
         return None
 
-    # 1. Lesson 테이블에서 챕터 목록 조회
-    lesson_chapter_rows = (
-        db.query(
-            Lesson.chapter,
-            Lesson.part,
-            func.min(Lesson.order_index).label("min_order")
-        )
+    # 1. Lesson 테이블에서 해당 트랙의 lesson 전체 조회
+    # order_index 기준으로 정렬해두면 각 chapter의 첫 번째 lesson을 챕터 대표값으로 사용할 수 있음
+    lessons = (
+        db.query(Lesson)
         .filter(func.upper(Lesson.track) == track)
-        .group_by(Lesson.chapter, Lesson.part)
-        .order_by(func.min(Lesson.order_index).asc())
+        .order_by(Lesson.order_index.asc())
         .all()
     )
 
@@ -79,28 +75,37 @@ def get_track_chapters_service(db: Session, user_id: int, track: str) -> dict | 
     chapters = []
 
     # 3. Lesson에 챕터가 있으면 Lesson 기준으로 응답 구성
-    if lesson_chapter_rows:
+    if lessons:
         prev_completed = True
+        seen_chapters = set()
 
-        for row in lesson_chapter_rows:
-            chapter_name = row.chapter
+        for lesson in lessons:
+            chapter_name = lesson.chapter
+
+            # 이미 응답에 넣은 챕터면 건너뜀
+            if chapter_name in seen_chapters:
+                continue
+
+            seen_chapters.add(chapter_name)
+
             progress = progress_map.get(chapter_name)
 
             if progress:
                 is_completed = progress.is_completed
                 xp_earned = progress.xp_earned
                 hint_used = progress.hint_used
-                part = progress.part or row.part
+                part = progress.part or lesson.part
             else:
                 is_completed = False
                 xp_earned = 0
                 hint_used = 0
-                part = row.part
+                part = lesson.part
 
             is_locked = not prev_completed
 
             chapters.append({
                 "chapter": chapter_name,
+                "title": lesson.title,
                 "part": part,
                 "isCompleted": is_completed,
                 "xpEarned": xp_earned,
@@ -119,6 +124,7 @@ def get_track_chapters_service(db: Session, user_id: int, track: str) -> dict | 
 
             chapters.append({
                 "chapter": progress.chapter,
+                "title": None,
                 "part": progress.part,
                 "isCompleted": progress.is_completed,
                 "xpEarned": progress.xp_earned,

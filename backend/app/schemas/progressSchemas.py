@@ -14,6 +14,7 @@ class AllTracksResponse(BaseModel):
 
 class ChapterProgress(BaseModel):
     chapter: str
+    title: str
     part: str | None = None
     isCompleted: bool
     xpEarned: int
