@@ -46,3 +46,31 @@ class MultipleChoiceSubmit(BaseModel):
 
 class SubmitResponse(BaseModel):
     isCorrect: bool
+
+
+class HintRequest(BaseModel):
+    problemId: int
+    hintLevel: int
+
+
+class HintResponse(BaseModel):
+    xpDeducted: int
+    hintsUsed: int
+
+
+class RevealRequest(BaseModel):
+    problemId: int
+
+
+class RevealResponse(BaseModel):
+    answer: dict[str, Any]
+    xpDeducted: int
+
+
+class ChapterCompleteResponse(BaseModel):
+    chapter: str
+    isCompleted: bool
+    chapterXP: int
+    xpDeducted: int
+    xpEarned: int
+    hintUsed: int
