@@ -5,7 +5,6 @@ from typing import Any, Union
 class LessonResponse(BaseModel):
     lessonId: int
     lessonType: str
-    title: str
     orderIndex: int
     isCompleted: bool
     part: str | None = None

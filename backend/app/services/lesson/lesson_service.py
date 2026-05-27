@@ -154,7 +154,6 @@ def get_chapter_lessons_service(db: Session, user_id: int, track: str, chapter: 
         lesson_data = {
             "lessonId": lesson.id,
             "lessonType": lesson.lesson_type,
-            "title": lesson.title,
             "orderIndex": lesson.order_index,
             "isCompleted": is_completed,
             "part": lesson.part,
