@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Any
+from typing import Any, Union
 
 
 class LessonResponse(BaseModel):
@@ -24,3 +24,53 @@ class ChapterLessonsResponse(BaseModel):
     completionRate: int
     lastLessonId: int | None
     lessons: list[LessonResponse]
+
+
+class LessonCompleteResponse(BaseModel):
+    lessonId: int
+    isCompleted: bool
+    chapterCompletionRate: int
+
+
+class CodeFillSubmit(BaseModel):
+    lessonId: int
+    problemId: int
+    answers: dict[str, str]
+
+
+class MultipleChoiceSubmit(BaseModel):
+    lessonId: int
+    problemId: int
+    answer: int
+
+
+class SubmitResponse(BaseModel):
+    isCorrect: bool
+
+
+class HintRequest(BaseModel):
+    problemId: int
+    hintLevel: int
+
+
+class HintResponse(BaseModel):
+    xpDeducted: int
+    hintsUsed: int
+
+
+class RevealRequest(BaseModel):
+    problemId: int
+
+
+class RevealResponse(BaseModel):
+    answer: dict[str, Any]
+    xpDeducted: int
+
+
+class ChapterCompleteResponse(BaseModel):
+    chapter: str
+    isCompleted: bool
+    chapterXP: int
+    xpDeducted: int
+    xpEarned: int
+    hintUsed: int

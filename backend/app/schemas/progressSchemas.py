@@ -4,22 +4,23 @@ from pydantic import BaseModel
 class TrackSummary(BaseModel):
     track: str
     completionRate: int
-    xpEarned: int
+    totalXp: int
     hintUsed: int
 
 
-class AllProgressResponse(BaseModel):
+class AllTracksResponse(BaseModel):
     tracks: list[TrackSummary]
 
 
 class ChapterProgress(BaseModel):
     chapter: str
+    part: str | None = None
     isCompleted: bool
-    completionRate: int
     xpEarned: int
     hintUsed: int
+    isLocked: bool
 
 
-class TrackProgressResponse(BaseModel):
+class TrackChaptersResponse(BaseModel):
     track: str
     chapters: list[ChapterProgress]

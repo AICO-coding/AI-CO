@@ -187,13 +187,13 @@ def refresh_token(
         if user_id is None or token_type != "refresh":
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid or expired refresh token",
+                detail="유효하지 않거나 만료된 Refresh Token입니다.",
             )
 
     except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired refresh token",
+            detail="유효하지 않거나 만료된 Refresh Token입니다.",
         )
 
     user = db.query(User).filter(User.id == int(user_id)).first()
@@ -201,7 +201,7 @@ def refresh_token(
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired refresh token",
+            detail="유효하지 않거나 만료된 Refresh Token입니다.",
         )
 
     access_token = create_access_token(user.id)
