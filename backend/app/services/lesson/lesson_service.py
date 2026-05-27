@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from app.models.lessonModels import Lesson
 from app.models.progressModels import Progress
 from app.models.problemModels import Problem
@@ -7,24 +8,26 @@ from app.models.noteModels import WrongAnswer
 
 def complete_lesson_service(db: Session, user_id: int, track: str, chapter: str, lesson_id: int):
     """concept_image, concept_code, parameter 타입 레슨 완료 처리"""
+
+    normalized_track = track.upper()
+
     lesson = db.query(Lesson).filter(Lesson.id == lesson_id).first()
     if not lesson:
         return None
 
-    # concept_image, concept_code, parameter만 완료 가능
     if lesson.lesson_type not in ("concept_image", "concept_code", "parameter"):
         return None
 
     progress = db.query(Progress).filter(
         Progress.user_id == user_id,
-        Progress.track == track,
+        func.upper(Progress.track) == normalized_track,
         Progress.chapter == chapter
     ).first()
 
     if not progress:
         progress = Progress(
             user_id=user_id,
-            track=track,
+            track=normalized_track,
             chapter=chapter,
             report={"completedLessons": []}
         )
@@ -34,17 +37,16 @@ def complete_lesson_service(db: Session, user_id: int, track: str, chapter: str,
         progress.report = {}
 
     completed_lessons = progress.report.get("completedLessons", [])
+
     if lesson_id not in completed_lessons:
         completed_lessons.append(lesson_id)
         progress.report["completedLessons"] = completed_lessons
 
-    # 전체 lessons 개수 조회
     total_lessons = db.query(Lesson).filter(
-        Lesson.track == track,
+        func.upper(Lesson.track) == normalized_track,
         Lesson.chapter == chapter
     ).count()
 
-    # completion_rate 계산
     completion_rate = int(len(completed_lessons) / total_lessons * 100) if total_lessons > 0 else 0
     progress.completion_rate = completion_rate
 
@@ -55,7 +57,6 @@ def complete_lesson_service(db: Session, user_id: int, track: str, chapter: str,
         "isCompleted": True,
         "chapterCompletionRate": completion_rate
     }
-
 
 def submit_answer_service(db: Session, user_id: int, track: str, chapter: str, lesson_id: int, problem_id: int, answers: dict | int):
     """code_fill, multiple_choice 답안 채점"""
@@ -117,9 +118,11 @@ def submit_answer_service(db: Session, user_id: int, track: str, chapter: str, l
 def get_chapter_lessons_service(db: Session, user_id: int, track: str, chapter: str):
     """특정 트랙/챕터의 lessons 조회 및 진도 정보 합산"""
 
-    # 1. lessons 조회 (track, chapter 필터, order_index ASC)
+    normalized_track = track.upper()
+
+    # 1. lessons 조회: track은 대소문자 무시, chapter는 그대로 비교
     lessons = db.query(Lesson).filter(
-        Lesson.track == track,
+        func.upper(Lesson.track) == normalized_track,
         Lesson.chapter == chapter
     ).order_by(Lesson.order_index.asc()).all()
 
@@ -127,25 +130,23 @@ def get_chapter_lessons_service(db: Session, user_id: int, track: str, chapter: 
     if not lessons:
         return None
 
-    # 2. progress 조회 (user_id, track, chapter)
+    # 2. progress 조회: track은 대소문자 무시, chapter는 그대로 비교
     progress = db.query(Progress).filter(
         Progress.user_id == user_id,
-        Progress.track == track,
+        func.upper(Progress.track) == normalized_track,
         Progress.chapter == chapter
     ).first()
 
-    # 진도 정보 추출
     completion_rate = progress.completion_rate if progress else 0
     last_lesson_id = progress.last_lesson_id if progress else None
 
-    # 3. isCompleted 계산 (progress.report JSONB)
     completed_lessons = set()
     if progress and progress.report:
         completed_ids = progress.report.get("completedLessons", [])
         completed_lessons = set(completed_ids)
 
-    # 4. lessons 변환
     lesson_responses = []
+
     for lesson in lessons:
         is_completed = lesson.id in completed_lessons
         content = dict(lesson.content) if lesson.content else {}
@@ -159,18 +160,17 @@ def get_chapter_lessons_service(db: Session, user_id: int, track: str, chapter: 
             "part": lesson.part,
         }
 
-        # concept_image/concept_code/parameter → markdownUrl 최상위 꺼내기
         if lesson.lesson_type in ("concept_image", "concept_code", "parameter"):
             markdown_url = content.pop("markdownUrl", None)
             image_url = content.pop("imageUrl", None)
 
             lesson_data["markdownUrl"] = markdown_url
+
             if image_url:
                 lesson_data["imageUrl"] = image_url
 
             lesson_data["content"] = content if content else None
 
-        # code_fill/multiple_choice → problemId 최상위, content 그대로
         elif lesson.lesson_type in ("code_fill", "multiple_choice"):
             lesson_data["problemId"] = lesson.problem_id
             lesson_data["content"] = content
@@ -178,11 +178,11 @@ def get_chapter_lessons_service(db: Session, user_id: int, track: str, chapter: 
         lesson_responses.append(lesson_data)
 
     return {
-        "track": track,
+        "track": normalized_track,
         "chapter": chapter,
         "completionRate": completion_rate,
         "lastLessonId": last_lesson_id,
-        "lessons": lesson_responses
+        "lessons": lesson_responses,
     }
 
 
