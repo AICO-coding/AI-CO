@@ -85,7 +85,7 @@ def get_user_progress_summary(
 def generate_default_daily_problem_payloads() -> list[dict[str, Any]]:
     return [
         {
-            "track": "ML-회기",
+            "track": "ML-회귀",
             "chapter": "ch1",
             "problem_type": "multiple_choice",
             "content": {
@@ -119,7 +119,7 @@ def generate_default_daily_problem_payloads() -> list[dict[str, Any]]:
             "hints": ["분류는 카테고리를 예측하는 문제입니다."],
         },
         {
-            "track": "ML-회기",
+            "track": "ML-회귀",
             "chapter": "ch2",
             "problem_type": "multiple_choice",
             "content": {
