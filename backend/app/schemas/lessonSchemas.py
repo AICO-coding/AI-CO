@@ -11,6 +11,7 @@ class LessonResponse(BaseModel):
     markdownUrl: str | None = None   # concept_image/concept_code/parameter
     imageUrl: str | None = None      # concept_image
     problemId: int | None = None     # code_fill/multiple_choice
+    hints: list[Any] | None = None   # code_fill/multiple_choice
     content: dict[str, Any] | None = None
 
     class Config:
@@ -45,6 +46,7 @@ class MultipleChoiceSubmit(BaseModel):
 
 class SubmitResponse(BaseModel):
     isCorrect: bool
+    correctAnswer: Any | None = None
 
 
 class HintRequest(BaseModel):
