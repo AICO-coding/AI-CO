@@ -35,7 +35,7 @@ class LessonCompleteResponse(BaseModel):
 class CodeFillSubmit(BaseModel):
     lessonId: int
     problemId: int
-    answers: dict[str, str]
+    answer: dict[str, str]
 
 
 class MultipleChoiceSubmit(BaseModel):

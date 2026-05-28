@@ -179,10 +179,7 @@ def submit_answer(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    if isinstance(payload, CodeFillSubmit):
-        answers = payload.answers
-    else:
-        answers = payload.answer
+    answers = payload.answer
 
     result = submit_answer_service(
         db=db,
