@@ -108,6 +108,18 @@ def submit_answer_service(db: Session, user_id: int, track: str, chapter: str, l
             problems.append(problem_entry)
 
         progress.report["problems"] = problems
+
+        completed_lessons = progress.report.get("completedLessons", [])
+        if lesson_id not in completed_lessons:
+            completed_lessons.append(lesson_id)
+            progress.report["completedLessons"] = completed_lessons
+
+        total_lessons = db.query(Lesson).filter(
+            func.upper(Lesson.track) == func.upper(lesson.track),
+            Lesson.chapter == lesson.chapter
+        ).count()
+        progress.completion_rate = int(len(completed_lessons) / total_lessons * 100) if total_lessons > 0 else 0
+
         db.commit()
 
     return {"isCorrect": is_correct, "correctAnswer": problem_answer}
