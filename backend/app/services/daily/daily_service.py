@@ -85,7 +85,7 @@ def get_user_progress_summary(
 def generate_default_daily_problem_payloads() -> list[dict[str, Any]]:
     return [
         {
-            "track": "ML",
+            "track": "ML-회기",
             "chapter": "ch1",
             "problem_type": "multiple_choice",
             "content": {
@@ -102,8 +102,8 @@ def generate_default_daily_problem_payloads() -> list[dict[str, Any]]:
             "hints": ["입력과 출력 사이의 관계를 생각해보세요."],
         },
         {
-            "track": "ML",
-            "chapter": "ch2",
+            "track": "ML-분류",
+            "chapter": "ch1",
             "problem_type": "multiple_choice",
             "content": {
                 "question": "분류 문제의 목표로 가장 알맞은 것은?",
@@ -119,8 +119,8 @@ def generate_default_daily_problem_payloads() -> list[dict[str, Any]]:
             "hints": ["분류는 카테고리를 예측하는 문제입니다."],
         },
         {
-            "track": "ML",
-            "chapter": "ch3",
+            "track": "ML-회기",
+            "chapter": "ch2",
             "problem_type": "multiple_choice",
             "content": {
                 "question": "과적합에 대한 설명으로 옳은 것은?",
