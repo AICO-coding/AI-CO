@@ -29,5 +29,5 @@ def get_xp(
     """현재 유저의 총 XP 및 트랙별 XP 조회"""
     return XpResponse(
         xp=current_user.xp,
-        tracks={"ML-분류": 0, "ML-회기": 0, "CV": 0, "NLP": 0},
+        tracks={"ML-분류": 0, "ML-회귀": 0, "CV": 0, "NLP": 0},
     )

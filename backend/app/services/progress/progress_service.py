@@ -3,7 +3,7 @@ from sqlalchemy import func
 from app.models.progressModels import Progress
 from app.models.lessonModels import Lesson
 
-VALID_TRACKS = {"ML-분류", "ML-회기", "CV", "NLP"}
+VALID_TRACKS = {"ML-분류", "ML-회귀", "CV", "NLP"}
 
 
 def get_all_progress_service(db: Session, user_id: int) -> dict:

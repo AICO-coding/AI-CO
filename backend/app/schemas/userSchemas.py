@@ -70,7 +70,7 @@ class UserResponse(BaseModel):
 # XP 조회 응답
 class XpResponse(BaseModel):
     totalXp: int = Field(..., alias="xp")
-    tracks: dict = Field(default_factory=lambda: {"ML-분류": 0, "ML-회기": 0, "CV": 0, "NLP": 0})
+    tracks: dict = Field(default_factory=lambda: {"ML-분류": 0, "ML-회귀": 0, "CV": 0, "NLP": 0})
 
     class Config:
         populate_by_name = True

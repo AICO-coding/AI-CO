@@ -51,8 +51,8 @@ def get_public_tracks():
                 "description": "분류 알고리즘의 기본 개념과 모델 학습 과정을 학습합니다.",
             },
             {
-                "track": "ML-회기",
-                "title": "머신러닝 - 회기",
+                "track": "ML-회귀",
+                "title": "머신러닝 - 회귀",
                 "description": "회귀 알고리즘의 기본 개념과 예측 모델 학습 과정을 학습합니다.",
             },
             {

@@ -72,13 +72,11 @@ def submit_answer_service(db: Session, user_id: int, track: str, chapter: str, l
     is_correct = False
 
     if lesson.lesson_type == "code_fill":
-        # answers는 dict
         problem_answer = problem.answer
         if isinstance(problem_answer, dict) and problem_answer == answers:
             is_correct = True
     elif lesson.lesson_type == "multiple_choice":
-        # answer는 int
-        problem_answer = problem.answer.get("correctAnswer") if isinstance(problem.answer, dict) else problem.answer
+        problem_answer = problem.answer.get("correct_index") if isinstance(problem.answer, dict) else problem.answer
         if problem_answer == answers:
             is_correct = True
 
@@ -112,7 +110,7 @@ def submit_answer_service(db: Session, user_id: int, track: str, chapter: str, l
         progress.report["problems"] = problems
         db.commit()
 
-    return {"isCorrect": is_correct}
+    return {"isCorrect": is_correct, "correctAnswer": problem_answer}
 
 
 def get_chapter_lessons_service(db: Session, user_id: int, track: str, chapter: str):
@@ -173,6 +171,8 @@ def get_chapter_lessons_service(db: Session, user_id: int, track: str, chapter: 
         elif lesson.lesson_type in ("code_fill", "multiple_choice"):
             lesson_data["problemId"] = lesson.problem_id
             lesson_data["content"] = content
+            problem = db.query(Problem).filter(Problem.id == lesson.problem_id).first()
+            lesson_data["hints"] = problem.hints if problem else None
 
         lesson_responses.append(lesson_data)
 
