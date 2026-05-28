@@ -47,6 +47,7 @@ def create_user(
         google_id=google_id,
         email=email,
         gender=gender,
+        xp=100,
     )
 
     db.add(user)
