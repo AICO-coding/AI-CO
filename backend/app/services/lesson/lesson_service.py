@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func
+from sqlalchemy.orm.attributes import flag_modified
 from app.models.lessonModels import Lesson
 from app.models.progressModels import Progress
 from app.models.problemModels import Problem
@@ -51,6 +52,7 @@ def complete_lesson_service(db: Session, user_id: int, track: str, chapter: str,
     completion_rate = int(len(completed_lessons) / total_lessons * 100) if total_lessons > 0 else 0
     progress.completion_rate = completion_rate
 
+    flag_modified(progress, "report")
     db.commit()
 
     return {
@@ -122,9 +124,13 @@ def submit_answer_service(db: Session, user_id: int, track: str, chapter: str, l
         ).count()
         progress.completion_rate = int(len(completed_lessons) / total_lessons * 100) if total_lessons > 0 else 0
 
+        flag_modified(progress, "report")
         db.commit()
 
-    return {"isCorrect": is_correct, "correctAnswer": problem_answer}
+    result = {"isCorrect": is_correct, "correctAnswer": problem_answer}
+    if is_correct and problem.explanation:
+        result["explanation"] = problem.explanation
+    return result
 
 
 def get_chapter_lessons_service(db: Session, user_id: int, track: str, chapter: str):
@@ -249,6 +255,7 @@ def hint_service(db: Session, user_id: int, track: str, chapter: str, problem_id
     # 힌트 사용 즉시 5 XP 차감
     user.xp = max(user.xp - 5, 0)
 
+    flag_modified(progress, "report")
     db.commit()
 
     return {
@@ -276,7 +283,7 @@ def reveal_answer_service(db: Session, user_id: int, track: str, chapter: str, p
     ).first()
 
     if not progress:
-        return None
+        return {"error": "힌트를 최소 2회 이상 사용해야 정답을 공개할 수 있습니다."}
 
     if not progress.report:
         progress.report = {}
@@ -284,10 +291,7 @@ def reveal_answer_service(db: Session, user_id: int, track: str, chapter: str, p
     problems = progress.report.get("problems", [])
     problem_entry = next((p for p in problems if p["problemId"] == problem_id), None)
 
-    if not problem_entry:
-        return None
-
-    hints_used = problem_entry.get("hintsUsed", 0)
+    hints_used = problem_entry.get("hintsUsed", 0) if problem_entry else 0
     if hints_used < 2:
         return {"error": "힌트를 최소 2회 이상 사용해야 정답을 공개할 수 있습니다."}
 
@@ -305,13 +309,17 @@ def reveal_answer_service(db: Session, user_id: int, track: str, chapter: str, p
     # 정답 공개 즉시 5 XP 차감
     user.xp = max(user.xp - 5, 0)
 
+    flag_modified(progress, "report")
     db.commit()
 
-    return {
+    result = {
         "answer": problem.answer,
         "xpDeducted": -5,
         "totalXP": user.xp
     }
+    if problem.explanation:
+        result["explanation"] = problem.explanation
+    return result
 
 
 def complete_chapter_service(db: Session, user_id: int, track: str, chapter: str):
@@ -366,6 +374,8 @@ def complete_chapter_service(db: Session, user_id: int, track: str, chapter: str
     return {
         "chapter": chapter,
         "isCompleted": True,
+        "chapterXP": CHAPTER_COMPLETION_XP,
+        "xpDeducted": 0,
         "xpEarned": CHAPTER_COMPLETION_XP,
-        "totalXP": user.xp
+        "hintUsed": total_hints_used,
     }
