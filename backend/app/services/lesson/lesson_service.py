@@ -1,9 +1,11 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func
+from sqlalchemy.orm.attributes import flag_modified
 from app.models.lessonModels import Lesson
 from app.models.progressModels import Progress
 from app.models.problemModels import Problem
 from app.models.noteModels import WrongAnswer
+from app.models.userModels import User
 
 
 def complete_lesson_service(db: Session, user_id: int, track: str, chapter: str, lesson_id: int):
@@ -50,6 +52,7 @@ def complete_lesson_service(db: Session, user_id: int, track: str, chapter: str,
     completion_rate = int(len(completed_lessons) / total_lessons * 100) if total_lessons > 0 else 0
     progress.completion_rate = completion_rate
 
+    flag_modified(progress, "report")
     db.commit()
 
     return {
@@ -60,6 +63,7 @@ def complete_lesson_service(db: Session, user_id: int, track: str, chapter: str,
 
 def submit_answer_service(db: Session, user_id: int, track: str, chapter: str, lesson_id: int, problem_id: int, answers: dict | int):
     """code_fill, multiple_choice 답안 채점"""
+    track = track.upper()
     problem = db.query(Problem).filter(Problem.id == problem_id).first()
     if not problem:
         return None
@@ -84,7 +88,7 @@ def submit_answer_service(db: Session, user_id: int, track: str, chapter: str, l
     if is_correct:
         progress = db.query(Progress).filter(
             Progress.user_id == user_id,
-            Progress.track == track,
+            func.upper(Progress.track) == track,
             Progress.chapter == chapter
         ).first()
 
@@ -120,9 +124,13 @@ def submit_answer_service(db: Session, user_id: int, track: str, chapter: str, l
         ).count()
         progress.completion_rate = int(len(completed_lessons) / total_lessons * 100) if total_lessons > 0 else 0
 
+        flag_modified(progress, "report")
         db.commit()
 
-    return {"isCorrect": is_correct, "correctAnswer": problem_answer}
+    result = {"isCorrect": is_correct, "correctAnswer": problem_answer}
+    if is_correct and problem.explanation:
+        result["explanation"] = problem.explanation
+    return result
 
 
 def get_chapter_lessons_service(db: Session, user_id: int, track: str, chapter: str):
@@ -198,14 +206,19 @@ def get_chapter_lessons_service(db: Session, user_id: int, track: str, chapter: 
 
 
 def hint_service(db: Session, user_id: int, track: str, chapter: str, problem_id: int, hint_level: int):
-    """힌트 사용 처리"""
+    """힌트 사용 처리 - 힌트 사용 시 즉시 5 XP 차감"""
+    track = track.upper()
     problem = db.query(Problem).filter(Problem.id == problem_id).first()
     if not problem:
         return None
 
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        return None
+
     progress = db.query(Progress).filter(
         Progress.user_id == user_id,
-        Progress.track == track,
+        func.upper(Progress.track) == track,
         Progress.chapter == chapter
     ).first()
 
@@ -239,29 +252,38 @@ def hint_service(db: Session, user_id: int, track: str, chapter: str, problem_id
     progress.report["problems"] = problems
     progress.hint_used = sum(p["hintsUsed"] for p in problems)
 
+    # 힌트 사용 즉시 5 XP 차감
+    user.xp = max(user.xp - 5, 0)
+
+    flag_modified(progress, "report")
     db.commit()
 
-    xp_deducted = -5
     return {
-        "xpDeducted": xp_deducted,
+        "xpDeducted": -5,
+        "totalXP": user.xp,
         "hintsUsed": problem_entry["hintsUsed"]
     }
 
 
 def reveal_answer_service(db: Session, user_id: int, track: str, chapter: str, problem_id: int):
-    """정답 공개 처리"""
+    """정답 공개 처리 - 정답 공개 시 즉시 5 XP 차감"""
+    track = track.upper()
     problem = db.query(Problem).filter(Problem.id == problem_id).first()
     if not problem:
         return None
 
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        return None
+
     progress = db.query(Progress).filter(
         Progress.user_id == user_id,
-        Progress.track == track,
+        func.upper(Progress.track) == track,
         Progress.chapter == chapter
     ).first()
 
     if not progress:
-        return None
+        return {"error": "힌트를 최소 2회 이상 사용해야 정답을 공개할 수 있습니다."}
 
     if not progress.report:
         progress.report = {}
@@ -269,10 +291,7 @@ def reveal_answer_service(db: Session, user_id: int, track: str, chapter: str, p
     problems = progress.report.get("problems", [])
     problem_entry = next((p for p in problems if p["problemId"] == problem_id), None)
 
-    if not problem_entry:
-        return None
-
-    hints_used = problem_entry.get("hintsUsed", 0)
+    hints_used = problem_entry.get("hintsUsed", 0) if problem_entry else 0
     if hints_used < 2:
         return {"error": "힌트를 최소 2회 이상 사용해야 정답을 공개할 수 있습니다."}
 
@@ -287,19 +306,33 @@ def reveal_answer_service(db: Session, user_id: int, track: str, chapter: str, p
     )
     db.add(wrong_answer)
 
+    # 정답 공개 즉시 5 XP 차감
+    user.xp = max(user.xp - 5, 0)
+
+    flag_modified(progress, "report")
     db.commit()
 
-    return {
+    result = {
         "answer": problem.answer,
-        "xpDeducted": -10
+        "xpDeducted": -5,
+        "totalXP": user.xp
     }
+    if problem.explanation:
+        result["explanation"] = problem.explanation
+    return result
 
 
 def complete_chapter_service(db: Session, user_id: int, track: str, chapter: str):
     """챕터 완료 처리"""
+    track = track.upper()
+
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        return None
+
     progress = db.query(Progress).filter(
         Progress.user_id == user_id,
-        Progress.track == track,
+        func.upper(Progress.track) == track,
         Progress.chapter == chapter
     ).first()
 
@@ -312,34 +345,37 @@ def complete_chapter_service(db: Session, user_id: int, track: str, chapter: str
     # 모든 레슨이 완료됐는지 확인
     completed_lessons = set(progress.report.get("completedLessons", []))
     all_lessons = db.query(Lesson).filter(
-        Lesson.track == track,
+        func.upper(Lesson.track) == track,
         Lesson.chapter == chapter
     ).count()
 
     if len(completed_lessons) < all_lessons:
         return {"error": "완료하지 않은 레슨이 있습니다."}
 
-    # XP 계산
+    # 이미 완료된 챕터면 중복 XP 지급 방지
+    if progress.is_completed:
+        return {"error": "이미 완료된 챕터입니다."}
+
+    # 챕터 완료 시 힌트/정답공개 여부와 무관하게 50 XP 지급
+    CHAPTER_COMPLETION_XP = 50
     problems = progress.report.get("problems", [])
     total_hints_used = sum(p.get("hintsUsed", 0) for p in problems)
-    total_reveal_used = sum(1 for p in problems if p.get("usedReveal", False))
-
-    base_xp = 100
-    xp_deducted = (total_hints_used * 5) + (total_reveal_used * 10)
-    xp_earned = base_xp - xp_deducted
 
     # 진도 업데이트
     progress.is_completed = True
-    progress.xp_earned = xp_earned
+    progress.xp_earned = CHAPTER_COMPLETION_XP
     progress.hint_used = total_hints_used
+
+    # 유저 총 XP 누적
+    user.xp += CHAPTER_COMPLETION_XP
 
     db.commit()
 
     return {
         "chapter": chapter,
         "isCompleted": True,
-        "chapterXP": base_xp,
-        "xpDeducted": xp_deducted,
-        "xpEarned": xp_earned,
-        "hintUsed": total_hints_used
+        "chapterXP": CHAPTER_COMPLETION_XP,
+        "xpDeducted": 0,
+        "xpEarned": CHAPTER_COMPLETION_XP,
+        "hintUsed": total_hints_used,
     }

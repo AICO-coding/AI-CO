@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Any, Union
 
 
@@ -47,6 +47,7 @@ class MultipleChoiceSubmit(BaseModel):
 class SubmitResponse(BaseModel):
     isCorrect: bool
     correctAnswer: Any | None = None
+    explanation: str | None = Field(default=None, description="정답일 경우에만 반환")
 
 
 class HintRequest(BaseModel):
@@ -56,6 +57,7 @@ class HintRequest(BaseModel):
 
 class HintResponse(BaseModel):
     xpDeducted: int
+    totalXP: int
     hintsUsed: int
 
 
@@ -66,6 +68,8 @@ class RevealRequest(BaseModel):
 class RevealResponse(BaseModel):
     answer: dict[str, Any]
     xpDeducted: int
+    totalXP: int
+    explanation: str | None = Field(default=None, description="문제에 설명이 있을 경우에만 반환")
 
 
 class ChapterCompleteResponse(BaseModel):
