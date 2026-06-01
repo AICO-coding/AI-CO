@@ -4,7 +4,6 @@ from app.core.database import get_db
 from app.core.security import get_current_user
 from app.models.userModels import User
 from app.schemas.noteSchemas import (
-    WrongAnswerCreateRequest,
     WrongAnswerListResponse,
     WrongAnswerDetailResponse,
     ReviewProblemResponse,
@@ -13,7 +12,6 @@ from app.schemas.noteSchemas import (
     DeleteWrongAnswerResponse,
 )
 from app.services.note.note_service import (
-    create_wrong_answer_service,
     get_wrong_answers_service,
     get_review_wrong_answers_service,
     submit_review_answers_service,
@@ -27,23 +25,6 @@ router = APIRouter(
     tags=["Wrong Answers"],
 )
 
-
-@router.post(
-    "",
-    response_model=WrongAnswerDetailResponse,
-    summary="오답 등록",
-    description="사용자가 틀린 문제를 오답노트에 등록합니다.",
-)
-def create_wrong_answer(
-    request: WrongAnswerCreateRequest,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
-    return create_wrong_answer_service(
-        request=request,
-        db=db,
-        user_id=current_user.id,
-    )
 
 
 @router.get(
