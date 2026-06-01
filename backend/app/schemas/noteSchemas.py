@@ -11,14 +11,14 @@ class WrongAnswerCreateRequest(BaseModel):
 
 class WrongAnswerListItem(BaseModel):
     id: int = Field(..., description="오답 기록 ID")
-    problemId: int = Field(..., description="문제 ID")
+    sourceType: str = Field(..., description="오답 발생 위치", example="learning")
+    trackProblemId: int | None = Field(default=None, description="학습 문제 ID (learning일 때)")
+    dailyProblemId: int | None = Field(default=None, description="데일리 문제 ID (daily일 때)")
     track: str = Field(..., description="트랙명", example="ML")
     chapter: str = Field(..., description="챕터명", example="선형 회귀")
     problemType: str = Field(..., description="문제 유형", example="multiple_choice")
-    sourceType: str = Field(..., description="오답 발생 위치", example="learning")
     isResolved: bool = Field(..., description="복습 후 해결 여부", example=False)
     reviewCount: int = Field(..., description="복습 횟수", example=0)
-    date: str = Field(..., description="오답 등록 날짜", example="2026-05-01")
 
 
 class WrongAnswerListResponse(BaseModel):
@@ -40,8 +40,9 @@ class ProblemDetailResponse(BaseModel):
 
 class WrongAnswerDetailResponse(BaseModel):
     id: int = Field(..., description="오답 기록 ID")
-    problemId: int = Field(..., description="문제 ID")
     sourceType: str = Field(..., description="오답 발생 위치")
+    trackProblemId: int | None = Field(default=None, description="학습 문제 ID (learning일 때)")
+    dailyProblemId: int | None = Field(default=None, description="데일리 문제 ID (daily일 때)")
     userAnswer: Any = Field(..., description="사용자가 입력한 오답")
     correctAnswer: Any = Field(..., description="정답")
     isResolved: bool = Field(..., description="복습 후 해결 여부")
@@ -53,8 +54,9 @@ class WrongAnswerDetailResponse(BaseModel):
 
 class ReviewProblemItem(BaseModel):
     wrongAnswerId: int = Field(..., description="복습 제출 시 사용할 오답 기록 ID")
-    problemId: int = Field(..., description="문제 ID")
     sourceType: str = Field(..., description="오답 발생 위치")
+    trackProblemId: int | None = Field(default=None, description="학습 문제 ID (learning일 때)")
+    dailyProblemId: int | None = Field(default=None, description="데일리 문제 ID (daily일 때)")
     userAnswer: Any = Field(..., description="처음 틀렸을 때 입력한 답")
     problem: ProblemDetailResponse = Field(..., description="복습할 문제 정보")
 
@@ -74,7 +76,9 @@ class ReviewSubmitRequest(BaseModel):
 
 class ReviewResultItem(BaseModel):
     wrongAnswerId: int = Field(..., description="오답 기록 ID")
-    problemId: int = Field(..., description="문제 ID")
+    sourceType: str = Field(..., description="오답 발생 위치")
+    trackProblemId: int | None = Field(default=None, description="학습 문제 ID (learning일 때)")
+    dailyProblemId: int | None = Field(default=None, description="데일리 문제 ID (daily일 때)")
     isCorrect: bool = Field(..., description="정답 여부")
 
 
