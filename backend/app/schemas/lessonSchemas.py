@@ -12,6 +12,7 @@ class LessonResponse(BaseModel):
     imageUrl: str | None = None      # concept_image
     problemId: int | None = None     # code_fill/multiple_choice
     hints: list[Any] | None = None   # code_fill/multiple_choice
+    usedHintLevels: list[int] | None = None  # code_fill/multiple_choice
     content: dict[str, Any] | None = None
 
     class Config:

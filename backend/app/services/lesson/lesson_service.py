@@ -178,9 +178,12 @@ def get_chapter_lessons_service(db: Session, user_id: int, track: str, chapter: 
     last_lesson_id = progress.last_lesson_id if progress else None
 
     completed_lessons = set()
+    problem_progress_map = {}
     if progress and progress.report:
         completed_ids = progress.report.get("completedLessons", [])
         completed_lessons = set(completed_ids)
+        for p in progress.report.get("problems", []):
+            problem_progress_map[p["problemId"]] = p
 
     lesson_responses = []
 
@@ -212,6 +215,8 @@ def get_chapter_lessons_service(db: Session, user_id: int, track: str, chapter: 
             lesson_data["content"] = content
             problem = db.query(Problem).filter(Problem.id == lesson.problem_id).first()
             lesson_data["hints"] = problem.hints if problem else None
+            p_entry = problem_progress_map.get(lesson.problem_id, {})
+            lesson_data["usedHintLevels"] = p_entry.get("usedHintLevels", [])
 
         lesson_responses.append(lesson_data)
 
@@ -262,7 +267,11 @@ def hint_service(db: Session, user_id: int, track: str, chapter: str, problem_id
 
     used_levels = problem_entry.get("usedHintLevels", [])
     if hint_level in used_levels:
-        return {"error": "이미 해당 레벨의 힌트를 사용했습니다."}
+        return {
+            "xpDeducted": 0,
+            "totalXP": user.xp,
+            "hintsUsed": problem_entry["hintsUsed"]
+        }
 
     used_levels.append(hint_level)
     problem_entry["usedHintLevels"] = used_levels
