@@ -17,6 +17,9 @@ export default function MultipleChoice({
   const [isCorrect, setIsCorrect] =
     useState(null);
 
+  const [submitting, setSubmitting] =
+  useState(false);
+
   const [openedHints, setOpenedHints] =
     useState([]);
 
