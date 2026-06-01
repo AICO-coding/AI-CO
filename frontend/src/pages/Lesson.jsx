@@ -35,6 +35,9 @@ export default function Lesson() {
   const [submitHandler, setSubmitHandler] =
     useState(null);
 
+  const [isSubmitted, setIsSubmitted] =
+    useState(false);
+
   useEffect(() => {
 
     const fetchLessons = async () => {
@@ -71,6 +74,7 @@ export default function Lesson() {
         setError(err.message);
 
       } finally {
+
         setLoading(false);
       }
     };
@@ -80,62 +84,94 @@ export default function Lesson() {
   }, [trackId, chapterId]);
 
   const sortedLessons = useMemo(() => {
+
     return [...lessons].sort(
-      (a, b) => a.orderIndex - b.orderIndex
+      (a, b) =>
+        a.orderIndex - b.orderIndex
     );
+
   }, [lessons]);
 
-  const lesson = sortedLessons[currentIndex];
-  const completeLesson = async (lessonId) => {
+  const lesson =
+    sortedLessons[currentIndex];
+
+  useEffect(() => {
+
+    setIsSubmitted(false);
+
+  }, [currentIndex]);
+
+  const completeLesson = async (
+    lessonId
+  ) => {
 
     try {
 
       const token =
-        localStorage.getItem("accessToken");
+        localStorage.getItem(
+          "accessToken"
+        );
 
       await fetch(
         `http://210.125.96.59:8000/tracks/${trackId}/chapters/${chapterId}/lessons/${lessonId}/complete`,
         {
           method: "POST",
+
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type":
+              "application/json",
+
             ...(token && {
-              Authorization: `Bearer ${token}`,
+              Authorization:
+                `Bearer ${token}`,
             }),
           },
         }
       );
 
     } catch (err) {
+
       console.error(err);
     }
   };
 
-  const goToLesson = async (targetIndex) => {
+  const handleSubmit = async () => {
+
+    if (!submitHandler) {
+
+      alert(
+        "제출 함수를 찾을 수 없습니다."
+      );
+
+      return;
+    }
+
+    const success =
+      await submitHandler();
+
+    if (success) {
+
+      setIsSubmitted(true);
+    }
+  };
+
+  const goToLesson = async (
+    targetIndex
+  ) => {
 
     if (
       targetIndex < 0 ||
-      targetIndex >= sortedLessons.length
-    ) return;
-
-    if (
-      lesson?.lessonType === "code_fill" ||
-      lesson?.lessonType === "multiple_choice"
+      targetIndex >=
+        sortedLessons.length
     ) {
+      return;
+    }
 
-      if (!submitHandler) {
-        alert("제출 함수를 찾을 수 없습니다.");
-        return;
-      }
+    if (lesson?.lessonId) {
 
-      const success = await submitHandler();
-      if (!success) return;
-
-    } else {
-
-      if (lesson?.lessonId) {
-        await completeLesson(lesson.lessonId);
-      }
+      await completeLesson(
+        lesson.lessonId
+      );
     }
 
     setCurrentIndex(targetIndex);
@@ -145,61 +181,89 @@ export default function Lesson() {
 
     try {
 
-      const token =
-        localStorage.getItem("accessToken");
       if (
-        lesson?.lessonType === "code_fill" ||
-        lesson?.lessonType === "multiple_choice"
+        (
+          lesson?.lessonType ===
+            "code_fill" ||
+          lesson?.lessonType ===
+            "multiple_choice"
+        ) &&
+        !isSubmitted
       ) {
 
-        if (!submitHandler) {
-          alert("제출 함수를 찾을 수 없습니다.");
-          return;
-        }
+        alert(
+          "먼저 제출해주세요."
+        );
 
-        const success = await submitHandler();
-        if (!success) return;
-
-      } else {
-
-        if (lesson?.lessonId) {
-          await completeLesson(lesson.lessonId);
-        }
+        return;
       }
+
+      if (lesson?.lessonId) {
+
+        await completeLesson(
+          lesson.lessonId
+        );
+      }
+
+      const token =
+        localStorage.getItem(
+          "accessToken"
+        );
 
       const res = await fetch(
         `http://210.125.96.59:8000/tracks/${trackId}/chapters/${chapterId}/complete`,
         {
           method: "POST",
+
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type":
+              "application/json",
+
             ...(token && {
-              Authorization: `Bearer ${token}`,
+              Authorization:
+                `Bearer ${token}`,
             }),
           },
         }
       );
 
       if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
+
+        throw new Error(
+          `HTTP ${res.status}`
+        );
       }
 
-      navigate(`/tracks/${trackId}/chapters`);
+      navigate(
+        `/tracks/${trackId}/chapters`
+      );
 
     } catch (err) {
+
       console.error(err);
-      alert("챕터 완료 처리 중 오류가 발생했습니다.");
+
+      alert(
+        "챕터 완료 처리 중 오류가 발생했습니다."
+      );
     }
   };
 
   useEffect(() => {
-    if (sortedLessons.length > 0) {
+
+    if (
+      sortedLessons.length > 0
+    ) {
+
       setCurrentIndex(0);
     }
+
   }, [sortedLessons]);
 
   const goBack = () => {
-    navigate(`/tracks/${trackId}/chapters`);
+
+    navigate(
+      `/tracks/${trackId}/chapters`
+    );
   };
 
   if (loading) {
@@ -207,15 +271,32 @@ export default function Lesson() {
   }
 
   if (error) {
-    return <div className="lesson-page">Error: {error}</div>;
+
+    return (
+      <div className="lesson-page">
+        Error: {error}
+      </div>
+    );
   }
 
   if (!lesson) {
-    return <div className="lesson-page">Lesson Not Found</div>;
+
+    return (
+      <div className="lesson-page">
+        Lesson Not Found
+      </div>
+    );
   }
 
   const isLastLesson =
-    currentIndex === sortedLessons.length - 1;
+    currentIndex ===
+    sortedLessons.length - 1;
+
+  const needsSubmit =
+    lesson.lessonType ===
+      "multiple_choice" ||
+    lesson.lessonType ===
+      "code_fill";
 
   return (
     <div className="lesson-page">
@@ -234,11 +315,14 @@ export default function Lesson() {
         <div>{lesson.lessonType}</div>
 
       </div>
+
       <div className="lesson-page-content">
 
         <LessonRenderer
           lesson={lesson}
-          registerSubmit={setSubmitHandler}
+          registerSubmit={
+            setSubmitHandler
+          }
         />
 
       </div>
@@ -248,34 +332,73 @@ export default function Lesson() {
         <button
           className="nav-btn"
           onClick={() =>
-            setCurrentIndex(currentIndex - 1)
+            setCurrentIndex(
+              currentIndex - 1
+            )
           }
-          disabled={currentIndex === 0}
+          disabled={
+            currentIndex === 0
+          }
         >
           ← 이전
         </button>
 
-        {isLastLesson ? (
+        <div
+          style={{
+            display: "flex",
+            gap: "12px",
+          }}
+        >
 
-          <button
-            className="nav-btn primary"
-            onClick={finishChapter}
-          >
-            챕터 완료
-          </button>
+          {needsSubmit &&
+            !isSubmitted && (
 
-        ) : (
+              <button
+                className="nav-btn primary"
+                onClick={
+                  handleSubmit
+                }
+              >
+                제출하기
+              </button>
 
-          <button
-            className="nav-btn primary"
-            onClick={() =>
-              goToLesson(currentIndex + 1)
-            }
-          >
-            다음 →
-          </button>
+            )}
 
-        )}
+          {isLastLesson ? (
+
+            <button
+              className="nav-btn primary"
+              onClick={
+                finishChapter
+              }
+              disabled={
+                needsSubmit &&
+                !isSubmitted
+              }
+            >
+              챕터 완료
+            </button>
+
+          ) : (
+
+            <button
+              className="nav-btn primary"
+              onClick={() =>
+                goToLesson(
+                  currentIndex + 1
+                )
+              }
+              disabled={
+                needsSubmit &&
+                !isSubmitted
+              }
+            >
+              다음 →
+            </button>
+
+          )}
+
+        </div>
 
       </div>
 
