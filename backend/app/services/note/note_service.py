@@ -7,7 +7,6 @@ from app.models.noteModels import WrongAnswer
 from app.models.problemModels import Problem
 from app.models.dailyModels import DailyProblem
 from app.schemas.noteSchemas import (
-    WrongAnswerCreateRequest,
     WrongAnswerListItem,
     WrongAnswerListResponse,
     WrongAnswerDetailResponse,
@@ -253,69 +252,6 @@ def make_wrong_answer_detail(wrong_answer: WrongAnswer) -> WrongAnswerDetailResp
         problem=problem_detail,
     )
 
-
-def create_wrong_answer_service(
-    request: WrongAnswerCreateRequest,
-    db: Session,
-    user_id: int,
-) -> WrongAnswerDetailResponse:
-    validate_source_type(request.sourceType)
-
-    if request.sourceType == SOURCE_LEARNING:
-        problem = get_learning_problem(
-            db=db,
-            problem_id=request.problemId,
-        )
-
-        wrong_answer = WrongAnswer(
-            user_id=user_id,
-            source_type=SOURCE_LEARNING,
-            track_problem_id=problem.id,
-            daily_problem_id=None,
-            user_answer=request.userAnswer,
-            is_resolved=False,
-            review_count=0,
-        )
-
-    else:
-        daily_problem = get_daily_problem(
-            db=db,
-            daily_problem_id=request.problemId,
-            user_id=user_id,
-        )
-
-        wrong_answer = WrongAnswer(
-            user_id=user_id,
-            source_type=SOURCE_DAILY,
-            track_problem_id=None,
-            daily_problem_id=daily_problem.id,
-            user_answer=request.userAnswer,
-            is_resolved=False,
-            review_count=0,
-        )
-
-    db.add(wrong_answer)
-    db.commit()
-    db.refresh(wrong_answer)
-
-    wrong_answer = (
-        db.query(WrongAnswer)
-        .options(
-            joinedload(WrongAnswer.track_problem),
-            joinedload(WrongAnswer.daily_problem),
-        )
-        .filter(WrongAnswer.id == wrong_answer.id)
-        .filter(WrongAnswer.user_id == user_id)
-        .first()
-    )
-
-    if wrong_answer is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Wrong answer not found",
-        )
-
-    return make_wrong_answer_detail(wrong_answer)
 
 
 def get_wrong_answers_service(

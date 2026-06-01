@@ -3,11 +3,6 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 
-class WrongAnswerCreateRequest(BaseModel):
-    problemId: int = Field(..., description="오답으로 등록할 문제 ID", example=1)
-    sourceType: str = Field(..., description="오답 발생 위치: learning 또는 daily", example="learning")
-    userAnswer: Any = Field(..., description="사용자가 입력한 답", example={"answer": 2})
-
 
 class WrongAnswerListItem(BaseModel):
     id: int = Field(..., description="오답 기록 ID")
