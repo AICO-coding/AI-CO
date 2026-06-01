@@ -26,8 +26,6 @@ function Sidebar() {
           }
         );
 
-        console.log(response.data);
-
         setNickname(response.data.nickname);
         setXp(response.data.xp);
 
@@ -105,9 +103,9 @@ function Sidebar() {
       </Link>
 
       <Link
-        to="/track"
+        to="/tracks"
         className={`sb-btn ${
-          location.pathname === "/track"
+          location.pathname === "/tracks"
             ? "on"
             : ""
         }`}
