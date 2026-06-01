@@ -203,7 +203,7 @@ export default function Lesson() {
   };
 
   if (loading) {
-    return <div className="lesson-page">Loading...</div>;
+    return null;
   }
 
   if (error) {
