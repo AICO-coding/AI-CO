@@ -1,0 +1,55 @@
+.concept-image-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  width: 100%;
+  height: calc(100vh - 120px);
+
+  min-height: 0;
+}
+
+.concept-markdown-panel {
+  background: white;
+
+  border-radius: 20px;
+
+  padding: 32px;
+
+  overflow-y: auto;
+
+  min-height: 0;
+
+  height: 100%;
+}
+
+.markdown-body {
+  min-height: fit-content;
+}
+
+.concept-image-panel {
+  background: white;
+
+  border-radius: 20px;
+
+  padding: 20px;
+
+  overflow: auto;
+
+  min-height: 0;
+
+  height: 100%;
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.concept-image {
+  width: 100%;
+
+  height: auto;
+
+  object-fit: contain;
+
+  flex-shrink: 0;
+}
