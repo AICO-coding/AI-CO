@@ -84,6 +84,25 @@ def submit_answer_service(db: Session, user_id: int, track: str, chapter: str, l
         if problem_answer == answers:
             is_correct = True
 
+    # 오답이고 처음 틀린 경우 오답노트 등록
+    if not is_correct:
+        existing_wrong_answer = db.query(WrongAnswer).filter(
+            WrongAnswer.user_id == user_id,
+            WrongAnswer.track_problem_id == problem_id,
+        ).first()
+
+        if not existing_wrong_answer:
+            wrong_answer = WrongAnswer(
+                user_id=user_id,
+                track_problem_id=problem_id,
+                source_type="learning",
+                user_answer=answers if isinstance(answers, dict) else {"selectedIndex": answers},
+                is_resolved=False,
+                review_count=0,
+            )
+            db.add(wrong_answer)
+            db.commit()
+
     # 정답인 경우만 progress.report 업데이트
     if is_correct:
         progress = db.query(Progress).filter(
@@ -295,16 +314,12 @@ def reveal_answer_service(db: Session, user_id: int, track: str, chapter: str, p
     if hints_used < 2:
         return {"error": "힌트를 최소 2회 이상 사용해야 정답을 공개할 수 있습니다."}
 
+    already_revealed = problem_entry.get("usedReveal", False) if problem_entry else False
+    if already_revealed:
+        return {"error": "이미 정답을 공개한 문제입니다."}
+
     problem_entry["usedReveal"] = True
     progress.report["problems"] = problems
-
-    wrong_answer = WrongAnswer(
-        user_id=user_id,
-        track_problem_id=problem_id,
-        source_type="learning",
-        user_answer={"revealed": True}
-    )
-    db.add(wrong_answer)
 
     # 정답 공개 즉시 5 XP 차감
     user.xp = max(user.xp - 5, 0)
