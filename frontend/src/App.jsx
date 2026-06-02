@@ -5,6 +5,9 @@ import Home from "./pages/Home";
 import DailyTask from "./pages/DailyTask";
 import Track from "./pages/Track";
 import WrongNote from "./pages/WrongNote";
+import WrongNoteTrack from "./pages/WrongNoteTrack";
+import WrongNoteDetail from "./pages/WrongNoteDetail";
+import WrongNoteReview from "./pages/WrongNoteReview";
 import Login from "./pages/Login";
 import Nickname from "./pages/NickName";
 import Chapter from "./pages/Chapter";
@@ -43,6 +46,9 @@ function Layout() {
               element={<Lesson />}
             />
             <Route path="/wrong-answer" element={<WrongNote />} />
+            <Route path="/wrong-answer/:trackId" element={<WrongNoteTrack />} />
+            <Route path="/wrong-answer/:trackId/review" element={<WrongNoteReview />} />
+            <Route path="/wrong-answer/:trackId/:wrongAnswerId" element={<WrongNoteDetail />} />
           </Routes>
         </div>
       </div>
