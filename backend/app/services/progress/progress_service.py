@@ -1,9 +1,21 @@
+import re
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from app.models.progressModels import Progress
 from app.models.lessonModels import Lesson
 
 VALID_TRACKS = {"ML-분류", "ML-회귀", "CV", "NLP"}
+
+
+def _chapter_sort_key(chapter: str | None):
+    if not chapter:
+        return ("", 0, "")
+
+    match = re.search(r"\d+", chapter)
+    chapter_number = int(match.group()) if match else 0
+    chapter_prefix = re.sub(r"\d+", "", chapter)
+
+    return (chapter_prefix, chapter_number, chapter)
 
 
 def get_all_progress_service(db: Session, user_id: int) -> dict:
@@ -49,13 +61,17 @@ def get_track_chapters_service(db: Session, user_id: int, track: str) -> dict | 
         return None
 
     # 1. Lesson 테이블에서 해당 트랙의 lesson 전체 조회
-    # order_index 기준으로 정렬해두면 각 chapter의 첫 번째 lesson을 챕터 대표값으로 사용할 수 있음
+    # 챕터 순서가 먼저 고정되어야 잠금 상태 계산(prev_completed)이 안정적으로 동작함
     lessons = (
         db.query(Lesson)
         .filter(func.upper(Lesson.track) == track)
-        .order_by(Lesson.order_index.asc())
         .all()
     )
+    lessons.sort(key=lambda lesson: (
+        _chapter_sort_key(lesson.chapter),
+        lesson.order_index,
+        lesson.id,
+    ))
 
     # 2. Progress 테이블에서 해당 유저의 진도 조회
     progress_rows = (
@@ -119,7 +135,7 @@ def get_track_chapters_service(db: Session, user_id: int, track: str) -> dict | 
     else:
         prev_completed = True
 
-        for progress in progress_rows:
+        for progress in sorted(progress_rows, key=lambda row: _chapter_sort_key(row.chapter)):
             is_locked = not prev_completed
 
             chapters.append({

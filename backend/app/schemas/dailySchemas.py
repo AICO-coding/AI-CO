@@ -4,48 +4,44 @@ from pydantic import BaseModel, Field
 
 
 class DailyProblemItem(BaseModel):
-    dailyProblemId: int = Field(..., description="데일리 문제 ID")
-    track: str = Field(..., description="트랙명", example="ML")
-    chapter: str = Field(..., description="챕터명", example="ch1")
-    problemType: str = Field(..., description="문제 유형", example="multiple_choice")
-    content: Any = Field(..., description="문제 내용")
+    dailyProblemId: int
+    problemType: str
+    content: Any  # { question, choices } - 정답/힌트 미포함
 
 
 class DailyResponse(BaseModel):
-    date: str = Field(..., description="데일리 날짜")
+    date: str
     dailyProblems: list[DailyProblemItem]
-    isCompleted: bool = Field(..., description="오늘 데일리 제출 여부")
-    expiresAt: str = Field(..., description="오늘 데일리 만료 시간")
+    isCompleted: bool = Field(..., description="오늘 제출 완료 여부. true이면 GET /daily/result로 결과 조회")
+    expiresAt: str = Field(..., description="KST 기준 당일 23:59:59")
 
 
 class DailySubmitAnswerItem(BaseModel):
-    dailyProblemId: int = Field(..., description="daily_problems.id", example=1)
-    answer: Any = Field(..., description="사용자가 제출한 답", example={"answer": 1})
+    dailyProblemId: int
+    answer: Any  # multiple_choice: { answer: int }
 
 
 class DailySubmitRequest(BaseModel):
-    answers: list[DailySubmitAnswerItem]
+    answers: list[DailySubmitAnswerItem] = Field(..., description="5개 문제 전체 제출 필수")
 
 
 class DailySubmitResultItem(BaseModel):
     dailyProblemId: int
-    track: str
-    chapter: str
     problemType: str
     content: Any
     userAnswer: Any
     correctAnswer: Any
     isCorrect: bool
     explanation: str | None = None
-    wrongAnswerId: int | None = None
+    wrongAnswerId: int | None = Field(default=None, description="틀린 문제는 오답노트에 자동 저장. 맞힌 문제는 null")
 
 
 class DailySubmitResponse(BaseModel):
     date: str
     score: int = Field(..., description="맞힌 문제 수")
-    totalProblems: int = Field(..., description="전체 문제 수")
-    xpEarned: int = Field(..., description="획득 XP")
-    isPerfect: bool = Field(..., description="5문제 모두 정답 여부")
+    totalProblems: int
+    xpEarned: int = Field(..., description="맞힌 문제 1개당 20 XP")
+    isPerfect: bool = Field(..., description="5문제 전부 정답 여부")
     results: list[DailySubmitResultItem]
 
 
@@ -55,5 +51,5 @@ class DailyResultResponse(BaseModel):
     totalProblems: int
     xpEarned: int
     isPerfect: bool
-    results: Any
+    results: Any  # DailySubmitResultItem 목록 (JSONB)
     completedAt: datetime
