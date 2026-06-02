@@ -204,6 +204,7 @@ def make_wrong_answer_list_item(wrong_answer: WrongAnswer) -> WrongAnswerListIte
             problemType=problem.problem_type,
             isResolved=wrong_answer.is_resolved,
             reviewCount=wrong_answer.review_count,
+            date=to_date_string(wrong_answer.created_at),
         )
 
     if wrong_answer.source_type == SOURCE_DAILY:
@@ -225,6 +226,7 @@ def make_wrong_answer_list_item(wrong_answer: WrongAnswer) -> WrongAnswerListIte
             problemType=problem.problem_type,
             isResolved=wrong_answer.is_resolved,
             reviewCount=wrong_answer.review_count,
+            date=to_date_string(wrong_answer.created_at),
         )
 
     raise HTTPException(
