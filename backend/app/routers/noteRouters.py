@@ -53,10 +53,9 @@ def get_wrong_answers(
     "/review",
     response_model=ReviewProblemResponse,
     summary="오답 복습 문제 조회",
-    description="아직 해결되지 않은 내 오답을 복습용 문제로 조회합니다.",
+    description="아직 해결되지 않은 내 오답을 복습용 문제로 조회합니다. 최대 5개까지 반환하며, 오답이 5개 미만이면 전체 반환합니다.",
 )
 def get_review_wrong_answers(
-    limit: int = Query(default=5, ge=1, le=20, description="조회할 문제 수"),
     track: str | None = Query(default=None, description="트랙명 예: ML"),
     source_type: str | None = Query(default=None, description="오답 발생 위치: learning 또는 daily"),
     db: Session = Depends(get_db),
@@ -65,7 +64,6 @@ def get_review_wrong_answers(
     return get_review_wrong_answers_service(
         db=db,
         user_id=current_user.id,
-        limit=limit,
         track=track,
         source_type=source_type,
     )
