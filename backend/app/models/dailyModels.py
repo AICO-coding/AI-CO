@@ -27,14 +27,11 @@ class DailyProblem(Base):
 
     problem_order = Column(Integer, nullable=False)
 
-    track = Column(String(50), nullable=False)
-    chapter = Column(String(100), nullable=False)
     problem_type = Column(String(50), nullable=False)
 
     content = Column(JSONB, nullable=False)
     answer = Column(JSONB, nullable=False)
     explanation = Column(String, nullable=True)
-    hints = Column(JSONB, nullable=True)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 

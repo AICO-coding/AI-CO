@@ -1,7 +1,6 @@
 from datetime import datetime, timezone
 from typing import Any
 from fastapi import HTTPException
-from sqlalchemy import or_
 from sqlalchemy.orm import Session, joinedload
 from app.models.noteModels import WrongAnswer
 from app.models.problemModels import Problem
@@ -123,13 +122,12 @@ def make_daily_problem_detail(problem: DailyProblem) -> ProblemDetailResponse:
         sourceType=SOURCE_DAILY,
         trackProblemId=None,
         dailyProblemId=problem.id,
-        track=problem.track,
-        chapter=problem.chapter,
+        track=None,
+        chapter=None,
         problemType=problem.problem_type,
         content=problem.content,
         answer=problem.answer,
         explanation=problem.explanation,
-        hints=problem.hints,
     )
 
 
@@ -221,8 +219,8 @@ def make_wrong_answer_list_item(wrong_answer: WrongAnswer) -> WrongAnswerListIte
             sourceType=wrong_answer.source_type,
             trackProblemId=None,
             dailyProblemId=wrong_answer.daily_problem_id,
-            track=problem.track,
-            chapter=problem.chapter,
+            track=None,
+            chapter=None,
             problemType=problem.problem_type,
             isResolved=wrong_answer.is_resolved,
             reviewCount=wrong_answer.review_count,
@@ -281,13 +279,7 @@ def get_wrong_answers_service(
         query = (
             query
             .outerjoin(Problem, WrongAnswer.track_problem_id == Problem.id)
-            .outerjoin(DailyProblem, WrongAnswer.daily_problem_id == DailyProblem.id)
-            .filter(
-                or_(
-                    Problem.track == track,
-                    DailyProblem.track == track,
-                )
-            )
+            .filter(Problem.track == track)
         )
 
     wrong_answers = (
@@ -331,13 +323,7 @@ def get_review_wrong_answers_service(
         query = (
             query
             .outerjoin(Problem, WrongAnswer.track_problem_id == Problem.id)
-            .outerjoin(DailyProblem, WrongAnswer.daily_problem_id == DailyProblem.id)
-            .filter(
-                or_(
-                    Problem.track == track,
-                    DailyProblem.track == track,
-                )
-            )
+            .filter(Problem.track == track)
         )
 
     wrong_answers = (
