@@ -279,6 +279,41 @@ def reveal_answer(
     "/{track}/chapters/{chapter}/complete",
     response_model=ChapterCompleteResponse,
     summary="챕터 완료",
+    responses={
+        200: {
+            "description": "챕터 완료 성공",
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "첫 학습 완료": {
+                            "summary": "첫 학습 완료 (XP 지급)",
+                            "value": {
+                                "chapter": "ch1",
+                                "isCompleted": True,
+                                "isFirstCompletion": True,
+                                "baseXP": 50,
+                                "xpDeducted": 10,
+                                "xpEarned": 40,
+                                "hintUsed": 1,
+                                "revealUsed": 1,
+                            },
+                        },
+                        "복습 완료": {
+                            "summary": "복습 완료 (이번 복습에서 차감된 XP 포함)",
+                            "value": {
+                                "chapter": "ch1",
+                                "isCompleted": True,
+                                "isFirstCompletion": False,
+                                "xpDeducted": 10,
+                                "hintUsed": 1,
+                                "revealUsed": 1,
+                            },
+                        },
+                    }
+                }
+            },
+        }
+    },
 )
 def complete_chapter(
     track: str,
@@ -286,6 +321,25 @@ def complete_chapter(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    """
+    챕터의 마지막 레슨을 완료한 후 챕터 완료 처리를 합니다.
+
+    **첫 학습 완료** (`isFirstCompletion: true`):
+    - 기본 50 XP 지급
+    - 힌트 사용 1회당 5 XP 차감 (사용 시점에 이미 차감됨)
+    - 정답 공개 1회당 5 XP 차감 (사용 시점에 이미 차감됨)
+    - `xpEarned` = baseXP(50) - xpDeducted
+
+    **복습 완료** (`isFirstCompletion: false`):
+    - XP 지급 없음
+    - 이번 복습 세션에서 새로 사용한 힌트/정답공개에 한해 5 XP씩 차감 (사용 시점에 이미 차감됨)
+    - `xpDeducted`, `hintUsed`, `revealUsed`: 이번 복습에서 차감된 내역 (없으면 0)
+    - `baseXP`, `xpEarned`는 응답에 포함되지 않음
+
+    **힌트/정답공개 공통 규칙:**
+    - 이전에 이미 사용한 힌트 레벨 또는 공개한 정답 → XP 차감 없이 즉시 반환
+    - 처음 사용하는 경우에만 5 XP 차감
+    """
     result = complete_chapter_service(
         db=db,
         user_id=current_user.id,

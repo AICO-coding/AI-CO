@@ -267,6 +267,7 @@ def hint_service(db: Session, user_id: int, track: str, chapter: str, problem_id
 
     used_levels = problem_entry.get("usedHintLevels", [])
     if hint_level in used_levels:
+        # 이미 사용한 힌트 — XP 차감 없이 반환
         return {
             "xpDeducted": 0,
             "totalXP": user.xp,
@@ -276,12 +277,16 @@ def hint_service(db: Session, user_id: int, track: str, chapter: str, problem_id
     used_levels.append(hint_level)
     problem_entry["usedHintLevels"] = used_levels
     problem_entry["hintsUsed"] = len(used_levels)
-
     progress.report["problems"] = problems
     progress.hint_used = sum(p["hintsUsed"] for p in problems)
 
-    # 힌트 사용 즉시 5 XP 차감
     user.xp = max(user.xp - 5, 0)
+
+    # 복습 중 신규 힌트 사용 — 차감분 누적
+    if progress.is_completed:
+        review = progress.report.get("reviewDeductions", {"hintXP": 0, "revealXP": 0})
+        review["hintXP"] = review.get("hintXP", 0) + 5
+        progress.report["reviewDeductions"] = review
 
     flag_modified(progress, "report")
     db.commit()
@@ -319,19 +324,28 @@ def reveal_answer_service(db: Session, user_id: int, track: str, chapter: str, p
     problems = progress.report.get("problems", [])
     problem_entry = next((p for p in problems if p["problemId"] == problem_id), None)
 
+    already_revealed = problem_entry.get("usedReveal", False) if problem_entry else False
+    if already_revealed:
+        # 이미 공개한 정답 — XP 차감 없이 반환
+        result = {"answer": problem.answer, "xpDeducted": 0, "totalXP": user.xp}
+        if problem.explanation:
+            result["explanation"] = problem.explanation
+        return result
+
     hints_used = problem_entry.get("hintsUsed", 0) if problem_entry else 0
     if hints_used < 2:
         return {"error": "힌트를 최소 2회 이상 사용해야 정답을 공개할 수 있습니다."}
 
-    already_revealed = problem_entry.get("usedReveal", False) if problem_entry else False
-    if already_revealed:
-        return {"error": "이미 정답을 공개한 문제입니다."}
-
     problem_entry["usedReveal"] = True
     progress.report["problems"] = problems
 
-    # 정답 공개 즉시 5 XP 차감
     user.xp = max(user.xp - 5, 0)
+
+    # 복습 중 신규 정답공개 — 차감분 누적
+    if progress.is_completed:
+        review = progress.report.get("reviewDeductions", {"hintXP": 0, "revealXP": 0})
+        review["revealXP"] = review.get("revealXP", 0) + 5
+        progress.report["reviewDeductions"] = review
 
     flag_modified(progress, "report")
     db.commit()
@@ -376,21 +390,40 @@ def complete_chapter_service(db: Session, user_id: int, track: str, chapter: str
     if len(completed_lessons) < all_lessons:
         return {"error": "완료하지 않은 레슨이 있습니다."}
 
-    # 이미 완료된 챕터면 중복 XP 지급 방지
+    # 복습인 경우 (이미 완료된 챕터) — XP 지급 없이 복습 완료 응답
     if progress.is_completed:
-        return {"error": "이미 완료된 챕터입니다."}
+        review = progress.report.get("reviewDeductions", {"hintXP": 0, "revealXP": 0})
+        hint_xp = review.get("hintXP", 0)
+        reveal_xp = review.get("revealXP", 0)
 
-    # 챕터 완료 시 힌트/정답공개 여부와 무관하게 50 XP 지급
+        # 복습 차감 기록 초기화
+        progress.report["reviewDeductions"] = {"hintXP": 0, "revealXP": 0}
+        flag_modified(progress, "report")
+        db.commit()
+
+        return {
+            "chapter": chapter,
+            "isCompleted": True,
+            "isFirstCompletion": False,
+            "xpDeducted": hint_xp + reveal_xp,
+            "hintUsed": hint_xp // 5,
+            "revealUsed": reveal_xp // 5,
+        }
+
+    # 첫 학습 완료 — 50 XP 지급, 힌트/정답공개 차감분 계산
     CHAPTER_COMPLETION_XP = 50
     problems = progress.report.get("problems", [])
     total_hints_used = sum(p.get("hintsUsed", 0) for p in problems)
+    total_reveals_used = sum(1 for p in problems if p.get("usedReveal", False))
+    total_xp_deducted = (total_hints_used + total_reveals_used) * 5
+    xp_earned = CHAPTER_COMPLETION_XP - total_xp_deducted
 
     # 진도 업데이트
     progress.is_completed = True
-    progress.xp_earned = CHAPTER_COMPLETION_XP
+    progress.xp_earned = xp_earned
     progress.hint_used = total_hints_used
 
-    # 유저 총 XP 누적
+    # 유저 총 XP 누적 (힌트/정답공개 차감은 사용 시점에 이미 반영됨)
     user.xp += CHAPTER_COMPLETION_XP
 
     db.commit()
@@ -398,8 +431,10 @@ def complete_chapter_service(db: Session, user_id: int, track: str, chapter: str
     return {
         "chapter": chapter,
         "isCompleted": True,
-        "chapterXP": CHAPTER_COMPLETION_XP,
-        "xpDeducted": 0,
-        "xpEarned": CHAPTER_COMPLETION_XP,
+        "isFirstCompletion": True,
+        "baseXP": CHAPTER_COMPLETION_XP,
+        "xpDeducted": total_xp_deducted,
+        "xpEarned": xp_earned,
         "hintUsed": total_hints_used,
+        "revealUsed": total_reveals_used,
     }

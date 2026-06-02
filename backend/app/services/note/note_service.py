@@ -304,10 +304,12 @@ def get_wrong_answers_service(
     )
 
 
+REVIEW_LIMIT = 5
+
+
 def get_review_wrong_answers_service(
     db: Session,
     user_id: int,
-    limit: int = 5,
     track: str | None = None,
     source_type: str | None = None,
 ) -> ReviewProblemResponse:
@@ -341,7 +343,7 @@ def get_review_wrong_answers_service(
     wrong_answers = (
         query
         .order_by(WrongAnswer.created_at.desc())
-        .limit(limit)
+        .limit(REVIEW_LIMIT)
         .all()
     )
 
