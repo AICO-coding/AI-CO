@@ -76,7 +76,11 @@ class RevealResponse(BaseModel):
 class ChapterCompleteResponse(BaseModel):
     chapter: str
     isCompleted: bool
-    chapterXP: int
-    xpDeducted: int
-    xpEarned: int
-    hintUsed: int
+    isFirstCompletion: bool
+    # 첫 학습 & 복습 공통 (이번 세션 차감 정보)
+    xpDeducted: int | None = None
+    hintUsed: int | None = None
+    revealUsed: int | None = None
+    # 첫 학습일 때만 포함
+    baseXP: int | None = None
+    xpEarned: int | None = None
