@@ -99,7 +99,6 @@ def generate_default_daily_problem_payloads() -> list[dict[str, Any]]:
             },
             "answer": {"answer": 1},
             "explanation": "선형 회귀는 입력 변수와 출력 변수의 관계를 선형식으로 표현해 값을 예측하는 모델입니다.",
-            "hints": ["입력과 출력 사이의 관계를 생각해보세요."],
         },
         {
             "track": "ML-분류",
@@ -116,7 +115,6 @@ def generate_default_daily_problem_payloads() -> list[dict[str, Any]]:
             },
             "answer": {"answer": 2},
             "explanation": "분류는 입력 데이터를 정해진 클래스 중 하나로 구분하는 문제입니다.",
-            "hints": ["분류는 카테고리를 예측하는 문제입니다."],
         },
         {
             "track": "ML-회귀",
@@ -133,7 +131,6 @@ def generate_default_daily_problem_payloads() -> list[dict[str, Any]]:
             },
             "answer": {"answer": 1},
             "explanation": "과적합은 모델이 훈련 데이터에 지나치게 맞춰져 새로운 데이터에는 일반화가 잘 안 되는 상태입니다.",
-            "hints": ["훈련 데이터와 새로운 데이터 성능 차이를 생각해보세요."],
         },
         {
             "track": "CV",
@@ -150,7 +147,6 @@ def generate_default_daily_problem_payloads() -> list[dict[str, Any]]:
             },
             "answer": {"answer": 1},
             "explanation": "CNN의 합성곱 층은 이미지의 지역적인 패턴이나 특징을 추출하는 데 사용됩니다.",
-            "hints": ["이미지에서 작은 영역의 특징을 찾는 과정을 생각해보세요."],
         },
         {
             "track": "NLP",
@@ -167,7 +163,6 @@ def generate_default_daily_problem_payloads() -> list[dict[str, Any]]:
             },
             "answer": {"answer": 1},
             "explanation": "토큰화는 문장을 단어, 서브워드, 문자 등 작은 단위로 나누는 과정입니다.",
-            "hints": ["문장을 모델이 처리하기 쉬운 단위로 나누는 과정입니다."],
         },
     ]
 
@@ -240,7 +235,6 @@ def create_daily_problems(
             content=payload["content"],
             answer=payload["answer"],
             explanation=payload.get("explanation"),
-            hints=payload.get("hints"),
         )
 
         db.add(daily_problem)

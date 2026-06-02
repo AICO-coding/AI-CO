@@ -34,7 +34,6 @@ class DailyProblem(Base):
     content = Column(JSONB, nullable=False)
     answer = Column(JSONB, nullable=False)
     explanation = Column(String, nullable=True)
-    hints = Column(JSONB, nullable=True)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
