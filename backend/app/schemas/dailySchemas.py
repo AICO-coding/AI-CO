@@ -18,7 +18,7 @@ class DailyResponse(BaseModel):
 
 class DailySubmitAnswerItem(BaseModel):
     dailyProblemId: int
-    answer: Any  # multiple_choice: { answer: int }
+    answer: Any  # multiple_choice: { correct_index: int }
 
 
 class DailySubmitRequest(BaseModel):
@@ -51,5 +51,5 @@ class DailyResultResponse(BaseModel):
     totalProblems: int
     xpEarned: int
     isPerfect: bool
-    results: Any  # DailySubmitResultItem 목록 (JSONB)
+    results: list[DailySubmitResultItem]
     completedAt: datetime
