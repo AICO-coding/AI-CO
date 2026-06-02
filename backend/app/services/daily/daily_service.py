@@ -85,8 +85,6 @@ def get_user_progress_summary(
 def generate_default_daily_problem_payloads() -> list[dict[str, Any]]:
     return [
         {
-            "track": "ML-회귀",
-            "chapter": "ch1",
             "problem_type": "multiple_choice",
             "content": {
                 "question": "다음 중 선형 회귀에 대한 설명으로 옳은 것은?",
@@ -101,8 +99,6 @@ def generate_default_daily_problem_payloads() -> list[dict[str, Any]]:
             "explanation": "선형 회귀는 입력 변수와 출력 변수의 관계를 선형식으로 표현해 값을 예측하는 모델입니다.",
         },
         {
-            "track": "ML-분류",
-            "chapter": "ch1",
             "problem_type": "multiple_choice",
             "content": {
                 "question": "분류 문제의 목표로 가장 알맞은 것은?",
@@ -117,8 +113,6 @@ def generate_default_daily_problem_payloads() -> list[dict[str, Any]]:
             "explanation": "분류는 입력 데이터를 정해진 클래스 중 하나로 구분하는 문제입니다.",
         },
         {
-            "track": "ML-회귀",
-            "chapter": "ch2",
             "problem_type": "multiple_choice",
             "content": {
                 "question": "과적합에 대한 설명으로 옳은 것은?",
@@ -133,8 +127,6 @@ def generate_default_daily_problem_payloads() -> list[dict[str, Any]]:
             "explanation": "과적합은 모델이 훈련 데이터에 지나치게 맞춰져 새로운 데이터에는 일반화가 잘 안 되는 상태입니다.",
         },
         {
-            "track": "CV",
-            "chapter": "ch1",
             "problem_type": "multiple_choice",
             "content": {
                 "question": "CNN에서 합성곱 층의 주요 역할은?",
@@ -149,8 +141,6 @@ def generate_default_daily_problem_payloads() -> list[dict[str, Any]]:
             "explanation": "CNN의 합성곱 층은 이미지의 지역적인 패턴이나 특징을 추출하는 데 사용됩니다.",
         },
         {
-            "track": "NLP",
-            "chapter": "ch1",
             "problem_type": "multiple_choice",
             "content": {
                 "question": "토큰화의 의미로 가장 적절한 것은?",
@@ -229,8 +219,6 @@ def create_daily_problems(
             user_id=user_id,
             date=target_date,
             problem_order=index,
-            track=payload["track"],
-            chapter=payload["chapter"],
             problem_type=payload["problem_type"],
             content=payload["content"],
             answer=payload["answer"],
@@ -287,8 +275,6 @@ def get_today_daily_result(
 def make_daily_problem_item(problem: DailyProblem) -> DailyProblemItem:
     return DailyProblemItem(
         dailyProblemId=problem.id,
-        track=problem.track,
-        chapter=problem.chapter,
         problemType=problem.problem_type,
         content=problem.content,
     )
@@ -415,8 +401,6 @@ def submit_today_daily_service(
 
         result_item = {
             "dailyProblemId": problem.id,
-            "track": problem.track,
-            "chapter": problem.chapter,
             "problemType": problem.problem_type,
             "content": problem.content,
             "userAnswer": user_answer,

@@ -27,8 +27,6 @@ class DailyProblem(Base):
 
     problem_order = Column(Integer, nullable=False)
 
-    track = Column(String(50), nullable=False)
-    chapter = Column(String(100), nullable=False)
     problem_type = Column(String(50), nullable=False)
 
     content = Column(JSONB, nullable=False)
