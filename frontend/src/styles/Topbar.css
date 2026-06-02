@@ -59,3 +59,7 @@
   font-weight: 800;
   color: var(--or);
 }
+.tb-logo {
+  cursor: pointer;
+  user-select: none;
+}

@@ -1,8 +1,8 @@
 .home-wrap {
   width: 100%;
+  padding: 24px;
 }
 
-/* 히어로 카드 */
 .home-hero {
   background: linear-gradient(135deg, var(--or), var(--or3));
   border-radius: var(--r24);

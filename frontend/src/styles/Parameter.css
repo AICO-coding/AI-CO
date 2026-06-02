@@ -1,0 +1,89 @@
+.param-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 18px;
+  height: calc(90vh - 120px);
+}
+
+.param-panel {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.param-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #111827;
+}
+
+.param-item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.param-item label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #374151;
+}
+
+.param-item input[type="range"] {
+  width: 100%;
+}
+
+.param-value {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.param-preview {
+  background: #0b1020;
+  border-radius: 20px;
+  padding: 24px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.param-preview-title {
+  font-size: 13px;
+  color: #94a3b8;
+  margin-bottom: 16px;
+}
+
+.param-preview-code {
+  font-size: 32px;
+  font-weight: 800;
+  color: #f8fafc;
+}
+
+.param-grid {
+  margin-top: 28px;
+  display: grid;
+  gap: 8px;
+}
+
+.param-row {
+  display: flex;
+  gap: 8px;
+}
+
+.param-cell {
+  width: 54px;
+  height: 54px;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+}

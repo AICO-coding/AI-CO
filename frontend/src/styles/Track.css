@@ -1,257 +1,88 @@
 .track-wrap {
-  width: 100%;
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 48px 0 80px;
 }
 
 .track-page-title {
-  font-size: 22px;
-  font-weight: 900;
-  color: var(--dk);
-  margin-bottom: 6px;
-}
-.track-page-sub {
-  font-size: 14px;
-  color: var(--gy4);
-  font-weight: 600;
-  margin-bottom: 24px;
-}
-
-/* 트랙 카드 그리드 */
-.track-page-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
-  margin-bottom: 24px;
-}
-.track-page-card {
-  background: var(--wh);
-  border-radius: var(--r16);
-  padding: 24px 20px;
-  cursor: pointer;
-  border: 2px solid var(--gy2);
-  transition: all .18s;
-  position: relative;
-  overflow: hidden;
-  text-decoration: none;
-  color: var(--dk);
-  display: block;
-}
-.track-page-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 5px;
-}
-.tc-ml::before { background: var(--or); }
-.tc-cv::before { background: var(--gr); }
-.tc-nlp::before { background: var(--pu); }
-.track-page-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, .1);
-}
-.tc-emoji {
-  font-size: 40px;
-  margin-bottom: 12px;
-  display: block;
-}
-.tc-name {
-  font-size: 18px;
-  font-weight: 900;
-  margin-bottom: 4px;
-}
-.tc-sub {
-  font-size: 12px;
-  color: var(--gy4);
-  font-weight: 600;
-  margin-bottom: 14px;
-}
-.tc-prog-wrap {
-  background: var(--gy2);
-  border-radius: 20px;
-  height: 7px;
-  overflow: hidden;
-  margin-bottom: 8px;
-}
-.tc-prog {
-  height: 100%;
-  border-radius: 20px;
-  transition: width .5s;
-}
-.tc-prog-ml { background: var(--or); }
-.tc-prog-cv { background: var(--gr); }
-.tc-prog-nlp { background: var(--pu); }
-.tc-info {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--gy4);
-}
-
-/* 뒤로가기 */
-.track-back {
-  background: none;
-  border: none;
-  font-size: 14px;
+  font-size: 38px;
   font-weight: 800;
-  color: var(--gy4);
-  cursor: pointer;
-  font-family: var(--ff);
-  margin-bottom: 20px;
-  padding: 0;
-  transition: color .12s;
-  text-decoration: none;
-  display: inline-block;
+  color: #111;
 }
-.track-back:hover { color: var(--dk); }
 
-/* 챕터 헤더 */
-.chap-header {
-  background: var(--wh);
-  border: 2px solid var(--gy2);
-  border-radius: var(--r16);
-  padding: 20px 24px;
-  margin-bottom: 16px;
+.track-page-sub {
+  margin-top: 10px;
+  font-size: 16px;
+  color: #666;
 }
-.chap-header-top {
-  display: flex;
+.track-page-grid {
+  margin-top: 36px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.track-page-card {
+  background: #ffffff;
+  border: 1px solid #ffd7bd;
+  border-radius: 24px;
+  padding: 24px;
+  cursor: pointer;
+
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.track-page-card:hover {
+  transform: translateY(-4px);
+  border-color: #ffb37a;
+  box-shadow: 0 14px 30px rgba(255, 107, 0, 0.14);
+}
+
+.track-card-top {
   align-items: center;
-  gap: 16px;
-  margin-bottom: 14px;
 }
-.chap-h-emoji { font-size: 48px; }
-.chap-h-name {
-  font-size: 22px;
-  font-weight: 900;
+
+.tc-name {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1f2937;
 }
-.chap-h-sub {
-  font-size: 13px;
-  color: var(--gy4);
-  font-weight: 600;
-  margin-top: 2px;
+
+.tc-progress-wrap {
+  margin-top: 28px;
 }
-.chap-h-prog {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.chap-h-bar {
-  flex: 1;
-  background: var(--gy2);
-  border-radius: 20px;
-  height: 10px;
+
+.tc-progress-bar {
+  width: 100%;
+  height: 12px;
+  background: #ffe6d4;
+  border-radius: 999px;
   overflow: hidden;
 }
-.chap-h-fill {
+
+.tc-progress-fill {
   height: 100%;
-  border-radius: 20px;
-  transition: width .5s;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ff6b00, #ff8c42);
+  transition: width 0.4s ease;
 }
-.fill-ml { background: var(--or); }
-.fill-cv { background: var(--gr); }
-.fill-nlp { background: var(--pu); }
-.chap-h-pct {
+
+.tc-progress-text {
+  margin-top: 10px;
   font-size: 14px;
-  font-weight: 900;
-  width: 40px;
-  text-align: right;
-}
-.pct-ml { color: var(--or); }
-.pct-cv { color: var(--gr); }
-.pct-nlp { color: var(--pu); }
-
-/* 챕터 목록 */
-.chap-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.chap-item {
-  background: var(--wh);
-  border: 2px solid var(--gy2);
-  border-radius: var(--r16);
-  padding: 16px 20px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  transition: all .12s;
-  cursor: pointer;
-}
-.chap-item:hover { box-shadow: 0 4px 12px rgba(0,0,0,.06); }
-.chap-done { border-color: var(--gy2); }
-.chap-active {
-  border-color: var(--or);
-  background: var(--orL);
-  box-shadow: 0 4px 0 var(--orB);
-}
-.chap-lock {
-  opacity: .5;
-  cursor: not-allowed;
-}
-.chap-lock:hover { box-shadow: none; }
-
-/* 챕터 번호 뱃지 */
-.chap-num-badge {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  font-weight: 900;
-  flex-shrink: 0;
-}
-.num-done { background: var(--gr); color: #fff; }
-.num-active { background: var(--or); color: #fff; }
-.num-lock { background: var(--gy2); color: var(--gy4); font-size: 14px; }
-
-/* 챕터 내용 */
-.chap-content { flex: 1; }
-.chap-title {
-  font-size: 15px;
-  font-weight: 900;
-  margin-bottom: 3px;
-  color: var(--dk);
-}
-.chap-sub {
-  font-size: 12px;
-  color: var(--gy4);
   font-weight: 600;
-  margin-bottom: 8px;
-}
-.chap-tags {
-  display: flex;
-  gap: 4px;
-  flex-wrap: wrap;
-}
-.chap-tag {
-  font-size: 10px;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: var(--r24);
-  background: var(--gy2);
-  color: var(--gy5);
-}
-.chap-active .chap-tag {
-  background: rgba(255,255,255,.6);
-  color: var(--or2);
+  color: #c2410c;
 }
 
-/* 챕터 오른쪽 */
-.chap-right {
+/* =========================================================
+   EXTRA
+========================================================= */
+
+.tc-extra {
+  margin-top: 24px;
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
-  flex-shrink: 0;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #9a3412;
 }
-.chap-xp {
-  font-size: 13px;
-  font-weight: 900;
-}
-.xp-ml { color: var(--or); }
-.xp-cv { color: var(--gr); }
-.xp-nlp { color: var(--pu); }
-.chap-arrow {
-  font-size: 16px;
-  color: var(--gy3);
-}
-.chap-active .chap-arrow { color: var(--or); }
