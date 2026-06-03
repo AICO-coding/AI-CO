@@ -102,53 +102,69 @@ export default function DailyTask() {
     return (
       <div className="page-container">
         <div className="page-inner">
-          <div className="header-card">
-            <div className="header-title">{result.date} 데일리 결과</div>
-            <div className="header-desc">
-              {completedAt ? `${completedAt}에 완료` : "오늘의 퀴즈를 완료했습니다."}
-            </div>
-          </div>
 
-          <div className="daily-result-summary">
-            <div className="daily-result-score">
-              {result.score} <span>/ {result.totalProblems}</span>
-            </div>
-            <div className="daily-result-xp">+{result.xpEarned} XP</div>
+          {/* 점수 카드 */}
+          <div className="daily-score-card">
             {result.isPerfect && (
-              <div className="daily-result-perfect">🎉 퍼펙트!</div>
+              <div className="daily-score-perfect">🎉 퍼펙트!</div>
             )}
+            <div className="daily-score-main">
+              <span className="daily-score-num">{result.score}</span>
+              <span className="daily-score-total">/ {result.totalProblems}</span>
+            </div>
+            <div className="daily-score-meta">
+              <span className="daily-score-xp">+{result.xpEarned} XP</span>
+              {completedAt && (
+                <span className="daily-score-time">{completedAt} 완료</span>
+              )}
+            </div>
           </div>
 
+          {/* 문제별 결과 */}
           <div className="daily-result-list">
             {resultList.map((item, idx) => (
               <div
                 key={item.dailyProblemId ?? idx}
                 className={`daily-result-item ${item.isCorrect ? "correct" : "wrong"}`}
               >
-                <div className="daily-result-item-status">
-                  {item.isCorrect ? "✅ 정답" : "❌ 오답"}
+                <div className="daily-result-item-header">
+                  <span className="daily-result-item-num">Q{idx + 1}</span>
+                  <span className={`daily-result-badge ${item.isCorrect ? "correct" : "wrong"}`}>
+                    {item.isCorrect ? "✅ 정답" : "❌ 오답"}
+                  </span>
                 </div>
+
                 <div className="daily-result-item-question">
                   {item.content?.question}
                 </div>
+
                 {!item.isCorrect && (
-                  <>
-                    <div className="daily-result-item-wrong-answer">
-                      내 답: {item.content?.choices?.[item.userAnswer?.answer - 1]}
+                  <div className="daily-result-answer-row">
+                    <div className="daily-result-answer-box wrong">
+                      <span className="daily-result-answer-label">내 답</span>
+                      <span className="daily-result-answer-text">
+                        {item.content?.choices?.[item.userAnswer?.answer - 1] ?? "-"}
+                      </span>
                     </div>
-                    <div className="daily-result-item-answer">
-                      정답: {item.content?.choices?.[item.correctAnswer?.answer - 1]}
+                    <div className="daily-result-answer-box correct">
+                      <span className="daily-result-answer-label">정답</span>
+                      <span className="daily-result-answer-text">
+                        {item.content?.choices?.[item.correctAnswer?.answer - 1] ?? "-"}
+                      </span>
                     </div>
-                  </>
+                  </div>
                 )}
+
                 {item.explanation && (
-                  <div className="daily-result-item-explanation">
+                  <div className="daily-result-explanation">
+                    <span className="daily-result-explanation-label">해설</span>
                     {item.explanation}
                   </div>
                 )}
               </div>
             ))}
           </div>
+
         </div>
       </div>
     );
