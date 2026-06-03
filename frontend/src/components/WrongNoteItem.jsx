@@ -8,10 +8,17 @@ const PROBLEM_TYPE_LABEL = {
   parameter:       "파라미터",
 };
 
+const PROBLEM_TYPE_COLOR = {
+  multiple_choice: "type-mc",
+  code_fill:       "type-cf",
+  parameter:       "type-pm",
+};
+
 export default function WrongNoteItem({ item, trackId, onDelete }) {
   const navigate = useNavigate();
 
   const typeLabel = PROBLEM_TYPE_LABEL[item.problemType] ?? item.problemType;
+  const typeColor = PROBLEM_TYPE_COLOR[item.problemType] ?? "";
 
   async function handleDelete() {
     const token = localStorage.getItem("accessToken");
@@ -27,33 +34,30 @@ export default function WrongNoteItem({ item, trackId, onDelete }) {
   }
 
   return (
-    <div className="wrong-card">
-      <div className="wrong-header">
-        <span className="track-badge">{item.track}</span>
-        <span className="chapter-badge">{item.chapter}</span>
-      </div>
-
-      <div className="wrong-body">
-        <p className="wrong-title">{item.chapter}</p>
-        <p className="wrong-meta">문제 유형: {typeLabel}</p>
-        <p className="wrong-meta">복습 횟수: {item.reviewCount}회</p>
-      </div>
-
-      <div className="wrong-footer">
+    <div
+      className="wrong-card"
+      onClick={() => navigate(`/wrong-answer/${trackId}/${item.id}`)}
+    >
+      <div className="wrong-card-top">
+        <div className="wrong-card-tags">
+          <span className="track-badge">{item.track}</span>
+          <span className={`wrong-type-badge ${typeColor}`}>{typeLabel}</span>
+        </div>
         <span className={item.isResolved ? "status resolved" : "status unresolved"}>
           {item.isResolved ? "복습완료" : "복습전"}
         </span>
-        <div className="wrong-footer-actions">
-          <button
-            className="detail-btn"
-            onClick={() => navigate(`/wrong-answer/${trackId}/${item.id}`)}
-          >
-            상세보기
-          </button>
-          <button className="delete-btn" onClick={handleDelete}>
-            삭제
-          </button>
-        </div>
+      </div>
+
+      <div className="wrong-card-title">{item.chapter}</div>
+
+      <div className="wrong-card-bottom">
+        <span className="wrong-review-count">복습 {item.reviewCount}회</span>
+        <button
+          className="delete-btn"
+          onClick={(e) => { e.stopPropagation(); handleDelete(); }}
+        >
+          삭제
+        </button>
       </div>
     </div>
   );
