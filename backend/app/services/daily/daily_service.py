@@ -87,71 +87,71 @@ def generate_default_daily_problem_payloads() -> list[dict[str, Any]]:
         {
             "problem_type": "multiple_choice",
             "content": {
-                "question": "다음 중 선형 회귀에 대한 설명으로 옳은 것은?",
                 "choices": [
                     "입력과 출력의 관계를 선형식으로 표현한다",
                     "이미지만 분류한다",
                     "강화학습 알고리즘이다",
                     "데이터베이스 정규화 기법이다",
                 ],
+                "question": "다음 중 선형 회귀에 대한 설명으로 옳은 것은?",
             },
-            "answer": {"answer": 1},
+            "answer": {"correct_index": 1},
             "explanation": "선형 회귀는 입력 변수와 출력 변수의 관계를 선형식으로 표현해 값을 예측하는 모델입니다.",
         },
         {
             "problem_type": "multiple_choice",
             "content": {
-                "question": "분류 문제의 목표로 가장 알맞은 것은?",
                 "choices": [
                     "연속적인 숫자 예측",
                     "데이터를 정해진 클래스 중 하나로 구분",
                     "데이터베이스 테이블 생성",
                     "이미지 해상도 증가",
                 ],
+                "question": "분류 문제의 목표로 가장 알맞은 것은?",
             },
-            "answer": {"answer": 2},
+            "answer": {"correct_index": 2},
             "explanation": "분류는 입력 데이터를 정해진 클래스 중 하나로 구분하는 문제입니다.",
         },
         {
             "problem_type": "multiple_choice",
             "content": {
-                "question": "과적합에 대한 설명으로 옳은 것은?",
                 "choices": [
                     "훈련 데이터에는 잘 맞지만 새로운 데이터에는 성능이 낮은 상태",
                     "항상 좋은 모델 상태",
                     "데이터가 전혀 없는 상태",
                     "정답이 여러 개인 상태",
                 ],
+                "question": "과적합에 대한 설명으로 옳은 것은?",
             },
-            "answer": {"answer": 1},
+            "answer": {"correct_index": 1},
             "explanation": "과적합은 모델이 훈련 데이터에 지나치게 맞춰져 새로운 데이터에는 일반화가 잘 안 되는 상태입니다.",
         },
         {
             "problem_type": "multiple_choice",
             "content": {
-                "question": "CNN에서 합성곱 층의 주요 역할은?",
                 "choices": [
                     "이미지의 지역적 특징 추출",
                     "문장을 토큰으로 분리",
                     "정답 라벨 삭제",
                     "데이터베이스 인덱스 생성",
                 ],
+                "question": "CNN에서 합성곱 층의 주요 역할은?",
             },
-            "answer": {"answer": 1},
+            "answer": {"correct_index": 1},
             "explanation": "CNN의 합성곱 층은 이미지의 지역적인 패턴이나 특징을 추출하는 데 사용됩니다.",
         },
         {
             "problem_type": "multiple_choice",
             "content": {
-                "question": "토큰화의 의미로 가장 적절한 것은?",
                 "choices": [
                     "문장을 작은 단위로 나누는 과정",
                     "이미지를 회전하는 과정",
                     "모델의 파라미터를 삭제하는 과정",
                     "데이터를 암호화하는 과정",
                 ],
+                "question": "토큰화의 의미로 가장 적절한 것은?",
             },
-            "answer": {"answer": 1},
+            "answer": {"correct_index": 1},
             "explanation": "토큰화는 문장을 단어, 서브워드, 문자 등 작은 단위로 나누는 과정입니다.",
         },
     ]
@@ -377,7 +377,9 @@ def submit_today_daily_service(
         user_answer = normalize_answer(submitted_answer_map[problem.id])
         correct_answer = normalize_answer(problem.answer)
 
-        is_correct = user_answer == correct_answer
+        user_index = user_answer.get("answer") if isinstance(user_answer, dict) else user_answer
+        correct_index = correct_answer.get("correct_index") if isinstance(correct_answer, dict) else correct_answer
+        is_correct = user_index == correct_index
 
         wrong_answer_id = None
 
@@ -404,7 +406,7 @@ def submit_today_daily_service(
             "problemType": problem.problem_type,
             "content": problem.content,
             "userAnswer": user_answer,
-            "correctAnswer": problem.answer,
+            "correctAnswer": {"answer": correct_index},
             "isCorrect": is_correct,
             "explanation": problem.explanation,
             "wrongAnswerId": wrong_answer_id,

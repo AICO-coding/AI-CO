@@ -14,6 +14,7 @@ class WrongAnswerListItem(BaseModel):
     problemType: str = Field(..., description="문제 유형", example="multiple_choice")
     isResolved: bool = Field(..., description="복습 후 해결 여부", example=False)
     reviewCount: int = Field(..., description="복습 횟수", example=0)
+    date: str = Field(..., description="오답 등록 날짜")
 
 
 class WrongAnswerListResponse(BaseModel):

@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 from typing import Any
 from fastapi import HTTPException
 from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import func
 from app.models.noteModels import WrongAnswer
 from app.models.problemModels import Problem
 from app.models.dailyModels import DailyProblem
@@ -203,6 +204,7 @@ def make_wrong_answer_list_item(wrong_answer: WrongAnswer) -> WrongAnswerListIte
             problemType=problem.problem_type,
             isResolved=wrong_answer.is_resolved,
             reviewCount=wrong_answer.review_count,
+            date=to_date_string(wrong_answer.created_at),
         )
 
     if wrong_answer.source_type == SOURCE_DAILY:
@@ -224,6 +226,7 @@ def make_wrong_answer_list_item(wrong_answer: WrongAnswer) -> WrongAnswerListIte
             problemType=problem.problem_type,
             isResolved=wrong_answer.is_resolved,
             reviewCount=wrong_answer.review_count,
+            date=to_date_string(wrong_answer.created_at),
         )
 
     raise HTTPException(
@@ -328,7 +331,7 @@ def get_review_wrong_answers_service(
 
     wrong_answers = (
         query
-        .order_by(WrongAnswer.created_at.desc())
+        .order_by(func.random())
         .limit(REVIEW_LIMIT)
         .all()
     )
@@ -384,6 +387,18 @@ def submit_review_answers_service(
         correct_answer = normalize_answer(
             get_correct_answer_from_wrong_answer(wrong_answer)
         )
+
+        is_multiple_choice = (
+            (wrong_answer.source_type == SOURCE_LEARNING and wrong_answer.track_problem and wrong_answer.track_problem.problem_type == "multiple_choice")
+            or
+            (wrong_answer.source_type == SOURCE_DAILY and wrong_answer.daily_problem and wrong_answer.daily_problem.problem_type == "multiple_choice")
+        )
+
+        if is_multiple_choice:
+            if isinstance(correct_answer, dict):
+                correct_answer = correct_answer.get("correct_index")
+            if isinstance(user_answer, dict):
+                user_answer = user_answer.get("correct_index") or user_answer.get("answer")
 
         is_correct = user_answer == correct_answer
 
