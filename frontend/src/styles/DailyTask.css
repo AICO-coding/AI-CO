@@ -100,3 +100,92 @@
   border: none;
   cursor: pointer;
 }
+
+.daily-result-summary {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  border: 1px solid #e5e7eb;
+}
+
+.daily-result-score {
+  font-size: 48px;
+  font-weight: 700;
+  color: #f97316;
+}
+
+.daily-result-score span {
+  font-size: 28px;
+  color: #9ca3af;
+}
+
+.daily-result-xp {
+  font-size: 18px;
+  font-weight: 600;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.daily-result-perfect {
+  font-size: 16px;
+  font-weight: 700;
+  color: #f97316;
+  margin-top: 8px;
+}
+
+.daily-result-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.daily-result-item {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 16px;
+  border-left: 4px solid #e5e7eb;
+}
+
+.daily-result-item.correct {
+  border-left-color: #16a34a;
+}
+
+.daily-result-item.wrong {
+  border-left-color: #dc2626;
+}
+
+.daily-result-item-status {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.daily-result-item-question {
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+  margin-bottom: 6px;
+}
+
+.daily-result-item-wrong-answer {
+  font-size: 13px;
+  color: #dc2626;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.daily-result-item-answer {
+  font-size: 13px;
+  color: #16a34a;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.daily-result-item-explanation {
+  font-size: 13px;
+  color: #6b7280;
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid #f3f4f6;
+}

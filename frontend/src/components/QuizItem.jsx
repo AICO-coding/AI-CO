@@ -1,8 +1,13 @@
 import "../styles/QuizItem.css";
 import { useState } from "react";
 
-export const QuizItem = ({ question, options }) => {
+export const QuizItem = ({ question, options, onSelect }) => {
   const [selected, setSelected] = useState(null);
+
+  const handleSelect = (idx) => {
+    setSelected(idx);
+    onSelect?.(idx + 1);
+  };
 
   return (
     <div className="quiz-card">
@@ -12,7 +17,7 @@ export const QuizItem = ({ question, options }) => {
       {options.map((opt, idx) => (
         <button
           key={idx}
-          onClick={() => setSelected(idx)}
+          onClick={() => handleSelect(idx)}
           className={`quiz-option ${selected === idx ? "selected" : ""}`}
         >
           {idx + 1}. {opt}
