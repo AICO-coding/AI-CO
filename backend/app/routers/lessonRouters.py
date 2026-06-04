@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.orm import Session
 from typing import Union
 from app.core.database import get_db
@@ -29,6 +29,7 @@ from app.services.progress.progress_service import (
     get_all_progress_service,
     get_track_chapters_service,
 )
+from app.services.report.report_service import generate_report_background
 
 router = APIRouter(prefix="/tracks", tags=["Tracks"])
 
@@ -318,6 +319,7 @@ def reveal_answer(
 def complete_chapter(
     track: str,
     chapter: str,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -339,6 +341,10 @@ def complete_chapter(
     **힌트/정답공개 공통 규칙:**
     - 이전에 이미 사용한 힌트 레벨 또는 공개한 정답 → XP 차감 없이 즉시 반환
     - 처음 사용하는 경우에만 5 XP 차감
+
+    **AI 리포트 생성:**
+    - 백그라운드에서 비동기로 AI 리포트가 생성됩니다
+    - GET /reports/{track}/{chapter}에서 조회 가능합니다
     """
     result = complete_chapter_service(
         db=db,
@@ -357,6 +363,15 @@ def complete_chapter(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=result["error"],
+        )
+
+    # 백그라운드에서 AI 리포트 생성
+    if result.get("isFirstCompletion"):
+        background_tasks.add_task(
+            generate_report_background,
+            user_id=current_user.id,
+            track=track,
+            chapter=chapter
         )
 
     return result
