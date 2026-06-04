@@ -6,6 +6,8 @@ from pydantic import BaseModel, Field
 class DailyProblemItem(BaseModel):
     dailyProblemId: int
     problemType: str
+    track: str | None = None
+    chapter: str | None = None
     content: Any  # { question, choices } - 정답/힌트 미포함
 
 
@@ -28,6 +30,8 @@ class DailySubmitRequest(BaseModel):
 class DailySubmitResultItem(BaseModel):
     dailyProblemId: int
     problemType: str
+    track: str | None = None
+    chapter: str | None = None
     content: Any
     userAnswer: Any
     correctAnswer: Any

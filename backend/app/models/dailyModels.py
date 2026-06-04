@@ -29,6 +29,9 @@ class DailyProblem(Base):
 
     problem_type = Column(String(50), nullable=False)
 
+    track = Column(String, nullable=True)
+    chapter = Column(String, nullable=True)
+
     content = Column(JSONB, nullable=False)
     answer = Column(JSONB, nullable=False)
     explanation = Column(String, nullable=True)

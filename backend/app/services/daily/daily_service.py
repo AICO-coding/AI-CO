@@ -86,6 +86,8 @@ def generate_default_daily_problem_payloads() -> list[dict[str, Any]]:
     return [
         {
             "problem_type": "multiple_choice",
+            "track": "ML-회귀",
+            "chapter": "ch1",
             "content": {
                 "choices": [
                     "입력과 출력의 관계를 선형식으로 표현한다",
@@ -100,6 +102,8 @@ def generate_default_daily_problem_payloads() -> list[dict[str, Any]]:
         },
         {
             "problem_type": "multiple_choice",
+            "track": "ML-분류",
+            "chapter": "ch1",
             "content": {
                 "choices": [
                     "연속적인 숫자 예측",
@@ -114,6 +118,8 @@ def generate_default_daily_problem_payloads() -> list[dict[str, Any]]:
         },
         {
             "problem_type": "multiple_choice",
+            "track": "ML-회귀",
+            "chapter": "ch2",
             "content": {
                 "choices": [
                     "훈련 데이터에는 잘 맞지만 새로운 데이터에는 성능이 낮은 상태",
@@ -128,6 +134,8 @@ def generate_default_daily_problem_payloads() -> list[dict[str, Any]]:
         },
         {
             "problem_type": "multiple_choice",
+            "track": "CV",
+            "chapter": "ch1",
             "content": {
                 "choices": [
                     "이미지의 지역적 특징 추출",
@@ -142,6 +150,8 @@ def generate_default_daily_problem_payloads() -> list[dict[str, Any]]:
         },
         {
             "problem_type": "multiple_choice",
+            "track": "NLP",
+            "chapter": "ch1",
             "content": {
                 "choices": [
                     "문장을 작은 단위로 나누는 과정",
@@ -220,6 +230,8 @@ def create_daily_problems(
             date=target_date,
             problem_order=index,
             problem_type=payload["problem_type"],
+            track=payload.get("track"),
+            chapter=payload.get("chapter"),
             content=payload["content"],
             answer=payload["answer"],
             explanation=payload.get("explanation"),
@@ -276,6 +288,8 @@ def make_daily_problem_item(problem: DailyProblem) -> DailyProblemItem:
     return DailyProblemItem(
         dailyProblemId=problem.id,
         problemType=problem.problem_type,
+        track=problem.track,
+        chapter=problem.chapter,
         content=problem.content,
     )
 
@@ -404,6 +418,8 @@ def submit_today_daily_service(
         result_item = {
             "dailyProblemId": problem.id,
             "problemType": problem.problem_type,
+            "track": problem.track,
+            "chapter": problem.chapter,
             "content": problem.content,
             "userAnswer": user_answer,
             "correctAnswer": {"answer": correct_index},
