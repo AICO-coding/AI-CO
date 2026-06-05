@@ -1,7 +1,13 @@
+import json
+import re
+import random
 from datetime import datetime, date, time, timezone, timedelta
+from pathlib import Path
 from typing import Any
+from anthropic import Anthropic
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
+from app.core.config import ANTHROPIC_API_KEY
 from app.models.dailyModels import DailyProblem, DailyResult
 from app.models.noteModels import WrongAnswer
 from app.models.userModels import User
@@ -22,6 +28,17 @@ DAILY_PROBLEM_COUNT = 5
 XP_PER_PROBLEM = 20
 
 SOURCE_DAILY = "daily"
+
+TRACK_FOLDER_MAP: dict[str, str] = {
+    "NLP": "nlp",
+    "CV": "cv",
+    "ML-회귀": "regression",
+    "ML-분류": "classification",
+}
+
+MD_BASE_PATH = Path(__file__).parents[4] / "frontend" / "public" / "static" / "md"
+
+anthropic_client = Anthropic(api_key=ANTHROPIC_API_KEY)
 
 
 def get_today_kst() -> date:
@@ -80,6 +97,113 @@ def get_user_progress_summary(
         }
         for progress in progress_list
     ]
+
+
+def get_learned_progress(db: Session, user_id: int) -> list[Progress]:
+    return (
+        db.query(Progress)
+        .filter(Progress.user_id == user_id)
+        .filter(Progress.completion_rate > 0)
+        .all()
+    )
+
+
+def select_chapters_weighted(
+    learned: list[Progress],
+    n: int = DAILY_PROBLEM_COUNT,
+) -> list[Progress]:
+    return random.choices(learned, k=n)
+
+
+def strip_html(text: str) -> str:
+    return re.sub(r"<[^>]+>", " ", text).strip()
+
+
+def lesson_sort_key(path: Path) -> int:
+    numbers = re.findall(r"\d+", path.stem)
+    return int(numbers[-1]) if numbers else 0
+
+
+def read_chapter_content(track: str, chapter: str) -> str:
+    folder = TRACK_FOLDER_MAP.get(track)
+    if not folder:
+        return ""
+
+    chapter_dir = MD_BASE_PATH / folder / chapter
+    if not chapter_dir.exists():
+        return ""
+
+    texts = [
+        strip_html(md_file.read_text(encoding="utf-8"))
+        for md_file in sorted(chapter_dir.glob("*.md"), key=lesson_sort_key)
+    ]
+    return "\n\n".join(texts)
+
+
+def build_daily_prompt(selected_chapters: list[Progress]) -> str:
+    sections = []
+    for i, progress in enumerate(selected_chapters, start=1):
+        content = read_chapter_content(progress.track, progress.chapter)
+        sections.append(
+            f"[문제 {i}] track: {progress.track}, chapter: {progress.chapter}\n"
+            f"강의자료:\n{content or '(자료 없음)'}"
+        )
+
+    chapters_text = "\n\n---\n\n".join(sections)
+
+    return f"""당신은 AI 교육 플랫폼의 문제 출제자입니다.
+아래 5개 슬롯에 대해 각 1개의 객관식 문제를 만들어주세요. 총 5개의 문제를 출제합니다.
+같은 챕터가 여러 슬롯에 등장할 수 있으며, 그 경우 서로 다른 개념을 묻는 문제를 출제하세요.
+
+규칙:
+- 강의자료에 나온 개념을 정확히 반영할 것
+- 보기는 반드시 4개
+- correct_index는 0부터 시작하는 정답 보기 인덱스 (0~3)
+- explanation은 한국어로 2~3문장
+
+{chapters_text}
+
+아래 JSON 배열 형식으로만 응답하세요. 설명 없이 JSON만:
+[
+  {{
+    "track": "<track>",
+    "chapter": "<chapter>",
+    "content": {{
+      "question": "<질문>",
+      "choices": ["<보기0>", "<보기1>", "<보기2>", "<보기3>"]
+    }},
+    "answer": {{"correct_index": <0~3>}},
+    "explanation": "<설명>"
+  }},
+  ...
+]"""
+
+
+def call_ai_for_daily_problems(selected_chapters: list[Progress]) -> list[dict[str, Any]]:
+    prompt = build_daily_prompt(selected_chapters)
+
+    message = anthropic_client.messages.create(
+        model="claude-haiku-4-5-20251001",
+        max_tokens=4096,
+        messages=[{"role": "user", "content": prompt}],
+    )
+
+    response_text = message.content[0].text
+
+    try:
+        problems = json.loads(response_text)
+    except json.JSONDecodeError:
+        start = response_text.find("[")
+        end = response_text.rfind("]") + 1
+        if start != -1 and end > start:
+            problems = json.loads(response_text[start:end])
+        else:
+            raise ValueError("AI 응답 JSON 파싱 실패")
+
+    for problem in problems:
+        problem["problem_type"] = "multiple_choice"
+
+    return problems
 
 
 def generate_default_daily_problem_payloads() -> list[dict[str, Any]]:
@@ -167,29 +291,9 @@ def generate_default_daily_problem_payloads() -> list[dict[str, Any]]:
     ]
 
 
-def generate_ai_daily_problem_payloads(
-    db: Session,
-    user_id: int,
-) -> list[dict[str, Any]]:
-    """
-    실제 AI 문제 생성 연결은 이 함수에서 구현하면 됨.
-
-    현재는 progress를 조회한 뒤, 테스트용 샘플 문제를 반환함.
-    이후 OpenAI API 등을 연결할 때 progress_summary를 프롬프트에 넣으면 됨.
-    """
-
-    progress_summary = get_user_progress_summary(
-        db=db,
-        user_id=user_id,
-    )
-
-    # 추후 AI 프롬프트에 progress_summary 사용
-    # 예:
-    # prompt = build_daily_prompt(progress_summary)
-    # ai_response = call_ai(prompt)
-    # return parse_ai_response(ai_response)
-
-    return generate_default_daily_problem_payloads()
+def generate_ai_daily_problem_payloads(learned: list[Progress]) -> list[dict[str, Any]]:
+    selected_chapters = select_chapters_weighted(learned)
+    return call_ai_for_daily_problems(selected_chapters)
 
 
 def get_daily_problems_by_date(
@@ -210,11 +314,9 @@ def create_daily_problems(
     db: Session,
     user_id: int,
     target_date: date,
+    learned: list[Progress],
 ) -> list[DailyProblem]:
-    payloads = generate_ai_daily_problem_payloads(
-        db=db,
-        user_id=user_id,
-    )
+    payloads = generate_ai_daily_problem_payloads(learned)
 
     if len(payloads) != DAILY_PROBLEM_COUNT:
         raise HTTPException(
@@ -251,6 +353,7 @@ def create_daily_problems(
 def get_or_create_today_daily_problems(
     db: Session,
     user_id: int,
+    learned: list[Progress],
 ) -> list[DailyProblem]:
     today = get_today_kst()
 
@@ -267,6 +370,7 @@ def get_or_create_today_daily_problems(
         db=db,
         user_id=user_id,
         target_date=today,
+        learned=learned,
     )
 
 
@@ -300,9 +404,21 @@ def get_today_daily_service(
 ) -> DailyResponse:
     today = get_today_kst()
 
+    learned = get_learned_progress(db=db, user_id=user_id)
+
+    if not learned:
+        return DailyResponse(
+            date=to_date_string(today),
+            dailyProblems=[],
+            isCompleted=False,
+            expiresAt=get_end_of_today_kst().isoformat(),
+            message="데일리 문제는 학습한 챕터를 기반으로 출제돼요. 먼저 챕터 학습을 진행해주세요!",
+        )
+
     daily_problems = get_or_create_today_daily_problems(
         db=db,
         user_id=user_id,
+        learned=learned,
     )
 
     daily_result = get_today_daily_result(
@@ -354,9 +470,11 @@ def submit_today_daily_service(
             detail="오늘의 데일리 태스크는 이미 제출되었습니다.",
         )
 
+    learned = get_learned_progress(db=db, user_id=user_id)
     daily_problems = get_or_create_today_daily_problems(
         db=db,
         user_id=user_id,
+        learned=learned,
     )
 
     if len(daily_problems) != DAILY_PROBLEM_COUNT:
