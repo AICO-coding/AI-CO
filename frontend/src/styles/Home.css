@@ -118,39 +118,43 @@
   border-radius: var(--r24);
 }
 
-.daily-prog-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
+.daily-badge-done {
+  background: #dcfce7;
+  color: #15803d;
 }
 
-.daily-prog-wrap {
-  flex: 1;
-  background: var(--gy2);
-  border-radius: 20px;
-  height: 10px;
-  overflow: hidden;
+.daily-card-done {
+  border-color: #16a34a;
+  box-shadow: 0 4px 0 #bbf7d0;
 }
 
-.daily-prog-fill {
-  height: 100%;
-  border-radius: 20px;
-  background: var(--or);
-  transition: width 0.5s;
+.daily-card-done:hover {
+  box-shadow: 0 6px 0 #bbf7d0;
 }
 
-.daily-prog-txt {
-  font-size: 13px;
-  font-weight: 900;
-  color: var(--or);
-  flex-shrink: 0;
-}
-
-.daily-info {
+.daily-date {
   font-size: 12px;
-  color: var(--gy4);
   font-weight: 600;
+  color: var(--gy4);
+  margin-bottom: 2px;
+}
+
+.daily-desc {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--dk);
+  margin-bottom: 14px;
+}
+
+.daily-cta {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--or);
+}
+
+.daily-card-done .daily-cta {
+  color: #16a34a;
 }
 
 .track-grid {
