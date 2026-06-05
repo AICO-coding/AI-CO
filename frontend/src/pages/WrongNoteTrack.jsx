@@ -147,9 +147,7 @@ export default function WrongNoteTrack() {
         </button>
       </div>
 
-      {loading ? (
-        <div className="empty-message">불러오는 중...</div>
-      ) : isDaily ? (
+      {!loading && isDaily ? (
         <>
           <div className="wn-calendar">
             <div className="wn-cal-header">
