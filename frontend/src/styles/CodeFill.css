@@ -7,6 +7,8 @@
   gap: 24px;
 
   height: 100%;
+
+  position: relative;
 }
 
 .codefill-left {
@@ -261,6 +263,18 @@
   border-color: #fb923c;
 }
 
+.codefill-blank.correct {
+  border-color: #22c55e;
+  background: #052e16;
+  color: #86efac;
+}
+
+.codefill-blank.wrong {
+  border-color: #ef4444;
+  background: #2d0a0a;
+  color: #fca5a5;
+}
+
 .submit-answer-btn {
   margin-left: auto;
 
@@ -397,4 +411,53 @@
   color: #9a3412;
 
   border-top: 1px solid rgba(234, 88, 12, 0.08);
+}
+
+.hint-confirm-popup {
+  position: absolute;
+  bottom: 32px;
+  left: 32px;
+  width: 320px;
+  padding: 18px;
+  border-radius: 18px;
+  background: white;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  border: 1px solid #e5e7eb;
+  z-index: 999;
+}
+
+.hint-confirm-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.hint-confirm-desc {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 18px;
+}
+
+.hint-confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.hint-cancel-btn {
+  border: none;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #f3f4f6;
+  cursor: pointer;
+}
+
+.hint-use-btn {
+  border: none;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #111827;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
 }
