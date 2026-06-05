@@ -17,6 +17,9 @@ export default function MultipleChoice({
   const [isCorrect, setIsCorrect] =
     useState(null);
 
+  const [explanation, setExplanation] =
+    useState("");
+
   const [submitting, setSubmitting] =
   useState(false);
 
@@ -39,8 +42,12 @@ export default function MultipleChoice({
 
     setSelected(null);
     setIsCorrect(null);
+    setExplanation("");
     setSubmitting(false);
     setOpenedHints([]);
+    setOpenedHints(
+      lesson.usedHintLevels || []
+    );
     setConfirmHint(null);
     setBlockedHintLevel(null);
     setConfirmReveal(false);
@@ -98,10 +105,11 @@ export default function MultipleChoice({
         );
       }
 
-      setOpenedHints([
-        ...openedHints,
-        confirmHint.level,
-      ]);
+      setOpenedHints((prev) =>
+        prev.includes(confirmHint.level)
+          ? prev
+          : [...prev, confirmHint.level]
+      );
 
       setConfirmHint(null);
 
@@ -238,11 +246,15 @@ const revealAnswer = async () => {
         data
       );
 
-      setIsCorrect(
-        data.isCorrect
-      );
+    setIsCorrect(
+      data.isCorrect
+    );
 
-      return data.isCorrect;
+    setExplanation(
+      data.explanation || ""
+    );
+
+    return data.isCorrect;
 
     } catch (err) {
 
@@ -460,6 +472,18 @@ const revealAnswer = async () => {
                       ? "selected"
                       : ""
                   }
+                  ${
+                    isCorrect === true &&
+                    selected === idx
+                      ? "correct"
+                      : ""
+                  }
+                  ${
+                    isCorrect === false &&
+                    selected === idx
+                      ? "wrong"
+                      : ""
+                  }
                 `}
                 onClick={() => {
 
@@ -486,20 +510,30 @@ const revealAnswer = async () => {
         </div>
         {isCorrect !== null && (
 
-          <div
-            className={`quiz-result ${
-              isCorrect
-                ? "answer"
-                : "fail"
-            }`}
-          >
+        <>
 
-            {isCorrect
-              ? "🎉 정답"
-              : "❌ 오답"}
+          {explanation && (
 
-          </div>
-        )}
+            <div
+              className="quiz-explanation"
+            >
+              <div
+                className="quiz-explanation-title"
+              >
+                📖 해설
+              </div>
+
+              <div
+                className="quiz-explanation-content"
+              >
+                {explanation}
+              </div>
+            </div>
+
+          )}
+        </>
+
+      )}      
 
       </div>
       {confirmHint && (
