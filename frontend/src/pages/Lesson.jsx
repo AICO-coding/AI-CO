@@ -38,6 +38,12 @@ export default function Lesson() {
   const [isSubmitted, setIsSubmitted] =
     useState(false);
 
+  const [chapterResult, setChapterResult] =
+  useState(null);
+
+  const [showResultModal, setShowResultModal] =
+    useState(false);
+
   useEffect(() => {
 
     const fetchLessons = async () => {
@@ -228,15 +234,17 @@ export default function Lesson() {
       );
 
       if (!res.ok) {
+  throw new Error(
+    `HTTP ${res.status}`
+  );
+}
 
-        throw new Error(
-          `HTTP ${res.status}`
-        );
-      }
+const result =
+  await res.json();
 
-      navigate(
-        `/tracks/${trackId}/chapters`
-      );
+setChapterResult(result);
+
+setShowResultModal(true);
 
     } catch (err) {
 
@@ -401,6 +409,82 @@ export default function Lesson() {
         </div>
 
       </div>
+
+          {showResultModal &&
+        chapterResult && (
+
+          <div className="result-overlay">
+
+            <div className="result-modal">
+
+              <img
+                src="/src/assets/cobot_complete.png"
+                alt="코봇"
+                className="result-cobot"
+              />
+
+              {chapterResult.isFirstCompletion ? (
+                <>
+                  <div className="result-title">
+                    챕터 완료
+                  </div>
+
+                  <div className="result-xp">
+                    +{chapterResult.xpEarned} XP
+                  </div>
+
+                  <div className="result-detail">
+                    힌트 사용 :
+                    {" "}
+                    {chapterResult.hintUsed}회
+                  </div>
+
+                  <div className="result-detail">
+                    정답 공개 :
+                    {" "}
+                    {chapterResult.revealUsed}회
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="result-title">
+                    복습 완료
+                  </div>
+
+                  {/* <div className="result-sub">
+                    XP 지급 없음
+                  </div>
+
+                  <div className="result-detail">
+                    힌트 사용 :
+                    {" "}
+                    {chapterResult.hintUsed}회
+                  </div>
+
+                  <div className="result-detail">
+                    정답 공개 :
+                    {" "}
+                    {chapterResult.revealUsed}회
+                  </div> */}
+                </>
+              )}
+
+              <button
+                className="result-btn"
+                onClick={() =>
+                  navigate(
+                    `/tracks/${trackId}/chapters`
+                  )
+                }
+              >
+                확인
+              </button>
+
+            </div>
+
+          </div>
+
+      )}
 
     </div>
   );
