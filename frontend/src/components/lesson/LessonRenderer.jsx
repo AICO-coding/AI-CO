@@ -14,7 +14,7 @@ const rendererMap = {
 
 export default function LessonRenderer({ lesson, registerSubmit }) {
   if (!lesson) {
-    return <div>Loading...</div>;
+    return null;
   }
 
   const Component = rendererMap[lesson.lessonType];
