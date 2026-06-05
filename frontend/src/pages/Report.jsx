@@ -97,7 +97,7 @@ export default function Report() {
             </div>
 
             <div className="tc-report-count">
-              생성된 요약리포트 개수 : {reportCounts[track.track] ?? 0}개
+              요약리포트 개수 : {reportCounts[track.track] ?? 0}개
             </div>
           </div>
         ))}
