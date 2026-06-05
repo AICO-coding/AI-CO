@@ -73,7 +73,9 @@
   padding: 18px 20px;
   box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
   cursor: pointer;
-  transition: box-shadow 0.15s, transform 0.15s;
+  transition:
+    box-shadow 0.15s,
+    transform 0.15s;
 }
 
 .wrong-card:hover {
@@ -260,13 +262,11 @@
   border-radius: 16px;
 }
 
-/* ── 트랙 카드 그리드 ── */
 .wn-track-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
 }
-
 
 .wn-track-card {
   background-color: #ffffff;
@@ -275,12 +275,13 @@
   padding: 24px 20px;
   box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
   cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s;
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s;
 }
 
 .wn-track-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
 }
 
 .wn-track-icon {
@@ -340,7 +341,6 @@
   background-color: #f59e0b;
 }
 
-/* ── 뒤로가기 버튼 ── */
 .back-btn {
   display: inline-flex;
   align-items: center;
@@ -359,7 +359,6 @@
   color: #111827;
 }
 
-/* ── 상세 페이지 ── */
 .detail-page-card {
   background-color: #ffffff;
   border: 1px solid #e5e7eb;
@@ -452,7 +451,6 @@
   color: #15803d;
 }
 
-/* ── 상세 페이지 메타 행 ── */
 .detail-meta-row {
   display: flex;
   align-items: center;
@@ -461,7 +459,6 @@
   flex-wrap: wrap;
 }
 
-/* ── 복습 제출 버튼 ── */
 .wn-submit-btn {
   margin-top: 20px;
   width: 100%;
@@ -480,13 +477,11 @@
   background-color: #c2410c;
 }
 
-/* ── 오답노트 선지 상태 ── */
 .wn-choice-readonly {
   cursor: default;
   pointer-events: none;
 }
 
-/* ── 해설 ── */
 .wn-explanation {
   margin-top: 20px;
   padding: 14px 16px;
@@ -508,7 +503,6 @@
   letter-spacing: 0.05em;
 }
 
-/* ── 챕터 뱃지 ── */
 .chapter-badge {
   display: inline-flex;
   align-items: center;
@@ -520,7 +514,6 @@
   font-weight: 600;
 }
 
-/* ── 삭제 버튼 ── */
 .delete-btn {
   border: 1px solid #fca5a5;
   background-color: #ffffff;
@@ -542,7 +535,6 @@
   align-items: center;
 }
 
-/* ── 복습 진행 바 ── */
 .review-progress-row {
   display: flex;
   align-items: center;
@@ -572,7 +564,6 @@
   transition: width 0.3s;
 }
 
-/* ── 복습 네비게이션 ── */
 .review-nav {
   display: flex;
   justify-content: space-between;
@@ -580,7 +571,6 @@
   margin-top: 24px;
 }
 
-/* ── 선지 선택 상태 ── */
 .quiz-choice-selected {
   background-color: #fff7ed;
   border: 2px solid #ea580c !important;
@@ -591,7 +581,6 @@
   color: #ffffff;
 }
 
-/* ── 복습 결과 화면 ── */
 .review-result-wrap {
   max-width: 480px;
   margin: 40px auto;
@@ -668,7 +657,6 @@
   color: #dc2626;
 }
 
-/* ── 달력 ── */
 .wn-calendar {
   background-color: #ffffff;
   border: 1px solid #e5e7eb;
@@ -724,8 +712,12 @@
   padding: 6px 0 10px;
 }
 
-.wn-cal-weekday:first-child { color: #ef4444; }
-.wn-cal-weekday:last-child  { color: #3b82f6; }
+.wn-cal-weekday:first-child {
+  color: #ef4444;
+}
+.wn-cal-weekday:last-child {
+  color: #3b82f6;
+}
 
 .wn-cal-day {
   display: flex;
@@ -752,7 +744,6 @@
   pointer-events: none;
 }
 
-/* 오답 있는 날짜 — 주황 배경 */
 .wn-cal-day.has-items {
   background-color: #fff7ed;
   border-color: #fb923c;
@@ -763,13 +754,11 @@
   border-color: #ea580c;
 }
 
-/* 오늘 */
 .wn-cal-day.today .wn-cal-day-num {
   color: #ea580c;
   font-weight: 800;
 }
 
-/* 선택된 날짜 */
 .wn-cal-day.selected {
   background-color: #ea580c !important;
   border-color: #c2410c !important;
@@ -810,7 +799,6 @@
   margin-top: 16px;
 }
 
-/* ── 데일리 날짜별 그룹 리스트 ── */
 .wn-daily-list {
   display: flex;
   flex-direction: column;

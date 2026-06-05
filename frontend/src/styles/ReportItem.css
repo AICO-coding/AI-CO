@@ -5,11 +5,7 @@
 }
 
 .report-header {
-  background: linear-gradient(
-    135deg,
-    #ff6b00,
-    #ff914d
-  );
+  background: linear-gradient(135deg, #ff6b00, #ff914d);
 
   border-radius: 24px;
   padding: 28px;
@@ -19,10 +15,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-
-  box-shadow:
-    0 8px 20px
-    rgba(255, 107, 0, 0.12);
 }
 
 .report-chapter {
@@ -56,12 +48,7 @@
 
   border-radius: 20px;
 
-  background: rgba(
-    255,
-    255,
-    255,
-    0.18
-  );
+  background: rgba(255, 255, 255, 0.18);
 
   display: flex;
   align-items: center;
@@ -94,8 +81,7 @@
 
 .summary-grid {
   display: grid;
-  grid-template-columns:
-    repeat(3, 1fr);
+  grid-template-columns: repeat(3, 1fr);
 
   gap: 14px;
 }

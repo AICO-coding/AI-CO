@@ -164,7 +164,7 @@
 
   background: #090d18;
 
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 
   display: flex;
 
@@ -302,7 +302,6 @@
 }
 
 @media (max-width: 1200px) {
-
   .codefill-layout {
     grid-template-columns: 1fr;
   }
@@ -317,7 +316,6 @@
 }
 
 @media (max-width: 768px) {
-
   .codefill-layout {
     gap: 18px;
   }
@@ -398,5 +396,5 @@
 
   color: #9a3412;
 
-  border-top: 1px solid rgba(234,88,12,0.08);
+  border-top: 1px solid rgba(234, 88, 12, 0.08);
 }

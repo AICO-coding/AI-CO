@@ -121,7 +121,7 @@
 
   color: #9a3412;
 
-  border-top: 1px solid rgba(234,88,12,0.08);
+  border-top: 1px solid rgba(234, 88, 12, 0.08);
 }
 
 .quiz-wrap {
@@ -263,7 +263,6 @@
 }
 
 @media (max-width: 1000px) {
-
   .quiz-layout {
     grid-template-columns: 1fr;
 
@@ -278,7 +277,6 @@
 }
 
 @media (max-width: 768px) {
-
   .quiz-wrap {
     padding: 22px;
 
@@ -312,8 +310,7 @@
 
   background: white;
 
-  box-shadow:
-    0 10px 30px rgba(0,0,0,0.12);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
 
   border: 1px solid #e5e7eb;
 
@@ -375,7 +372,6 @@
   border-radius: 30px;
   font-size: 13px;
   width: fit-content;
-
 }
 
 .answer {

@@ -1,47 +1,60 @@
-import { useEffect, useState, useMemo, useRef } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import WrongNoteItem from "../components/WrongNoteItem";
-import "../styles/WrongNote.css";
+import { useEffect, useState, useMemo, useRef } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import WrongNoteItem from '../components/WrongNoteItem';
+import '../styles/WrongNote.css';
 
-const API_BASE = "http://210.125.96.59:8000";
+const API_BASE = 'http://210.125.96.59:8000';
 
 const PROBLEM_TYPE_LABEL = {
-  multiple_choice: "객관식",
-  code_fill: "코드 빈칸",
-  parameter: "파라미터",
+  multiple_choice: '객관식',
+  code_fill: '코드 빈칸',
+  parameter: '파라미터',
 };
 
-const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
-const MONTHS = ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"];
+const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
+const MONTHS = [
+  '1월',
+  '2월',
+  '3월',
+  '4월',
+  '5월',
+  '6월',
+  '7월',
+  '8월',
+  '9월',
+  '10월',
+  '11월',
+  '12월',
+];
 
 function formatDate(year, month, day) {
-  return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+  return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 }
 
 export default function WrongNoteTrack() {
   const { trackId } = useParams();
   const navigate = useNavigate();
 
-  const isDaily   = trackId === "daily";
-  const trackName = isDaily ? "데일리 퀴즈" : trackId.toUpperCase();
+  const isDaily = trackId === 'daily';
+  const trackName = isDaily ? '데일리 퀴즈' : trackId.toUpperCase();
 
-  const [items, setItems]       = useState([]);
-  const [loading, setLoading]   = useState(true);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const today = new Date();
-  const [currentYear, setCurrentYear]   = useState(today.getFullYear());
+  const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [selectedDate, setSelectedDate] = useState(null);
   const resultRef = useRef(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
+    const token = localStorage.getItem('accessToken');
     const params = new URLSearchParams();
     if (isDaily) {
-      params.set("source_type", "daily");
+      params.set('source_type', 'daily');
     } else {
-      params.set("source_type", "learning");
-      params.set("track", trackName);
+      params.set('source_type', 'learning');
+      params.set('track', trackName);
     }
 
     fetch(`${API_BASE}/wrong-answers?${params.toString()}`, {
@@ -56,7 +69,7 @@ export default function WrongNoteTrack() {
   const dateMap = useMemo(() => {
     const map = {};
     for (const item of items) {
-      const key = item.date ?? "날짜 없음";
+      const key = item.date ?? '날짜 없음';
       if (!map[key]) map[key] = [];
       map[key].push(item);
     }
@@ -64,7 +77,7 @@ export default function WrongNoteTrack() {
   }, [items]);
 
   const calendarDays = useMemo(() => {
-    const firstDay    = new Date(currentYear, currentMonth, 1).getDay();
+    const firstDay = new Date(currentYear, currentMonth, 1).getDay();
     const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
     const days = [];
     for (let i = 0; i < firstDay; i++) days.push(null);
@@ -73,14 +86,18 @@ export default function WrongNoteTrack() {
   }, [currentYear, currentMonth]);
 
   function prevMonth() {
-    if (currentMonth === 0) { setCurrentYear((y) => y - 1); setCurrentMonth(11); }
-    else setCurrentMonth((m) => m - 1);
+    if (currentMonth === 0) {
+      setCurrentYear((y) => y - 1);
+      setCurrentMonth(11);
+    } else setCurrentMonth((m) => m - 1);
     setSelectedDate(null);
   }
 
   function nextMonth() {
-    if (currentMonth === 11) { setCurrentYear((y) => y + 1); setCurrentMonth(0); }
-    else setCurrentMonth((m) => m + 1);
+    if (currentMonth === 11) {
+      setCurrentYear((y) => y + 1);
+      setCurrentMonth(0);
+    } else setCurrentMonth((m) => m + 1);
     setSelectedDate(null);
   }
 
@@ -88,7 +105,7 @@ export default function WrongNoteTrack() {
     const dateStr = formatDate(currentYear, currentMonth, day);
     setSelectedDate((prev) => (prev === dateStr ? null : dateStr));
     setTimeout(() => {
-      resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 50);
   }
 
@@ -97,22 +114,26 @@ export default function WrongNoteTrack() {
   }
 
   async function handleRowDelete(id) {
-    const token = localStorage.getItem("accessToken");
+    const token = localStorage.getItem('accessToken');
     try {
       await fetch(`${API_BASE}/wrong-answers/${id}`, {
-        method: "DELETE",
+        method: 'DELETE',
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       handleDelete(id);
-    } catch { /* silent */ }
+    } catch {}
   }
 
   const selectedItems = selectedDate ? (dateMap[selectedDate] ?? []) : [];
-  const todayStr = formatDate(today.getFullYear(), today.getMonth(), today.getDate());
+  const todayStr = formatDate(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate(),
+  );
 
   return (
     <div className="page-container">
-      <button className="back-btn" onClick={() => navigate("/wrong-answer")}>
+      <button className="back-btn" onClick={() => navigate('/wrong-answer')}>
         &larr; 목록으로
       </button>
 
@@ -132,41 +153,50 @@ export default function WrongNoteTrack() {
         <>
           <div className="wn-calendar">
             <div className="wn-cal-header">
-              <button className="wn-cal-nav" onClick={prevMonth}>‹</button>
+              <button className="wn-cal-nav" onClick={prevMonth}>
+                ‹
+              </button>
               <span className="wn-cal-title">
                 {currentYear}년 {MONTHS[currentMonth]}
               </span>
-              <button className="wn-cal-nav" onClick={nextMonth}>›</button>
+              <button className="wn-cal-nav" onClick={nextMonth}>
+                ›
+              </button>
             </div>
 
             <div className="wn-cal-grid">
               {WEEKDAYS.map((w) => (
-                <div key={w} className="wn-cal-weekday">{w}</div>
+                <div key={w} className="wn-cal-weekday">
+                  {w}
+                </div>
               ))}
               {calendarDays.map((day, idx) => {
-                if (!day) return <div key={`empty-${idx}`} className="wn-cal-day empty" />;
+                if (!day)
+                  return (
+                    <div key={`empty-${idx}`} className="wn-cal-day empty" />
+                  );
 
-                const dateStr  = formatDate(currentYear, currentMonth, day);
+                const dateStr = formatDate(currentYear, currentMonth, day);
                 const hasItems = !!dateMap[dateStr]?.length;
-                const count    = dateMap[dateStr]?.length ?? 0;
+                const count = dateMap[dateStr]?.length ?? 0;
                 const isSelected = dateStr === selectedDate;
-                const isToday    = dateStr === todayStr;
+                const isToday = dateStr === todayStr;
 
                 return (
                   <div
                     key={dateStr}
                     className={[
-                      "wn-cal-day",
-                      hasItems   ? "has-items" : "",
-                      isSelected ? "selected"  : "",
-                      isToday    ? "today"     : "",
-                    ].filter(Boolean).join(" ")}
+                      'wn-cal-day',
+                      hasItems ? 'has-items' : '',
+                      isSelected ? 'selected' : '',
+                      isToday ? 'today' : '',
+                    ]
+                      .filter(Boolean)
+                      .join(' ')}
                     onClick={() => handleDayClick(day)}
                   >
                     <span className="wn-cal-day-num">{day}</span>
-                    {hasItems && (
-                      <span className="wn-cal-badge">{count}</span>
-                    )}
+                    {hasItems && <span className="wn-cal-badge">{count}</span>}
                   </div>
                 );
               })}
@@ -182,39 +212,55 @@ export default function WrongNoteTrack() {
               <div className="wn-daily-date-header">
                 <span className="wn-daily-date-icon">📅</span>
                 {selectedDate}
-                <span className="wn-daily-date-count">{selectedItems.length}문제</span>
+                <span className="wn-daily-date-count">
+                  {selectedItems.length}문제
+                </span>
               </div>
               {selectedItems.length === 0 ? (
-                <div className="empty-message" style={{ borderRadius: 0, border: "none" }}>
+                <div
+                  className="empty-message"
+                  style={{ borderRadius: 0, border: 'none' }}
+                >
                   이 날짜의 오답이 없습니다.
                 </div>
-              ) : selectedItems.map((item) => (
-                <div key={item.id} className="wn-daily-row">
-                  <div className="wn-daily-row-left">
-                    <span className="wn-daily-chapter">{item.chapter}</span>
-                    <span className="wn-daily-type-badge">
-                      {PROBLEM_TYPE_LABEL[item.problemType] ?? item.problemType}
-                    </span>
+              ) : (
+                selectedItems.map((item) => (
+                  <div key={item.id} className="wn-daily-row">
+                    <div className="wn-daily-row-left">
+                      <span className="wn-daily-chapter">{item.chapter}</span>
+                      <span className="wn-daily-type-badge">
+                        {PROBLEM_TYPE_LABEL[item.problemType] ??
+                          item.problemType}
+                      </span>
+                    </div>
+                    <div className="wn-daily-row-right">
+                      <span
+                        className={
+                          item.isResolved
+                            ? 'status resolved'
+                            : 'status unresolved'
+                        }
+                      >
+                        {item.isResolved ? '복습완료' : '복습전'}
+                      </span>
+                      <button
+                        className="detail-btn"
+                        onClick={() =>
+                          navigate(`/wrong-answer/${trackId}/${item.id}`)
+                        }
+                      >
+                        상세보기
+                      </button>
+                      <button
+                        className="delete-btn"
+                        onClick={() => handleRowDelete(item.id)}
+                      >
+                        삭제
+                      </button>
+                    </div>
                   </div>
-                  <div className="wn-daily-row-right">
-                    <span className={item.isResolved ? "status resolved" : "status unresolved"}>
-                      {item.isResolved ? "복습완료" : "복습전"}
-                    </span>
-                    <button
-                      className="detail-btn"
-                      onClick={() => navigate(`/wrong-answer/${trackId}/${item.id}`)}
-                    >
-                      상세보기
-                    </button>
-                    <button
-                      className="delete-btn"
-                      onClick={() => handleRowDelete(item.id)}
-                    >
-                      삭제
-                    </button>
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           )}
         </>

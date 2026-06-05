@@ -1,5 +1,5 @@
-import { useState } from "react";
-import "../../styles/Parameter.css"
+import { useState } from 'react';
+import '../../styles/Parameter.css';
 
 export default function Parameter() {
   const [rows, setRows] = useState(2);

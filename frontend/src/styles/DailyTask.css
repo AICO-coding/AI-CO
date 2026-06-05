@@ -74,7 +74,7 @@
   border-radius: 16px;
   font-size: 16px;
   font-weight: 500;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
 .result-btn {
@@ -101,7 +101,6 @@
   cursor: pointer;
 }
 
-/* ── 결과 점수 카드 ── */
 .daily-score-card {
   background: linear-gradient(135deg, #f97316, #ea580c);
   border-radius: 20px;
@@ -159,7 +158,6 @@
   opacity: 0.8;
 }
 
-/* ── 결과 목록 ── */
 .daily-result-list {
   display: flex;
   flex-direction: column;

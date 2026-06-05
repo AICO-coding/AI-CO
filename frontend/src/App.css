@@ -79,7 +79,6 @@
   color: var(--or);
 }
 
-/* MAIN LAYOUT */
 #app {
   margin-top: 56px;
   display: flex;

@@ -1,35 +1,35 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
-import "../../styles/ConceptImage.css";
+import '../../styles/ConceptImage.css';
 
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import rehypeRaw from "rehype-raw";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
 
 export default function ConceptImage({ lesson }) {
-  const [markdown, setMarkdown] = useState("");
+  const [markdown, setMarkdown] = useState('');
 
   console.log(markdown);
 
   useEffect(() => {
-  async function loadMarkdown() {
-    try {
-      const res = await fetch(lesson.markdownUrl);
+    async function loadMarkdown() {
+      try {
+        const res = await fetch(lesson.markdownUrl);
 
-      if (!res.ok) {
-        throw new Error("Markdown fetch failed");
+        if (!res.ok) {
+          throw new Error('Markdown fetch failed');
+        }
+
+        const text = await res.text();
+
+        setMarkdown(text);
+      } catch (err) {
+        console.error(err);
       }
-
-      const text = await res.text();
-
-      setMarkdown(text);
-    } catch (err) {
-      console.error(err);
     }
-  }
 
-  loadMarkdown();
-}, [lesson.markdownUrl]);
+    loadMarkdown();
+  }, [lesson.markdownUrl]);
 
   return (
     <div className="concept-image-layout">

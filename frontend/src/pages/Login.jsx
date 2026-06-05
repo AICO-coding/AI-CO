@@ -1,9 +1,7 @@
-// LoginPage.jsx
-
-import { GoogleLogin } from "@react-oauth/google";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import "../styles/Login.css";
+import { GoogleLogin } from '@react-oauth/google';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import '../styles/Login.css';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -12,52 +10,36 @@ export default function Login() {
     try {
       const token = credentialResponse.credential;
       const response = await axios.post(
-        "http://210.125.96.59:8000/auth/google/login",
+        'http://210.125.96.59:8000/auth/google/login',
         {
           idToken: token,
-        }
+        },
       );
-      localStorage.setItem(
-        "accessToken",
-        response.data.accessToken
-      );
+      localStorage.setItem('accessToken', response.data.accessToken);
 
-      localStorage.setItem(
-        "refreshToken",
-        response.data.refreshToken
-      );
+      localStorage.setItem('refreshToken', response.data.refreshToken);
 
-      localStorage.setItem(
-        "userId",
-        response.data.userId
-      );
+      localStorage.setItem('userId', response.data.userId);
 
-      localStorage.setItem(
-        "nickname",
-        response.data.nickname || ""
-      );
+      localStorage.setItem('nickname', response.data.nickname || '');
       if (!response.data.nickname) {
-        navigate("/nickname");
+        navigate('/nickname');
         return;
       }
-      navigate("/home");
-
+      navigate('/home');
     } catch (error) {
       console.error(error.response?.data);
 
-      alert("로그인 실패");
+      alert('로그인 실패');
     }
   };
 
   return (
     <div className="login-page">
       <div className="login-card">
-
         <div className="logo">🚀</div>
 
-        <h1 className="login-title">
-          AI-CO
-        </h1>
+        <h1 className="login-title">AI-CO</h1>
 
         <p className="login-subtitle">
           머신러닝 학습 플랫폼에 오신 것을 환영합니다.
@@ -66,10 +48,9 @@ export default function Login() {
         <div className="google-wrapper">
           <GoogleLogin
             onSuccess={handleSuccess}
-            onError={() => alert("Google Login Failed")}
+            onError={() => alert('Google Login Failed')}
           />
         </div>
-
       </div>
     </div>
   );
