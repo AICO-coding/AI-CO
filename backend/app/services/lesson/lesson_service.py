@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from sqlalchemy.orm.attributes import flag_modified
@@ -51,6 +52,8 @@ def complete_lesson_service(db: Session, user_id: int, track: str, chapter: str,
 
     completion_rate = int(len(completed_lessons) / total_lessons * 100) if total_lessons > 0 else 0
     progress.completion_rate = completion_rate
+
+    progress.last_lesson_id = lesson_id
 
     flag_modified(progress, "report")
     db.commit()
@@ -142,6 +145,7 @@ def submit_answer_service(db: Session, user_id: int, track: str, chapter: str, l
             Lesson.chapter == lesson.chapter
         ).count()
         progress.completion_rate = int(len(completed_lessons) / total_lessons * 100) if total_lessons > 0 else 0
+        progress.last_lesson_id = lesson_id
 
         flag_modified(progress, "report")
         db.commit()
@@ -420,6 +424,7 @@ def complete_chapter_service(db: Session, user_id: int, track: str, chapter: str
 
     # 진도 업데이트
     progress.is_completed = True
+    progress.completed_at = datetime.now(timezone.utc)
     progress.xp_earned = xp_earned
     progress.hint_used = total_hints_used
 
