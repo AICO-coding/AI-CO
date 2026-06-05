@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { QuizItem } from '../components/QuizItem';
 import '../styles/DailyTask.css';
 
 const API_BASE = 'http://210.125.96.59:8000';
 
 export default function DailyTask() {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [dailyData, setDailyData] = useState(null);
   const [answers, setAnswers] = useState({});
@@ -168,6 +170,9 @@ export default function DailyTask() {
               </div>
             ))}
           </div>
+          <button className="home-btn" onClick={() => navigate('/home')}>
+            홈으로 돌아가기
+          </button>
         </div>
       </div>
     );
@@ -199,6 +204,9 @@ export default function DailyTask() {
             {submitting ? '채점 중...' : '제출하기'}
           </button>
         </div>
+        <button className="home-btn" onClick={() => navigate('/home')}>
+          홈으로 돌아가기
+        </button>
       </div>
     </div>
   );
