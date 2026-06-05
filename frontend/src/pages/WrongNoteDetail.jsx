@@ -82,7 +82,7 @@ export default function WrongNoteDetail() {
             detail.isResolved ? 'status resolved' : 'status unresolved'
           }
         >
-          {detail.isResolved ? '복습완료' : '복습전'}
+          {detail.isResolved ? '해결완료' : '미해결'}
         </span>
       </div>
 
