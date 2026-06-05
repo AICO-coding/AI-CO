@@ -93,7 +93,7 @@ export default function ReportItem() {
       </section>
 
       <section className="report-section">
-        <h3>🤖 코봇의 취약점 분석</h3>
+        <h3>🤖 코냥이의 취약점 분석</h3>
 
         <div className="cobot-box">
           <div className="cobot-comment">{report.cobotComment}</div>

@@ -37,7 +37,7 @@ function Sidebar() {
       <div className="sb-cobot">
         <img src={cobot} alt="코봇" className="sb-cobot-img" />
 
-        <div className="sb-cobot-txt">안녕! 나는 코봇이야</div>
+        <div className="sb-cobot-txt">안녕! 나는 코냥이야</div>
 
         <div className="sb-cobot-txt">오늘도 같이 수련하자!</div>
       </div>
