@@ -68,7 +68,7 @@ def build_wrong_problems_list(db: Session, user_id: int, track: str, chapter: st
             problem = wa.track_problem
 
             # 문제가 해당 트랙/챕터에 속하는지 확인
-            if (func.upper(problem.track) == track.upper() and
+            if (problem.track.upper() == track.upper() and
                 problem.chapter == chapter):
 
                 wrong_problems.append({
@@ -172,15 +172,15 @@ def generate_ai_report(
 
 예시 응답:
 {{
-  "weakConcepts": ["dtype (float32)", "from_numpy 메모리 공유"],
-  "cobotComment": "dtype과 from_numpy에서 힌트를 많이 썼어요. Tensor의 기본 dtype이 float32라는 점, NumPy와의 메모리 공유 개념이 아직 낯선 것 같아요. 다음 챕터에서 gradient 계산 시 dtype 불일치가 에러로 이어지니까 지금 잡아두면 좋을 거예요! 👍",
-  "summary": "딥러닝의 모든 연산은 Tensor 위에서 일어나요. 이번 챕터에서는 Tensor의 세 가지 핵심 속성인 .shape .dtype .device 를 익히고, NumPy와 메모리를 공유하는 from_numpy() 의 동작 원리도 배웠어요.",
-  "keyPoint": "PyTorch 기본 dtype은 float32, GPU 이동은 .to('cuda'), reshape 전에 .shape 확인이 에러 예방의 3원칙!",
-  "nextChapter": "선형 회귀의 y = wx + b를 직접 구현할 때, 오늘 배운 Tensor의 shape와 dtype이 입력 데이터를 맞추는 데 바로 쓰여요. X.reshape(-1, 1) 패턴이 등장하니 익숙해 두면 좋아요!",
+  "weakConcepts": ["개념1", "개념2"],
+  "cobotComment": "개념1과 개념2에서 집중이 필요해 보여요. 이 부분들을 다시 한 번 복습하면 다음 단계로 나아가기가 훨씬 수월할 거예요! 👍",
+  "summary": "이번 챕터에서는 핵심 개념들을 체계적으로 배웠어요. {{chapter_title}}의 주요 내용을 이해하고, 실제 구현을 통해 개념을 심화할 수 있었네요.",
+  "keyPoint": "핵심 원리 1은 {{설명}}, 핵심 원리 2는 {{설명}} 두 가지가 이번 챕터의 핵심이에요.",
+  "nextChapter": "다음 챕터에서는 이번 챕터에서 배운 내용이 {{방식}}으로 활용돼요. 지금의 기초가 다음 단계를 이해하는 데 중요하니까 복습해 두면 좋을 것 같아요!",
   "opensource": [
-    {{"name": "PyTorch 공식 문서 — Tensor 기초", "desc": "torch.Tensor 클래스의 모든 메서드와 속성을 직접 확인할 수 있어요", "url": "https://pytorch.org/docs/stable/tensors.html"}},
-    {{"name": "CS231n Numpy/PyTorch Tutorial", "desc": "스탠퍼드 딥러닝 강의의 NumPy ↔ Tensor 비교 노트북", "url": "https://cs231n.github.io/python-numpy-tutorial/"}},
-    {{"name": "밑바닥부터 시작하는 딥러닝 — Chapter 1", "desc": "dtype 불일치 에러 패턴과 메모리 공유 심화 내용", "url": "https://github.com/WegraLee/deep-learning-from-scratch"}}
+    {{"name": "자료 제목 1", "desc": "자료 설명", "url": "https://example.com"}},
+    {{"name": "자료 제목 2", "desc": "자료 설명", "url": "https://example.com"}},
+    {{"name": "자료 제목 3", "desc": "자료 설명", "url": "https://example.com"}}
   ]
 }}
 
@@ -302,13 +302,26 @@ def generate_report_background(user_id: int, track: str, chapter: str):
             reveal_used=reveal_used
         )
 
-        # [7] reports 테이블에 저장
+        # [7] progress 집계값과 AI 리포트 병합
+        combined_report = {
+            "track": track,
+            "chapter": chapter,
+            "chapterTitle": chapter_title,
+            "completedAt": progress.completed_at.isoformat() if progress.completed_at else None,
+            "totalProblems": total_problems,
+            "xpEarned": progress.xp_earned,
+            "wrongCount": wrong_count,
+            "hintCount": progress.hint_used,
+            **ai_report
+        }
+
+        # [8] reports 테이블에 저장
         report = Report(
             user_id=user_id,
             track=track,
             chapter=chapter,
             progress_id=progress.id,
-            ai_report=ai_report
+            ai_report=combined_report
         )
         db.add(report)
         db.commit()
@@ -358,16 +371,8 @@ def get_report_service(
         }
 
     # 완료된 리포트 반환
-    chapter_title = get_chapter_title(db, track, chapter)
-    wrong_count = count_wrong_answers(db, user_id, track, chapter)
-
-    lessons = db.query(Lesson).filter(
-        func.upper(Lesson.track) == track.upper(),
-        Lesson.chapter == chapter,
-        Lesson.lesson_type.in_(["code_fill", "multiple_choice"])
-    ).all()
-
-    total_problems = len(lessons)
+    total_problems = report.ai_report.get("totalProblems", 0)
+    wrong_count = report.ai_report.get("wrongCount", 0)
     correct_count = total_problems - wrong_count
 
     # 학점 계산
@@ -376,16 +381,8 @@ def get_report_service(
 
     return {
         "status": "completed",
-        "track": track,
-        "chapter": chapter,
-        "chapterTitle": chapter_title,
-        "completedAt": progress.completed_at.isoformat() if progress.completed_at else None,
-        "totalProblems": total_problems,
         "grade": grade,
-        "xpEarned": progress.xp_earned,
-        "wrongCount": wrong_count,
-        "hintCount": progress.hint_used,
-        **report.ai_report  # weakConcepts, cobotComment, summary 등
+        **report.ai_report  # track, chapter, chapterTitle, completedAt, totalProblems, xpEarned, wrongCount, hintCount, weakConcepts, cobotComment 등
     }
 
 
