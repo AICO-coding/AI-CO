@@ -185,9 +185,9 @@ function Home() {
                   📌 {track.track}
                 </div>
 
-                <div className="tc-sub">
+                {/* <div className="tc-sub">
                   AI 학습 트랙
-                </div>
+                </div> */}
 
                 <div className="tc-prog-wrap">
                   <div
@@ -209,9 +209,11 @@ function Home() {
 
                 <div className="tc-stats">
                   <span>
-                    XP{" "}
                     {progress?.totalXp ||
                       0}
+                    {" "}
+                    XP
+                    
                   </span>
 
                   <span>
