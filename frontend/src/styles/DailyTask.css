@@ -102,12 +102,11 @@
 }
 
 .daily-score-card {
-  background: linear-gradient(135deg, #f97316, #ea580c);
+  background: #f97316;
   border-radius: 20px;
   padding: 32px 24px;
   text-align: center;
   color: #ffffff;
-  box-shadow: 0 8px 24px rgba(249, 115, 22, 0.35);
 }
 
 .daily-score-perfect {
