@@ -65,7 +65,7 @@ export default function ReportItem() {
             CH.{report.chapter} · {report.track} 트랙 리포트
           </div>
 
-          <div className="report-title">
+          <div className="report-title-2">
             {report.chapterTitle}
           </div>
 
