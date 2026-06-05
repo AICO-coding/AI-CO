@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Any, Optional
+from typing import Optional
 
 
 class OpensourceResource(BaseModel):
@@ -18,10 +18,11 @@ class AIReportContent(BaseModel):
 
 
 class ReportResponse(BaseModel):
+    status: str = "completed"
     track: str
     chapter: str
     chapterTitle: str
-    completedAt: str
+    completedAt: Optional[str] = None
     totalProblems: int
     grade: str
 
@@ -38,6 +39,17 @@ class ReportResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class ReportListItem(BaseModel):
+    chapter: str
+    title: str
+    completedAt: Optional[str] = None
+
+
+class ReportListResponse(BaseModel):
+    track: str
+    reports: list[ReportListItem]
 
 
 class ReportPendingResponse(BaseModel):
