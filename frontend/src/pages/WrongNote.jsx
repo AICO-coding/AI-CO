@@ -47,9 +47,7 @@ export default function WrongNotePage() {
         <h2 className="title">오답 노트</h2>
       </div>
 
-      {loading ? (
-        <div className="empty-message">불러오는 중...</div>
-      ) : (
+      {!loading && (
         <div className="wn-track-grid">
           {TRACKS.map((track) => {
             const trackItems = learningItems.filter((i) => i.track === track);

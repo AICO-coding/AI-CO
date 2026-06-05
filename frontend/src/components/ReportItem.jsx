@@ -45,7 +45,7 @@ export default function ReportItem() {
     fetchReport();
   }, [trackId, chapterId]);
 
-  if (loading) return <div>불러오는 중...</div>;
+  if (loading) return null;
 
   if (error) return <div>❌ {error}</div>;
 

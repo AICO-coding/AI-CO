@@ -47,19 +47,7 @@ export default function WrongNoteDetail() {
       .finally(() => setLoading(false));
   }, [wrongAnswerId]);
 
-  if (loading) {
-    return (
-      <div className="page-container">
-        <button
-          className="back-btn"
-          onClick={() => navigate(`/wrong-answer/${trackId}`)}
-        >
-          &larr; 목록으로
-        </button>
-        <div className="empty-message">불러오는 중...</div>
-      </div>
-    );
-  }
+  if (loading) return null;
 
   if (!detail || !detail.problem) {
     return (
