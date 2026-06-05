@@ -3,31 +3,35 @@ import { useEffect, useState } from 'react';
 
 import '../styles/Home.css';
 
+const API_BASE = 'http://210.125.96.59:8000';
+
+function getTimeLeft(expiresAt) {
+  const diff = new Date(expiresAt) - new Date();
+  if (diff <= 0) return '마감';
+  const hours = Math.floor(diff / 1000 / 60 / 60);
+  const minutes = Math.floor((diff / 1000 / 60) % 60);
+  if (hours > 0) return `${hours}시간 후 마감`;
+  return `${minutes}분 후 마감`;
+}
+
 function Home() {
   const [trackData, setTrackData] = useState(null);
-
   const [progressData, setProgressData] = useState([]);
-
+  const [dailyData, setDailyData] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchTracks = async () => {
+    const fetchAll = async () => {
       try {
         const token = localStorage.getItem('accessToken');
-
         const headers = {
-          ...(token && {
-            Authorization: `Bearer ${token}`,
-          }),
+          ...(token && { Authorization: `Bearer ${token}` }),
         };
 
-        const [trackRes, progressRes] = await Promise.all([
-          fetch('http://210.125.96.59:8000/tracks', {
-            headers,
-          }),
-          fetch('http://210.125.96.59:8000/tracks/progress', {
-            headers,
-          }),
+        const [trackRes, progressRes, dailyRes] = await Promise.all([
+          fetch(`${API_BASE}/tracks`, { headers }),
+          fetch(`${API_BASE}/tracks/progress`, { headers }),
+          fetch(`${API_BASE}/daily`, { headers }),
         ]);
 
         if (trackRes.status === 401 || progressRes.status === 401) {
@@ -38,19 +42,21 @@ function Home() {
           throw new Error('데이터를 불러오지 못했습니다.');
         }
 
-        const trackJson = await trackRes.json();
-
+        const trackJson    = await trackRes.json();
         const progressJson = await progressRes.json();
 
         setTrackData(trackJson);
-
         setProgressData(progressJson.tracks || []);
+
+        if (dailyRes.ok) {
+          setDailyData(await dailyRes.json());
+        }
       } catch (err) {
         setError(err.message);
       }
     };
 
-    fetchTracks();
+    fetchAll();
   }, []);
 
   if (error) {
@@ -64,11 +70,13 @@ function Home() {
       <div className="home-hero">
         <div>
           <div className="hero-title">
-            안녕하세요! 아이코에 오신 걸 환영해요 🎉
+            안녕하세요! 아이코에 오신 걸
+            환영해요 🎉
           </div>
 
           <div className="hero-sub">
-            AI를 이해하면서 직접 짜는 것, 그게 진짜 실력이에요.
+            AI를 이해하면서 직접 짜는 것,
+            그게 진짜 실력이에요.
             <br />
             오늘도 코봇과 함께 공부해보아요!
           </div>
@@ -78,32 +86,39 @@ function Home() {
           </Link>
         </div>
 
-        <img src="/src/assets/cobot.png" alt="코봇" className="hero-cobot" />
+        <img
+          src="/src/assets/cobot.png"
+          alt="코봇"
+          className="hero-cobot"
+        />
       </div>
 
-      <div className="sec-title">📋 오늘의 태스크</div>
+      <div className="sec-title">📋 오늘의 퀴즈</div>
 
-      <Link to="/daily" className="daily-card">
+      <Link to="/daily" className={`daily-card${dailyData?.isCompleted ? ' daily-card-done' : ''}`}>
         <div className="daily-top">
-          <div className="daily-title">데일리 챌린지</div>
-
-          <div className="daily-badge">⏰ 3시간 후 마감</div>
-        </div>
-
-        <div className="daily-prog-row">
-          <div className="daily-prog-wrap">
-            <div
-              className="daily-prog-fill"
-              style={{
-                width: '40%',
-              }}
-            />
+          <div>
+            <div className="daily-date">{dailyData?.date ?? ''}</div>
+            <div className="daily-title">데일리 태스크</div>
           </div>
-
-          <span className="daily-prog-txt">2 / 5</span>
+          {dailyData?.isCompleted ? (
+            <div className="daily-badge daily-badge-done">✅ 완료</div>
+          ) : (
+            <div className="daily-badge">
+              ⏰ {dailyData ? getTimeLeft(dailyData.expiresAt) : '...'}
+            </div>
+          )}
         </div>
 
-        <div className="daily-info">🧠 3문제 남았어요! 클릭해서 이어풀기 →</div>
+        <div className="daily-desc">
+          {dailyData?.isCompleted
+            ? '오늘 데일리를 완료했어요!'
+            : '🧠 오늘의 문제 5개가 기다리고 있어요!'}
+        </div>
+
+        <div className="daily-cta">
+          {dailyData?.isCompleted ? '결과 보기 →' : '지금 풀기 →'}
+        </div>
       </Link>
 
       <div className="sec-title">📚 학습 트랙</div>
@@ -123,9 +138,7 @@ function Home() {
               <div className="tc-prog-wrap">
                 <div
                   className="tc-prog"
-                  style={{
-                    width: `${progress?.completionRate || 0}%`,
-                  }}
+                  style={{ width: `${progress?.completionRate || 0}%` }}
                 />
               </div>
 
@@ -135,7 +148,6 @@ function Home() {
 
               <div className="tc-stats">
                 <span>{progress?.totalXp || 0} XP</span>
-
                 <span>힌트 {progress?.hintUsed || 0}회</span>
               </div>
             </Link>

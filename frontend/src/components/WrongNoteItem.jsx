@@ -44,7 +44,7 @@ export default function WrongNoteItem({ item, trackId, onDelete }) {
         <span
           className={item.isResolved ? 'status resolved' : 'status unresolved'}
         >
-          {item.isResolved ? '복습완료' : '복습전'}
+          {item.isResolved ? '해결완료' : '미해결'}
         </span>
       </div>
 
