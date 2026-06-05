@@ -16,6 +16,7 @@ class DailyResponse(BaseModel):
     dailyProblems: list[DailyProblemItem]
     isCompleted: bool = Field(..., description="오늘 제출 완료 여부. true이면 GET /daily/result로 결과 조회")
     expiresAt: str = Field(..., description="KST 기준 당일 23:59:59")
+    message: str | None = Field(default=None, description="문제 생성 불가 시 안내 메시지")
 
 
 class DailySubmitAnswerItem(BaseModel):
