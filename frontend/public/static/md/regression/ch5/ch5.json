@@ -1,0 +1,108 @@
+{
+  "track": "ML-회귀",
+  "part": "regression",
+  "chapter": "ch5",
+  "title": "학습 고도화",
+  "chapterXP": 100,
+  "lessons": [
+
+    {
+      "lessonId": 46,
+      "lessonType": "concept_image",
+      "orderIndex": 1,
+      "markdownUrl": "/static/md/regression/ch5/lesson1.md",
+      "imageUrl": "/static/img/regression/ch5/train_eval_mode.png"
+    },
+
+    {
+      "lessonId": 47,
+      "lessonType": "concept_code",
+      "orderIndex": 2,
+      "markdownUrl": "/static/md/regression/ch5/lesson2.md",
+      "content": {
+        "template": "import torch.nn as nn\n\nclass IrisNet(nn.Module):\n    def __init__(self):\n        super().__init__()\n        self.net = nn.Sequential(\n            nn.Linear(4, 16),\n            nn.ReLU(),\n            nn.{{blank1}}(0.2),\n            nn.Linear(16, 1)\n        )\n    def forward(self, x):\n        return self.net(x)\n\nfor epoch in range(50):\n    model.{{blank2}}()\n    for Xb, yb in train_ld:\n        pred = model(Xb)\n        loss = crit(pred, yb)\n        opt.zero_grad() ; loss.backward() ; opt.step()\n\nmodel.{{blank3}}()",
+        "blanks": [
+          { "key": "blank1", "answer": "Dropout" },
+          { "key": "blank2", "answer": "train" },
+          { "key": "blank3", "answer": "eval" }
+        ]
+      }
+    },
+
+    {
+      "lessonId": 48,
+      "lessonType": "concept_code",
+      "orderIndex": 3,
+      "markdownUrl": "/static/md/regression/ch5/lesson3.md",
+      "content": {
+        "template": "model.eval()\nwith torch.{{blank1}}():\n    p = model(X_te)\n\n    {{blank2}} = ((y_te - p)           **2).sum()\n    {{blank3}} = ((y_te - y_te.mean()) **2).sum()\n    r2 = (1 - ss_res / ss_tot).item()\n    print(f\"R²: {r2:.4f}\")",
+        "blanks": [
+          { "key": "blank1", "answer": "no_grad" },
+          { "key": "blank2", "answer": "ss_res" },
+          { "key": "blank3", "answer": "ss_tot" }
+        ]
+      }
+    },
+
+    {
+      "lessonId": 49,
+      "lessonType": "parameter",
+      "orderIndex": 4,
+      "markdownUrl": "/static/md/regression/ch5/lesson4.md",
+      "content": {
+        "htmlUrl": "/static/md/regression/ch5/dropout_experiment.html"
+      }
+    },
+
+    {
+      "lessonId": 50,
+      "lessonType": "code_fill",
+      "problemId": 18,
+      "orderIndex": 5,
+      "markdownUrl": "/static/md/regression/ch5/lesson5.md",
+      "content": {
+        "template": "for epoch in range(50):\n    model.{{blank1}}()\n    for Xb, yb in train_ld:\n        pred = model(Xb) ; loss = crit(pred, yb)\n        opt.zero_grad() ; loss.backward() ; opt.step()\n\nmodel.{{blank2}}()\nwith torch.{{blank3}}():\n    p      = model(X_te)\n    {{blank4}} = ((y_te - p)           **2).sum()\n    {{blank5}} = ((y_te - y_te.mean()) **2).sum()\n    r2     = (1 - ss_res / ss_tot).item()\n    print(f\"R²: {r2:.4f}\")",
+        "blanks": [
+          { "key": "blank1" },
+          { "key": "blank2" },
+          { "key": "blank3" },
+          { "key": "blank4" },
+          { "key": "blank5" }
+        ]
+      }
+    },
+
+    {
+      "lessonId": 51,
+      "lessonType": "multiple_choice",
+      "problemId": 19,
+      "orderIndex": 6,
+      "content": {
+        "question": "model.eval()을 호출하지 않고 검증하면 결과가 불안정한 이유는?",
+        "choices": [
+          "eval()을 안 쓰면 역전파가 검증 데이터에도 적용되기 때문이다",
+          "Dropout이 꺼지지 않아 매 실행마다 다른 뉴런이 비활성화되기 때문이다",
+          "검증 데이터에 대한 loss 계산 자체가 불가능해지기 때문이다",
+          "배치 정규화 통계가 학습 데이터 기준으로 고정되지 않기 때문이다"
+        ]
+      }
+    },
+
+    {
+      "lessonId": 52,
+      "lessonType": "multiple_choice",
+      "problemId": 20,
+      "orderIndex": 7,
+      "content": {
+        "question": "torch.no_grad() 블록 안에서 연산하면 결과값(숫자)이 달라지는가?",
+        "choices": [
+          "아니다 — 결과값은 같고, gradient 추적 비용만 없어진다",
+          "그렇다 — Dropout이 꺼지기 때문에 결과값이 달라진다",
+          "그렇다 — no_grad는 연산 정밀도를 낮추기 때문이다",
+          "아니다 — no_grad는 아무 효과가 없어서 쓸 필요가 없다"
+        ]
+      }
+    }
+
+  ]
+}
