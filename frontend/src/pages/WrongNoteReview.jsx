@@ -183,6 +183,16 @@ export default function WrongNoteReview() {
       </div>
 
       <div className="quiz-wrap">
+        {isDaily && (item.problem?.track || item.problem?.chapter) && (
+          <div className="review-problem-meta">
+            {item.problem?.track && (
+              <span className="track-badge">{item.problem.track}</span>
+            )}
+            {item.problem?.chapter && (
+              <span className="chapter-badge">{item.problem.chapter}</span>
+            )}
+          </div>
+        )}
         <div className="quiz-question">{problem?.content?.question}</div>
         <div className="quiz-choices">
           {choices.map((choice, idx) => (

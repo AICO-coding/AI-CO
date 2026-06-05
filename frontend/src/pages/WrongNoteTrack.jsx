@@ -225,37 +225,33 @@ export default function WrongNoteTrack() {
                 </div>
               ) : (
                 selectedItems.map((item) => (
-                  <div key={item.id} className="wn-daily-row">
+                  <div
+                    key={item.id}
+                    className="wn-daily-row"
+                    onClick={() => navigate(`/wrong-answer/${trackId}/${item.id}`)}
+                  >
                     <div className="wn-daily-row-left">
-                      <span className="wn-daily-chapter">{item.chapter}</span>
+                      <div className="wn-daily-row-meta">
+                        {item.track && (
+                          <span className="track-badge">{item.track}</span>
+                        )}
+                        {item.chapter && (
+                          <span className="wn-daily-chapter-text">{item.chapter}</span>
+                        )}
+                      </div>
                       <span className="wn-daily-type-badge">
-                        {PROBLEM_TYPE_LABEL[item.problemType] ??
-                          item.problemType}
+                        {PROBLEM_TYPE_LABEL[item.problemType] ?? item.problemType}
                       </span>
                     </div>
                     <div className="wn-daily-row-right">
-                      <span
-                        className={
-                          item.isResolved
-                            ? 'status resolved'
-                            : 'status unresolved'
-                        }
-                      >
+                      <span className={item.isResolved ? 'status resolved' : 'status unresolved'}>
                         {item.isResolved ? '해결완료' : '미해결'}
                       </span>
                       <button
-                        className="detail-btn"
-                        onClick={() =>
-                          navigate(`/wrong-answer/${trackId}/${item.id}`)
-                        }
+                        className="wn-daily-delete-btn"
+                        onClick={(e) => { e.stopPropagation(); handleRowDelete(item.id); }}
                       >
-                        상세보기
-                      </button>
-                      <button
-                        className="delete-btn"
-                        onClick={() => handleRowDelete(item.id)}
-                      >
-                        삭제
+                        ✕
                       </button>
                     </div>
                   </div>
