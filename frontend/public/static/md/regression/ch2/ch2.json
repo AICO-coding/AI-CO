@@ -1,0 +1,107 @@
+{
+  "track": "ML",
+  "part": "regression",
+  "chapter": "ch2",
+  "chapterXP": 100,
+  "completionRate": 0,
+  "lastLessonId": null,
+  "lessons": [
+
+    {
+      "lessonId": 7,
+      "lessonType": "concept_image",
+      "title": "선형회귀 학습 루프란?",
+      "orderIndex": 1,
+      "isCompleted": false,
+      "markdownUrl": "/static/content/ml/ch2/lesson1.md",
+      "imageUrl": "/static/content/ml/ch2/learning_loop.png"
+    },
+
+    {
+      "lessonId": 8,
+      "lessonType": "concept_code",
+      "title": "MSE Loss · Adam 옵티마이저",
+      "orderIndex": 2,
+      "isCompleted": false,
+      "markdownUrl": "/static/content/ml/ch2/lesson2.md",
+      "content": {
+        "template": "import torch, torch.nn as nn\n\nmodel = nn.Linear(1, 1)\n\n# ① Loss 함수 설정 — 회귀 문제의 표준\ncrit = nn.{{blank1}}()\n\n# ② Optimizer 설정 — 적응형 학습률\nopt = torch.optim.{{blank2}}(model.parameters(), lr=0.01)\n\n# 사용 예시\npred = model(torch.tensor([[1.0]]))\ny    = torch.tensor([[3.0]])\nloss = crit(pred, y)\nprint(loss)  # tensor(X.XXXX, grad_fn=<MseLossBackward>)",
+        "blanks": [
+          { "key": "blank1", "answer": "MSELoss" },
+          { "key": "blank2", "answer": "Adam" }
+        ]
+      }
+    },
+    {
+      "lessonId": 9,
+      "lessonType": "concept_code",
+      "title": "zero_grad → backward → step",
+      "orderIndex": 3,
+      "isCompleted": false,
+      "markdownUrl": "/static/content/ml/ch2/lesson3.md",
+      "content": {
+        "template": "for epoch in range(100):\n    pred = model(x)\n    loss = crit(pred, y)\n\n    opt.{{blank1}}()   # ① gradient 초기화 — 반드시 먼저!\n    loss.{{blank2}}()  # ② 역전파: gradient 계산\n    opt.step()         # ③ 파라미터 업데이트\n\n    if (epoch+1) % 20 == 0:\n        print(f\"Epoch {epoch+1} | Loss: {loss.item():.4f}\")",
+        "blanks": [
+          { "key": "blank1", "answer": "zero_grad" },
+          { "key": "blank2", "answer": "backward" }
+        ]
+      }
+    },
+
+    {
+      "lessonId": 10,
+      "lessonType": "parameter",
+      "title": "Learning Rate 실험",
+      "orderIndex": 4,
+      "isCompleted": false,
+      "markdownUrl": "/static/content/ml/ch2/lesson4.md"
+    },
+
+    {
+      "lessonId": 11,
+      "problemId": 201,
+      "lessonType": "code_fill",
+      "title": "학습 루프 완성",
+      "orderIndex": 5,
+      "isCompleted": false,
+      "markdownUrl": "/static/content/ml/ch2/lesson5.md",
+      "content": {
+        "instruction": "MSELoss, Adam, zero_grad, backward를 사용해 학습 루프를 완성하세요.",
+        "template": "import torch, torch.nn as nn\n\n# y = 3x + 2 관계를 모델이 스스로 학습\nx = torch.tensor([[1.],[2.],[3.],[4.],[5.]])\ny = torch.tensor([[5.],[8.],[11.],[14.],[17.]])\n\nmodel = nn.Linear(1, 1)\n\n# ① 손실함수와 옵티마이저를 설정하세요\ncrit = nn.{{blank1}}()\nopt  = torch.optim.{{blank2}}(model.parameters(), lr=0.01)\n\nfor epoch in range(200):\n    pred = model(x)\n    loss = crit(pred, y)\n\n    # ② 학습 3단계를 순서대로 완성하세요\n    opt.{{blank3}}()    # gradient 누적 방지\n    loss.{{blank4}}()   # 역전파\n    opt.step()\n\nprint(f\"학습된 기울기: {model.weight.item():.2f}\")  # 약 3.00\nprint(f\"학습된 절편:   {model.bias.item():.2f}\")",
+        "blanks": [
+          { "key": "blank1" },
+          { "key": "blank2" },
+          { "key": "blank3" },
+          { "key": "blank4" }
+        ],
+        "hints": [
+          { "level": 1, "text": "① MS___Loss  ② Ad__  ③ zero___()  ④ back_____()"},
+          { "level": 2, "text": "① 첫 글자: M  ② 첫 글자: A  ③ 첫 글자: z  ④ 첫 글자: b" }
+        ]
+      }
+    },
+
+    {
+      "lessonId": 12,
+      "problemId": 202,
+      "lessonType": "multiple_choice",
+      "title": "Ch2 마무리 퀴즈",
+      "orderIndex": 6,
+      "isCompleted": false,
+      "content": {
+        "question": "PyTorch에서 opt.zero_grad()를 매 배치마다 호출하지 않으면 어떤 일이 생기는가?",
+        "choices": [
+          "① 학습이 즉시 중단된다",
+          "② gradient가 배치마다 누적되어 파라미터가 잘못된 방향으로 업데이트된다",
+          "③ Loss 값이 계산되지 않는다",
+          "④ 모델 파라미터가 자동으로 초기화된다"
+        ],
+        "hints": [
+          { "level": 1, "text": "zero_grad()는 '초기화' 메서드예요. 초기화를 안 하면 어떻게 될까요?" },
+          { "level": 2, "text": "PyTorch의 gradient는 호출할 때마다 이전 값에 더해지는(누적되는) 특성이 있어요." }
+        ]
+      }
+    }
+
+  ]
+}

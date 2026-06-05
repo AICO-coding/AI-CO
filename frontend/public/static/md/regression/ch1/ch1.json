@@ -1,0 +1,81 @@
+{
+  "track": "ML-회귀",
+  "part": "regression",
+  "chapter": "ch1",
+  "title": "Numpy & Tensor",
+  "chapterXP": 100,
+  "lessons": [
+    {
+      "lessonId": 1,
+      "lessonType": "concept_image",
+      "orderIndex": 1,
+      "markdownUrl": "/static/md/regression/ch1/lesson1.md",
+      "imageUrl": "/static/img/regression/ch1/tensor_dims.png"
+    },
+    {
+      "lessonId": 2,
+      "lessonType": "concept_code",
+      "orderIndex": 2,
+      "markdownUrl": "/static/md/regression/ch1/lesson2.md",
+      "content": {
+        "template": "import torch\n\nt = torch.tensor([[1., 2.], [3., 4.]])\n\nprint(t.{{blank1}})   # torch.Size([2, 2])\nprint(t.{{blank2}})   # torch.float32\nprint(t.{{blank3}})   # cpu\n\nr = torch.arange(6.).{{blank4}}\nprint(r.shape)   # torch.Size([2, 3])",
+        "blanks": [
+          { "key": "blank1", "answer": "shape" },
+          { "key": "blank2", "answer": "dtype" },
+          { "key": "blank3", "answer": "device" },
+          { "key": "blank4", "answer": "reshape(2, 3)" }
+        ]
+      }
+    },
+    {
+      "lessonId": 3,
+      "lessonType": "concept_code",
+      "orderIndex": 3,
+      "markdownUrl": "/static/md/regression/ch1/lesson3.md",
+      "content": {
+        "template": "import torch, numpy as np\n\narr = np.array([1., 2., 3.])\n\nt = torch.{{blank1}}(arr)\narr[0] = 999.\nprint(t)   # tensor([999., 2., 3.])\n\nback = t.{{blank2}}()   # CPU만 가능!",
+        "blanks": [
+          { "key": "blank1", "answer": "from_numpy" },
+          { "key": "blank2", "answer": "numpy" }
+        ]
+      }
+    },
+    {
+      "lessonId": 4,
+      "lessonType": "parameter",
+      "orderIndex": 4,
+      "markdownUrl": "/static/md/regression/ch1/lesson4.md"
+    },
+    {
+      "lessonId": 5,
+      "lessonType": "code_fill",
+      "problemId": 101,
+      "orderIndex": 5,
+      "markdownUrl": "/static/md/regression/ch1/lesson5.md",
+      "content": {
+        "template": "import torch\n\nx = torch.{{blank1}}([1., 2., 3., 4., 5., 6.])\n\nmat = x.{{blank2}}\nprint(mat.shape)  # torch.Size([2, 3])\n\nprint(x.{{blank3}}())  # tensor(3.5000)\n\nprint(x.{{blank4}})   # torch.float32",
+        "blanks": [
+          { "key": "blank1" },
+          { "key": "blank2" },
+          { "key": "blank3" },
+          { "key": "blank4" }
+        ]
+      }
+    },
+    {
+      "lessonId": 6,
+      "lessonType": "multiple_choice",
+      "problemId": 102,
+      "orderIndex": 6,
+      "content": {
+        "question": "PyTorch Tensor에 대한 설명으로 틀린 것은?",
+        "choices": [
+          "① Tensor는 GPU 연산이 가능하지만 ndarray는 불가능하다",
+          "② torch.from_numpy()로 만든 Tensor는 원본과 메모리를 공유한다",
+          "③ Tensor의 기본 dtype은 float64이다",
+          "④ .to('cuda')로 CPU Tensor를 GPU로 전환할 수 있다"
+        ]
+      }
+    }
+  ]
+}
