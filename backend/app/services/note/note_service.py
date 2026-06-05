@@ -6,6 +6,7 @@ from sqlalchemy import func
 from app.models.noteModels import WrongAnswer
 from app.models.problemModels import Problem
 from app.models.dailyModels import DailyProblem
+from app.models.lessonModels import Lesson
 from app.schemas.noteSchemas import (
     WrongAnswerListItem,
     WrongAnswerListResponse,
@@ -26,6 +27,18 @@ SOURCE_DAILY = "daily"
 
 def to_date_string(dt: datetime) -> str:
     return dt.date().isoformat()
+
+
+def get_lesson_title(db: Session, track: str | None, chapter: str | None) -> str | None:
+    if track is None or chapter is None:
+        return None
+    lesson = (
+        db.query(Lesson)
+        .filter(Lesson.track == track, Lesson.chapter == chapter)
+        .order_by(Lesson.order_index)
+        .first()
+    )
+    return lesson.title if lesson else None
 
 
 def normalize_answer(answer: Any) -> Any:
@@ -103,13 +116,14 @@ def get_daily_problem(
     return daily_problem
 
 
-def make_learning_problem_detail(problem: Problem) -> ProblemDetailResponse:
+def make_learning_problem_detail(db: Session, problem: Problem) -> ProblemDetailResponse:
     return ProblemDetailResponse(
         sourceType=SOURCE_LEARNING,
         trackProblemId=problem.id,
         dailyProblemId=None,
         track=problem.track,
         chapter=problem.chapter,
+        title=get_lesson_title(db, problem.track, problem.chapter),
         problemType=problem.problem_type,
         content=problem.content,
         answer=problem.answer,
@@ -118,13 +132,14 @@ def make_learning_problem_detail(problem: Problem) -> ProblemDetailResponse:
     )
 
 
-def make_daily_problem_detail(problem: DailyProblem) -> ProblemDetailResponse:
+def make_daily_problem_detail(db: Session, problem: DailyProblem) -> ProblemDetailResponse:
     return ProblemDetailResponse(
         sourceType=SOURCE_DAILY,
         trackProblemId=None,
         dailyProblemId=problem.id,
         track=problem.track,
         chapter=problem.chapter,
+        title=get_lesson_title(db, problem.track, problem.chapter),
         problemType=problem.problem_type,
         content=problem.content,
         answer=problem.answer,
@@ -133,6 +148,7 @@ def make_daily_problem_detail(problem: DailyProblem) -> ProblemDetailResponse:
 
 
 def make_problem_detail_from_wrong_answer(
+    db: Session,
     wrong_answer: WrongAnswer,
 ) -> ProblemDetailResponse:
     if wrong_answer.source_type == SOURCE_LEARNING:
@@ -142,7 +158,7 @@ def make_problem_detail_from_wrong_answer(
                 detail="Learning problem not found",
             )
 
-        return make_learning_problem_detail(wrong_answer.track_problem)
+        return make_learning_problem_detail(db, wrong_answer.track_problem)
 
     if wrong_answer.source_type == SOURCE_DAILY:
         if wrong_answer.daily_problem is None:
@@ -151,7 +167,7 @@ def make_problem_detail_from_wrong_answer(
                 detail="Daily problem not found",
             )
 
-        return make_daily_problem_detail(wrong_answer.daily_problem)
+        return make_daily_problem_detail(db, wrong_answer.daily_problem)
 
     raise HTTPException(
         status_code=400,
@@ -184,7 +200,7 @@ def get_correct_answer_from_wrong_answer(wrong_answer: WrongAnswer) -> Any:
     )
 
 
-def make_wrong_answer_list_item(wrong_answer: WrongAnswer) -> WrongAnswerListItem:
+def make_wrong_answer_list_item(db: Session, wrong_answer: WrongAnswer) -> WrongAnswerListItem:
     if wrong_answer.source_type == SOURCE_LEARNING:
         problem = wrong_answer.track_problem
 
@@ -201,6 +217,7 @@ def make_wrong_answer_list_item(wrong_answer: WrongAnswer) -> WrongAnswerListIte
             dailyProblemId=None,
             track=problem.track,
             chapter=problem.chapter,
+            title=get_lesson_title(db, problem.track, problem.chapter),
             problemType=problem.problem_type,
             isResolved=wrong_answer.is_resolved,
             reviewCount=wrong_answer.review_count,
@@ -223,6 +240,7 @@ def make_wrong_answer_list_item(wrong_answer: WrongAnswer) -> WrongAnswerListIte
             dailyProblemId=wrong_answer.daily_problem_id,
             track=problem.track,
             chapter=problem.chapter,
+            title=get_lesson_title(db, problem.track, problem.chapter),
             problemType=problem.problem_type,
             isResolved=wrong_answer.is_resolved,
             reviewCount=wrong_answer.review_count,
@@ -235,8 +253,8 @@ def make_wrong_answer_list_item(wrong_answer: WrongAnswer) -> WrongAnswerListIte
     )
 
 
-def make_wrong_answer_detail(wrong_answer: WrongAnswer) -> WrongAnswerDetailResponse:
-    problem_detail = make_problem_detail_from_wrong_answer(wrong_answer)
+def make_wrong_answer_detail(db: Session, wrong_answer: WrongAnswer) -> WrongAnswerDetailResponse:
+    problem_detail = make_problem_detail_from_wrong_answer(db, wrong_answer)
     correct_answer = get_correct_answer_from_wrong_answer(wrong_answer)
 
     return WrongAnswerDetailResponse(
@@ -293,7 +311,7 @@ def get_wrong_answers_service(
 
     return WrongAnswerListResponse(
         wrongAnswers=[
-            make_wrong_answer_list_item(item)
+            make_wrong_answer_list_item(db, item)
             for item in wrong_answers
         ]
     )
@@ -339,7 +357,7 @@ def get_review_wrong_answers_service(
     review_items: list[ReviewProblemItem] = []
 
     for item in wrong_answers:
-        problem_detail = make_problem_detail_from_wrong_answer(item)
+        problem_detail = make_problem_detail_from_wrong_answer(db, item)
 
         review_items.append(
             ReviewProblemItem(
@@ -450,7 +468,7 @@ def get_wrong_answer_detail_service(
             detail="Wrong answer not found",
         )
 
-    return make_wrong_answer_detail(wrong_answer)
+    return make_wrong_answer_detail(db, wrong_answer)
 
 
 def delete_wrong_answer_service(
