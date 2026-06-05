@@ -12,6 +12,9 @@ import Login from "./pages/Login";
 import Nickname from "./pages/NickName";
 import Chapter from "./pages/Chapter";
 import Lesson from "./pages/Lesson";
+import Report from "./pages/Report";
+import ReportList from "./components/ReportList";
+import ReportItem from "./components/ReportItem";
 import "./App.css";
 
 function Layout() {
@@ -30,6 +33,15 @@ function Layout() {
             <Route path="/home" element={<Home />} />
             <Route path="/daily" element={<DailyTask />} />
             <Route path="/tracks" element={<Track />} />
+            <Route path="/reports" element={<Report />} />
+            <Route
+              path="/reports/:trackId"
+              element={<ReportList />}
+            />
+            <Route
+              path="/reports/:trackId/:chapterId"
+              element={<ReportItem />}
+            />
 
             <Route
               path="/tracks/:trackId/chapters"

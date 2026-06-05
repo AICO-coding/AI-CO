@@ -72,20 +72,6 @@ function Sidebar() {
 
       </div>
 
-      <div className="sb-progress">
-        <div className="sb-proglbl">
-          <span>오늘의 진도</span>
-          <span>3/8</span>
-        </div>
-
-        <div className="sb-progbar">
-          <div
-            className="sb-progfill"
-            style={{ width: "40%" }}
-          ></div>
-        </div>
-      </div>
-
       <div className="sb-section">
         메뉴
       </div>
@@ -134,6 +120,18 @@ function Sidebar() {
         }`}
       >
         <span className="sb-icon">📝</span> 오답 노트
+      </Link>
+
+      <Link
+        to="/reports"
+        className={`sb-btn ${
+          location.pathname === "/reports"
+            ? "on"
+            : ""
+        }`}
+      >
+        <span className="sb-icon">📊</span>
+        요약 리포트
       </Link>
 
     </div>

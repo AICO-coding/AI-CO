@@ -61,15 +61,14 @@ function Home() {
       <div className="home-hero">
         <div>
           <div className="hero-title">
-            안녕하세요! 코딩 도장에 오신 걸 환영해요 🎉
+            안녕하세요! 아이코에 오신 걸 환영해요 🎉
           </div>
 
           <div className="hero-sub">
             AI를 이해하면서 직접 짜는 것,
             그게 진짜 실력이에요.
             <br />
-            오늘도 코봇과 함께 한 챕터
-            완성해봐요!
+            오늘도 코봇과 함께 공부해보아요!
           </div>
 
           <Link

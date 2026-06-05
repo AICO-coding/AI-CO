@@ -13,14 +13,13 @@
 
 .quiz-left {
   display: flex;
-
   flex-direction: column;
 
   gap: 14px;
 
   overflow-y: auto;
 
-  padding-right: 4px;
+  min-height: 0;
 }
 
 .quiz-info-card {
@@ -127,12 +126,14 @@
 
 .quiz-wrap {
   background: white;
-  height: fit-content;
-  border: 1px solid #ececec;
 
+  border: 1px solid #ececec;
   border-radius: 28px;
 
   padding: 34px;
+
+  min-height: 0;
+  height: 100%;
 
   overflow-y: auto;
 }
@@ -267,6 +268,7 @@
     grid-template-columns: 1fr;
 
     height: auto;
+    min-height: 0;
   }
 
   .quiz-left,
@@ -405,4 +407,42 @@
   font-size: 14px;
   line-height: 1.6;
   color: #0f172a;
+}
+
+.quiz-explanation {
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 12px;
+  background: #f8f9fc;
+  border: 1px solid #e5e7eb;
+}
+
+.quiz-explanation-title {
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.quiz-explanation-content {
+  line-height: 1.7;
+  color: #444;
+}
+
+.quiz-choice.correct {
+  border-color: #22c55e;
+  background: #dcfce7;
+}
+
+.quiz-choice.correct .quiz-choice-index {
+  background: #22c55e;
+  color: white;
+}
+
+.quiz-choice.wrong {
+  border-color: #ef4444;
+  background: #fee2e2;
+}
+
+.quiz-choice.wrong .quiz-choice-index {
+  background: #ef4444;
+  color: white;
 }
