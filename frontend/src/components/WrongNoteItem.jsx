@@ -4,14 +4,14 @@ const API_BASE = 'http://210.125.96.59:8000';
 
 const PROBLEM_TYPE_LABEL = {
   multiple_choice: '객관식',
-  code_fill: '코드 빈칸',
-  parameter: '파라미터',
+  code_fill:       '코드 빈칸',
+  parameter:       '파라미터',
 };
 
 const PROBLEM_TYPE_COLOR = {
   multiple_choice: 'type-mc',
-  code_fill: 'type-cf',
-  parameter: 'type-pm',
+  code_fill:       'type-cf',
+  parameter:       'type-pm',
 };
 
 export default function WrongNoteItem({ item, trackId, onDelete }) {
@@ -20,7 +20,8 @@ export default function WrongNoteItem({ item, trackId, onDelete }) {
   const typeLabel = PROBLEM_TYPE_LABEL[item.problemType] ?? item.problemType;
   const typeColor = PROBLEM_TYPE_COLOR[item.problemType] ?? '';
 
-  async function handleDelete() {
+  async function handleDelete(e) {
+    e.stopPropagation();
     const token = localStorage.getItem('accessToken');
     try {
       await fetch(`${API_BASE}/wrong-answers/${item.id}`, {
@@ -41,9 +42,7 @@ export default function WrongNoteItem({ item, trackId, onDelete }) {
           <span className="track-badge">{item.track}</span>
           <span className={`wrong-type-badge ${typeColor}`}>{typeLabel}</span>
         </div>
-        <span
-          className={item.isResolved ? 'status resolved' : 'status unresolved'}
-        >
+        <span className={item.isResolved ? 'wn-status-dot resolved' : 'wn-status-dot unresolved'}>
           {item.isResolved ? '해결완료' : '미해결'}
         </span>
       </div>
@@ -51,16 +50,10 @@ export default function WrongNoteItem({ item, trackId, onDelete }) {
       <div className="wrong-card-title">{item.chapter}</div>
 
       <div className="wrong-card-bottom">
-        <span className="wrong-review-count">복습 {item.reviewCount}회</span>
-        <button
-          className="delete-btn"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleDelete();
-          }}
-        >
-          삭제
-        </button>
+        <span className="wrong-review-count">
+          복습 {item.reviewCount}회
+        </span>
+        <button className="wn-card-delete-btn" onClick={handleDelete}>✕</button>
       </div>
     </div>
   );
