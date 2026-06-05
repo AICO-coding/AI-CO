@@ -1,0 +1,70 @@
+{
+  "lessonType": "mission",
+  "content": {
+    "markdownUrl": "/static/content/ml/mission/mission.md",
+    "template": "# ══ Mission: 캘리포니아 집값 예측 · Ch1~Ch5 종합 구현 ════════════\nimport torch, numpy as np, torch.nn as nn\nfrom torch.utils.data import Dataset, DataLoader\nfrom sklearn.datasets    import fetch_california_housing\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.preprocessing  import StandardScaler\n\n# ─── 제공됨: 데이터 로드 ────────────────────────────────────────\ndata = fetch_california_housing()\nX    = data.data.astype('float32')    # shape: (20640, 8)\ny    = data.target.astype('float32')  # shape: (20640,) 단위: $100,000\n\n# ── TODO 1 · Ch1 ──────────────────────────────────────────────────\n# y.shape=(20640,) 1D → (20640,1) 2D로 변환하세요. torch tensor의 shape 변환 메서드는?\ny_2d = torch.FloatTensor(y).{{blank1}}\n\n# ── TODO 2 · 전처리 ────────────────────────────────────────────────\n# sklearn.preprocessing에서 평균=0, 분산=1로 정규화하는 클래스를 인스턴스화 하세요\nscaler = {{blank2}}\nX_tr, X_te, y_tr, y_te = train_test_split(X, y_2d.numpy(), test_size=0.2, random_state=42)\nX_tr = torch.FloatTensor(scaler.fit_transform(X_tr)) # train만 fit!\nX_te = torch.FloatTensor(scaler.transform(X_te))\ny_tr = torch.FloatTensor(y_tr) ; y_te = torch.FloatTensor(y_te)\n\n# ── TODO 3 · Ch3 ──────────────────────────────────────────────────\n# __len__: self.X의 길이를 반환하세요 / __getitem__: i번째 X, y 샘플을 반환하세요\nclass HousingDataset(Dataset):\n    def __init__(self, X, y): self.X, self.y = X, y\n    def __len__(self):        return {{blank3}}\n    def __getitem__(self, i): return {{blank4}}\n\n# ── TODO 4 · Ch3 ──────────────────────────────────────────────────\n# PyTorch 배치 로더 클래스명 + batch_size(64) + shuffle(True/False) 을 채우세요\ntrain_ld = {{blank5}}(HousingDataset(X_tr, y_tr),\n               batch_size={{blank6}}, shuffle={{blank7}})\n\n# ── TODO 5 · Ch4·5 ─────────────────────────────────────────────────\n# nn.Linear(입력특성수, 128) + 활성화함수명() + 과적합방지레이어명(0.2) 을 채우세요\nclass HousingNet(nn.Module):\n    def __init__(self): super().__init__(); self.net = nn.Sequential(\n        nn.Linear({{blank8}}, 128), nn.{{blank9}}(), nn.{{blank10}}(0.2),\n        nn.Linear(128, 64), nn.ReLU(), nn.Linear(64, 1))\n# ── TODO 6 · Ch4 ───────────────────────────────────────────────────\n# self.net Sequential 블록에 입력 x를 넣어 결과를 반환하는 한 줄을 작성하세요\n    def forward(self, x): return {{blank11}}\n\nmodel = HousingNet()\n# ── TODO 7 · Ch2 ───────────────────────────────────────────────────\n# 회귀 손실함수 클래스명 (Mean Squared Error) + 적응형 옵티마이저명 (Adam계열)\ncrit = nn.{{blank12}}()\nopt  = torch.optim.{{blank13}}(model.parameters(), lr=1e-3)\n\n# ── TODO 8 · Ch2·5 ─────────────────────────────────────────────────\n# ① 학습 모드 전환 → ② gradient 0 초기화 → ③ 역전파 실행 순서로 채우세요\n{{blank14}}  # Dropout 활성화\nfor epoch in range(50):\n    total = 0.0\n    for Xb, yb in train_ld:\n        pred = model(Xb) ; loss = crit(pred, yb)\n        {{blank15}}   # gradient 누적 방지 — 반드시 먼저!\n        {{blank16}}      # 역전파 실행\n        opt.step() ; total += loss.item()\n    if (epoch+1)%10==0: print(f\"Epoch {epoch+1}/50 | Loss: {total/len(train_ld):.4f}\")\n\n# ── TODO 9 · Ch5 ───────────────────────────────────────────────────\n# 평가 모드 전환 메서드 + gradient 추적 끄는 컨텍스트 + R² 분자/분모 변수명 입력\n{{blank17}}  # Dropout 비활성화!\nwith torch.{{blank18}}:   # gradient 계산 끄기 → 메모리↓ 속도↑\n    p     = model(X_te) ; t_mse = crit(p, y_te).item()\n    # R² = 1 - SS_res / SS_tot  →  아래 변수명을 채우세요\n    ss_res = ((y_te - p)           **2).sum()  # 잔차 제곱합\n    ss_tot = ((y_te - y_te.mean()) **2).sum()  # 전체 분산\n    r2    = (1 - {{blank19}} / {{blank20}}).item()\n\nprint(f\"MSE: {t_mse:.4f}  R²: {r2:.4f}  (목표 ≥ 0.65)\")\nprint(f\"💡 MedInc(소득)이 집값 예측의 핵심 특성입니다\")",
+    "blanks": [
+      {"key": "blank1"},  {"key": "blank2"},  {"key": "blank3"},  {"key": "blank4"},
+      {"key": "blank5"},  {"key": "blank6"},  {"key": "blank7"},  {"key": "blank8"},
+      {"key": "blank9"},  {"key": "blank10"}, {"key": "blank11"}, {"key": "blank12"},
+      {"key": "blank13"}, {"key": "blank14"}, {"key": "blank15"}, {"key": "blank16"},
+      {"key": "blank17"}, {"key": "blank18"}, {"key": "blank19"}, {"key": "blank20"}
+    ],
+    "hints": [
+      {
+        "todoId": 1,
+        "blankKeys": ["blank1"],
+        "text": "Ch1에서 배운 shape 변환 메서드 · 인자 두 개: (행, 열) · -1은 나머지 차원 자동 계산",
+        "xpCost": 15
+      },
+      {
+        "todoId": 2,
+        "blankKeys": ["blank2"],
+        "text": "sklearn.preprocessing 모듈 · 각 특성을 평균=0, 분산=1로 맞추는 클래스 · Standard로 시작",
+        "xpCost": 15
+      },
+      {
+        "todoId": 3,
+        "blankKeys": ["blank3", "blank4"],
+        "text": "Dataset 필수 메서드 2개 · __len__: self.X의 길이 반환 · __getitem__: self.X[i]와 self.y[i] 튜플 반환",
+        "xpCost": 15
+      },
+      {
+        "todoId": 4,
+        "blankKeys": ["blank5", "blank6", "blank7"],
+        "text": "torch.utils.data의 배치 로더 클래스 · 배치 크기는 64 (2의 거듭제곱) · 매 에폭 순서 섞기 True",
+        "xpCost": 15
+      },
+      {
+        "todoId": 5,
+        "blankKeys": ["blank8", "blank9", "blank10"],
+        "text": "입력 특성 수=캘리포니아 데이터 열 수 · 활성화=ReLU · 과적합 방지 레이어=Dropout",
+        "xpCost": 15
+      },
+      {
+        "todoId": 6,
+        "blankKeys": ["blank11"],
+        "text": "self.net을 함수처럼 호출 · nn.Sequential은 괄호에 입력을 넣으면 순서대로 통과",
+        "xpCost": 15
+      },
+      {
+        "todoId": 7,
+        "blankKeys": ["blank12", "blank13"],
+        "text": "회귀 손실=MSELoss (Ch2에서 직접 구현한 그것) · 옵티마이저=Adam (Adaptive Moment Estimation)",
+        "xpCost": 15
+      },
+      {
+        "todoId": 8,
+        "blankKeys": ["blank14", "blank15", "blank16"],
+        "text": "순서 고정: model.train() → opt.zero_grad() → loss.backward() · zero_grad 빠지면 gradient 누적!",
+        "xpCost": 15
+      },
+      {
+        "todoId": 9,
+        "blankKeys": ["blank17", "blank18", "blank19", "blank20"],
+        "text": "model.eval()로 Dropout 끄기 · torch.no_grad()로 gradient 추적 차단 · R² 분자=ss_res, 분모=ss_tot",
+        "xpCost": 15
+      }
+    ]
+  }
+}
