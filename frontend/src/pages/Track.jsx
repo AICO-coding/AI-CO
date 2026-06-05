@@ -6,31 +6,74 @@ import "../styles/Track.css";
 export default function Track() {
   const navigate = useNavigate();
 
-  const [trackData, setTrackData] = useState(null);
-  const [error, setError] = useState(null);
+  const [trackData, setTrackData] =
+    useState(null);
+
+  const [progressData, setProgressData] =
+    useState([]);
+
+  const [error, setError] =
+    useState(null);
 
   useEffect(() => {
     const fetchTracks = async () => {
       try {
-        const token = localStorage.getItem("accessToken");
+        const token =
+          localStorage.getItem("accessToken");
 
-        const res = await fetch(
-          "http://210.125.96.59:8000/tracks",
-          {
-            headers: {
-              ...(token && {
-                Authorization: `Bearer ${token}`,
-              }),
-            },
-          }
-        );
+        const headers = {
+          ...(token && {
+            Authorization: `Bearer ${token}`,
+          }),
+        };
 
-        if (res.status === 401) {
-          throw new Error("로그인이 필요합니다.");
+        const [
+          trackRes,
+          progressRes,
+        ] = await Promise.all([
+          fetch(
+            "http://210.125.96.59:8000/tracks",
+            {
+              headers,
+            }
+          ),
+          fetch(
+            "http://210.125.96.59:8000/tracks/progress",
+            {
+              headers,
+            }
+          ),
+        ]);
+
+        if (
+          trackRes.status === 401 ||
+          progressRes.status === 401
+        ) {
+          throw new Error(
+            "로그인이 필요합니다."
+          );
         }
 
-        const data = await res.json();
-        setTrackData(data);
+        if (
+          !trackRes.ok ||
+          !progressRes.ok
+        ) {
+          throw new Error(
+            "트랙 정보를 불러오지 못했습니다."
+          );
+        }
+
+        const trackJson =
+          await trackRes.json();
+
+        const progressJson =
+          await progressRes.json();
+
+        setTrackData(trackJson);
+
+        setProgressData(
+          progressJson.tracks || []
+        );
       } catch (err) {
         setError(err.message);
       }
@@ -43,14 +86,19 @@ export default function Track() {
     return (
       <div className="track-wrap">
         <p>❌ {error}</p>
-        <button onClick={() => (window.location.href = "/login")}>
+
+        <button
+          onClick={() =>
+            (window.location.href =
+              "/login")
+          }
+        >
           로그인 하러가기
         </button>
       </div>
     );
   }
 
-  // 👉 데이터 없으면 아무것도 안 그림
   if (!trackData) return null;
 
   return (
@@ -64,39 +112,69 @@ export default function Track() {
       </div>
 
       <div className="track-page-grid">
-        {trackData.tracks.map((track) => (
-          <div
-            key={track.track}
-            className="track-page-card"
-            onClick={() =>
-              navigate(
-                `/tracks/${track.track.toLowerCase()}/chapters`
-              )
-            }
-          >
-            <div className="track-card-top">
-              <div className="tc-name">
-                📌 {track.track}
-              </div>
-            </div>
+        {trackData.tracks.map(
+          (track) => {
+            const progress =
+              progressData.find(
+                (p) =>
+                  p.track ===
+                  track.track
+              );
 
-            <div className="tc-progress-wrap">
-              <div className="tc-progress-bar">
-                <div
-                  className="tc-progress-fill"
-                  style={{
-                    width: `${track.completionRate}%`,
-                  }}
-                />
-              </div>
+            return (
+              <div
+                key={track.track}
+                className="track-page-card"
+                onClick={() =>
+                  navigate(
+                    `/tracks/${track.track.toLowerCase()}/chapters`
+                  )
+                }
+              >
+                <div className="track-card-top">
+                  <div className="tc-name">
+                    📌 {track.track}
+                  </div>
+                </div>
 
-              <div className="tc-progress-text">
-                {track.completionRate}% 완료
-              </div>
-            </div>
+                <div className="tc-progress-wrap">
+                  <div className="tc-progress-bar">
+                    <div
+                      className="tc-progress-fill"
+                      style={{
+                        width: `${
+                          progress?.completionRate ||
+                          0
+                        }%`,
+                      }}
+                    />
+                  </div>
 
-          </div>
-        ))}
+                  <div className="tc-progress-text">
+                    {progress?.completionRate ||
+                      0}
+                    % 완료
+                  </div>
+                </div>
+
+                <div className="tc-stats">
+                  <div>
+                    XP{" "}
+                    {progress?.totalXp ||
+                      0}
+                  </div>
+
+                  <div>
+                    힌트{" "}
+                    {progress?.hintUsed ||
+                      0}
+                    회
+                  </div>
+                </div>
+              </div>
+            );
+          }
+        )}
       </div>
     </div>
   );
