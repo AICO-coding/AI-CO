@@ -29,19 +29,34 @@ def get_all_progress_service(db: Session, user_id: int) -> dict:
 
         if track not in track_map:
             track_map[track] = {
-                "rates": [],
+                "rates": {},
                 "xp": 0,
                 "hint": 0,
             }
 
-        track_map[track]["rates"].append(r.completion_rate)
+        track_map[track]["rates"][r.chapter] = r.completion_rate
         track_map[track]["xp"] += r.xp_earned
         track_map[track]["hint"] += r.hint_used
+
+    # 트랙별 전체 챕터 수 조회 (Progress row 없는 챕터 포함)
+    track_chapter_counts = {}
+    for track in track_map:
+        total = (
+            db.query(Lesson.chapter)
+            .filter(func.upper(Lesson.track) == track)
+            .distinct()
+            .count()
+        )
+        track_chapter_counts[track] = total
 
     tracks = []
 
     for track, data in track_map.items():
-        avg_rate = int(sum(data["rates"]) / len(data["rates"])) if data["rates"] else 0
+        total_chapters = track_chapter_counts.get(track, 0)
+        if total_chapters > 0:
+            avg_rate = int(sum(data["rates"].values()) / total_chapters)
+        else:
+            avg_rate = int(sum(data["rates"].values()) / len(data["rates"])) if data["rates"] else 0
 
         tracks.append({
             "track": track,
