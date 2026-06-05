@@ -4,7 +4,7 @@
 }
 
 .home-hero {
-  background: linear-gradient(135deg, var(--or), var(--or3));
+  background: var(--or);
   border-radius: var(--r24);
   padding: 36px 40px;
   color: #fff;
