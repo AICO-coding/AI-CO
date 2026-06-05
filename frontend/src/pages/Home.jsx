@@ -7,6 +7,9 @@ function Home() {
   const [trackData, setTrackData] =
     useState(null);
 
+  const [progressData, setProgressData] =
+    useState([]);
+
   const [error, setError] =
     useState(null);
 
@@ -16,28 +19,59 @@ function Home() {
         const token =
           localStorage.getItem("accessToken");
 
-        const res = await fetch(
-          "http://210.125.96.59:8000/tracks",
-          {
-            headers: {
-              ...(token && {
-                Authorization: `Bearer ${token}`,
-              }),
-            },
-          }
-        );
+        const headers = {
+          ...(token && {
+            Authorization: `Bearer ${token}`,
+          }),
+        };
 
-        if (res.status === 401) {
+        const [
+          trackRes,
+          progressRes,
+        ] = await Promise.all([
+          fetch(
+            "http://210.125.96.59:8000/tracks",
+            {
+              headers,
+            }
+          ),
+          fetch(
+            "http://210.125.96.59:8000/tracks/progress",
+            {
+              headers,
+            }
+          ),
+        ]);
+
+        if (
+          trackRes.status === 401 ||
+          progressRes.status === 401
+        ) {
           throw new Error(
             "로그인이 필요합니다."
           );
         }
 
-        const data = await res.json();
+        if (
+          !trackRes.ok ||
+          !progressRes.ok
+        ) {
+          throw new Error(
+            "데이터를 불러오지 못했습니다."
+          );
+        }
 
-        console.log(data);
+        const trackJson =
+          await trackRes.json();
 
-        setTrackData(data);
+        const progressJson =
+          await progressRes.json();
+
+        setTrackData(trackJson);
+
+        setProgressData(
+          progressJson.tracks || []
+        );
       } catch (err) {
         setError(err.message);
       }
@@ -61,14 +95,16 @@ function Home() {
       <div className="home-hero">
         <div>
           <div className="hero-title">
-            안녕하세요! 아이코에 오신 걸 환영해요 🎉
+            안녕하세요! 아이코에 오신 걸
+            환영해요 🎉
           </div>
 
           <div className="hero-sub">
             AI를 이해하면서 직접 짜는 것,
             그게 진짜 실력이에요.
             <br />
-            오늘도 코봇과 함께 공부해보아요!
+            오늘도 코봇과 함께
+            공부해보아요!
           </div>
 
           <Link
@@ -85,6 +121,7 @@ function Home() {
           className="hero-cobot"
         />
       </div>
+
       <div className="sec-title">
         📋 오늘의 태스크
       </div>
@@ -107,7 +144,9 @@ function Home() {
           <div className="daily-prog-wrap">
             <div
               className="daily-prog-fill"
-              style={{ width: "40%" }}
+              style={{
+                width: "40%",
+              }}
             />
           </div>
 
@@ -117,44 +156,75 @@ function Home() {
         </div>
 
         <div className="daily-info">
-          🧠 3문제 남았어요! 클릭해서
-          이어풀기 →
+          🧠 3문제 남았어요!
+          클릭해서 이어풀기 →
         </div>
       </Link>
+
       <div className="sec-title">
         📚 학습 트랙
       </div>
 
       <div className="track-grid">
-        {trackData.tracks.map((track) => (
-          <Link
-            key={track.track}
-            to={`/tracks/${track.track.toLowerCase()}/chapters`}
-            className="track-card"
-          >
+        {trackData.tracks.map(
+          (track) => {
+            const progress =
+              progressData.find(
+                (p) =>
+                  p.track ===
+                  track.track
+              );
 
-            <div className="tc-name">
-              📌 {track.track}
-            </div>
+            return (
+              <Link
+                key={track.track}
+                to={`/tracks/${track.track.toLowerCase()}/chapters`}
+                className="track-card"
+              >
+                <div className="tc-name">
+                  📌 {track.track}
+                </div>
 
-            <div className="tc-sub">
-              AI 학습 트랙
-            </div>
+                <div className="tc-sub">
+                  AI 학습 트랙
+                </div>
 
-            <div className="tc-prog-wrap">
-              <div
-                className="tc-prog"
-                style={{
-                  width: `${track.completionRate}%`,
-                }}
-              />
-            </div>
+                <div className="tc-prog-wrap">
+                  <div
+                    className="tc-prog"
+                    style={{
+                      width: `${
+                        progress?.completionRate ||
+                        0
+                      }%`,
+                    }}
+                  />
+                </div>
 
-            <div className="tc-info">
-              {track.completionRate}% 완료
-            </div>
-          </Link>
-        ))}
+                <div className="tc-info">
+                  {progress?.completionRate ||
+                    0}
+                  % 완료
+                </div>
+
+                <div className="tc-stats">
+                  <span>
+                    XP{" "}
+                    {progress?.totalXp ||
+                      0}
+                  </span>
+
+                  <span>
+                    힌트{" "}
+                    {progress?.hintUsed ||
+                      0}
+                    회
+                  </span>
+                </div>
+              </Link>
+            );
+          }
+        )}
       </div>
     </div>
   );
