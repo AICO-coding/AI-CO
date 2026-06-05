@@ -1,40 +1,40 @@
-import "../../styles/MultipleChoice.css";
-import "../../styles/WrongNote.css";
+import '../../styles/MultipleChoice.css';
+import '../../styles/WrongNote.css';
 
 const STYLE_CORRECT = {
-  backgroundColor: "#dcfce7",
-  border: "2px solid #16a34a",
-  color: "#15803d",
+  backgroundColor: '#dcfce7',
+  border: '2px solid #16a34a',
+  color: '#15803d',
 };
 
 const STYLE_WRONG = {
-  backgroundColor: "#fee2e2",
-  border: "2px solid #dc2626",
-  color: "#b91c1c",
+  backgroundColor: '#fee2e2',
+  border: '2px solid #dc2626',
+  color: '#b91c1c',
 };
 
-const STYLE_INDEX_CORRECT = { backgroundColor: "#16a34a", color: "#ffffff" };
-const STYLE_INDEX_WRONG   = { backgroundColor: "#dc2626", color: "#ffffff" };
+const STYLE_INDEX_CORRECT = { backgroundColor: '#16a34a', color: '#ffffff' };
+const STYLE_INDEX_WRONG = { backgroundColor: '#dc2626', color: '#ffffff' };
 
-// raw: number | string | object | JSON string → 0-based index, -1 if unknown
 function extractIndex(raw) {
-  if (raw === null || raw === undefined || raw === "") return -1;
+  if (raw === null || raw === undefined || raw === '') return -1;
 
-  // JSON string → parse first
   let value = raw;
-  if (typeof raw === "string") {
-    try { value = JSON.parse(raw); } catch { /* keep as-is */ }
+  if (typeof raw === 'string') {
+    try {
+      value = JSON.parse(raw);
+    } catch {}
   }
 
-  if (typeof value === "number") return value - 1;
-  if (typeof value === "string") {
+  if (typeof value === 'number') return value - 1;
+  if (typeof value === 'string') {
     const n = parseInt(value, 10);
     return isNaN(n) ? -1 : n - 1;
   }
-  if (typeof value === "object" && value !== null) {
-    if ("answer" in value)        return extractIndex(value.answer);
-    if ("selectedIndex" in value) return value.selectedIndex - 1;
-    if ("correct_index" in value) return value.correct_index - 1;
+  if (typeof value === 'object' && value !== null) {
+    if ('answer' in value) return extractIndex(value.answer);
+    if ('selectedIndex' in value) return value.selectedIndex - 1;
+    if ('correct_index' in value) return value.correct_index - 1;
   }
   return -1;
 }
@@ -43,21 +43,33 @@ export default function WrongNoteMultipleChoice({ detail }) {
   const problem = detail.problem;
   const choices = problem.content?.choices ?? [];
 
-  const userIndex    = extractIndex(detail.userAnswer);
-  const correctIndex = extractIndex(detail.correctAnswer ?? detail.problem?.answer);
+  const userIndex = extractIndex(detail.userAnswer);
+  const correctIndex = extractIndex(
+    detail.correctAnswer ?? detail.problem?.answer,
+  );
 
-  console.log("[WrongNote] userAnswer:", detail.userAnswer, "→ index:", userIndex);
-  console.log("[WrongNote] correctAnswer:", detail.correctAnswer, "→ index:", correctIndex);
+  console.log(
+    '[WrongNote] userAnswer:',
+    detail.userAnswer,
+    '→ index:',
+    userIndex,
+  );
+  console.log(
+    '[WrongNote] correctAnswer:',
+    detail.correctAnswer,
+    '→ index:',
+    correctIndex,
+  );
 
   function choiceStyle(idx) {
     if (idx === correctIndex) return STYLE_CORRECT;
-    if (idx === userIndex)    return STYLE_WRONG;
+    if (idx === userIndex) return STYLE_WRONG;
     return {};
   }
 
   function indexStyle(idx) {
     if (idx === correctIndex) return STYLE_INDEX_CORRECT;
-    if (idx === userIndex)    return STYLE_INDEX_WRONG;
+    if (idx === userIndex) return STYLE_INDEX_WRONG;
     return {};
   }
 

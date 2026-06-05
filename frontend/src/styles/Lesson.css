@@ -7,7 +7,7 @@
   display: flex;
   flex-direction: column;
 
-  overflow: hidden; /* 🔥 유지 */
+  overflow: hidden;
 
   border: 1px solid #e5e7eb;
   border-radius: 18px;
@@ -45,7 +45,7 @@
   flex: 1;
   min-height: 0;
 
-  overflow-y: auto;  /* 🔥 LEFT SCROLL */
+  overflow-y: auto;
 
   padding: 16px;
 }
@@ -101,7 +101,7 @@
 
   background: #090d18;
 
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 
   display: flex;
 
@@ -195,7 +195,9 @@
   font-size: 13.5px;
   line-height: 1.8;
 
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+    monospace;
 
   white-space: pre-wrap;
   word-break: break-word;
@@ -282,7 +284,6 @@
 }
 
 @media (max-width: 1200px) {
-
   .lesson-page {
     width: 100%;
 
@@ -318,7 +319,6 @@
 }
 
 @media (max-width: 768px) {
-
   .concept-layout {
     gap: 18px;
   }
@@ -406,7 +406,7 @@
   display: flex;
   flex-direction: column;
 
-  overflow: hidden; /* 🔥 중요 */
+  overflow: hidden;
 }
 
 .lesson-bottombar {
@@ -457,14 +457,11 @@
   background: #ff6b00;
   color: white;
   border: none;
-
-  box-shadow: 0 6px 18px rgba(255, 107, 0, 0.25);
 }
 
 .nav-btn.primary:hover {
   background: #ea580c;
   transform: translateY(-1px);
-  box-shadow: 0 8px 22px rgba(255, 107, 0, 0.35);
 }
 
 .nav-btn-secondary {
@@ -529,7 +526,7 @@
   position: fixed;
   inset: 0;
 
-  background: rgba(0,0,0,.45);
+  background: rgba(0, 0, 0, 0.45);
 
   display: flex;
   align-items: center;
@@ -550,12 +547,9 @@
 
   text-align: center;
 
-  box-shadow:
-    0 20px 50px
-    rgba(0,0,0,.15);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
 
-  animation:
-    modalPop .25s ease;
+  animation: modalPop 0.25s ease;
 }
 
 .result-cobot {
@@ -622,7 +616,7 @@
 @keyframes modalPop {
   from {
     opacity: 0;
-    transform: scale(.9);
+    transform: scale(0.9);
   }
 
   to {

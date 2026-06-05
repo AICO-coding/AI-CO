@@ -1,7 +1,5 @@
-/* 구글 폰트 */
-@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
-/* 색상/폰트/크기 변수 */
 :root {
   --or: #ff6b00;
   --or2: #e55a00;
@@ -38,8 +36,8 @@
   --wh: #ffffff;
 
   --shadow: 0 4px 0;
-  --ff: "Nunito", sans-serif;
-  --fm: "JetBrains Mono", monospace;
+  --ff: 'Nunito', sans-serif;
+  --fm: 'JetBrains Mono', monospace;
   --r8: 8px;
   --r12: 12px;
   --r16: 16px;
@@ -47,7 +45,6 @@
   --r32: 32px;
 }
 
-/* 전역 기본 스타일 */
 *,
 *::before,
 *::after {
@@ -67,7 +64,6 @@ body {
   overflow-x: hidden;
 }
 
-/* 스크롤바 */
 ::-webkit-scrollbar {
   width: 5px;
 }
@@ -79,7 +75,6 @@ body {
   border-radius: 3px;
 }
 
-/* bobble 애니메이션 (코봇 캐릭터용) */
 @keyframes bobble {
   0%,
   100% {

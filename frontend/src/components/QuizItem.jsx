@@ -1,5 +1,5 @@
-import "../styles/QuizItem.css";
-import { useState } from "react";
+import '../styles/QuizItem.css';
+import { useState } from 'react';
 
 export const QuizItem = ({ question, options, onSelect }) => {
   const [selected, setSelected] = useState(null);
@@ -18,7 +18,7 @@ export const QuizItem = ({ question, options, onSelect }) => {
         <button
           key={idx}
           onClick={() => handleSelect(idx)}
-          className={`quiz-option ${selected === idx ? "selected" : ""}`}
+          className={`quiz-option ${selected === idx ? 'selected' : ''}`}
         >
           {idx + 1}. {opt}
         </button>

@@ -1,34 +1,29 @@
-import { Link, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { Link, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 
-import "../styles/Sidebar.css";
-import cobot from "../assets/cobot.png";
+import '../styles/Sidebar.css';
+import cobot from '../assets/cobot.png';
 
 function Sidebar() {
   const location = useLocation();
 
-  const [nickname, setNickname] = useState("");
+  const [nickname, setNickname] = useState('');
   const [xp, setXp] = useState(0);
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const accessToken =
-          localStorage.getItem("accessToken");
+        const accessToken = localStorage.getItem('accessToken');
 
-        const response = await axios.get(
-          "http://210.125.96.59:8000/users",
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          }
-        );
+        const response = await axios.get('http://210.125.96.59:8000/users', {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
 
         setNickname(response.data.nickname);
         setXp(response.data.xp);
-
       } catch (error) {
         console.error(error.response?.data);
       }
@@ -39,62 +34,34 @@ function Sidebar() {
 
   return (
     <div id="sidebar">
-
       <div className="sb-cobot">
-        <img
-          src={cobot}
-          alt="코봇"
-          className="sb-cobot-img"
-        />
+        <img src={cobot} alt="코봇" className="sb-cobot-img" />
 
-        <div className="sb-cobot-txt">
-          안녕! 나는 코봇이야
-        </div>
+        <div className="sb-cobot-txt">안녕! 나는 코봇이야</div>
 
-        <div className="sb-cobot-txt">
-          오늘도 같이 수련하자!
-        </div>
+        <div className="sb-cobot-txt">오늘도 같이 수련하자!</div>
       </div>
 
       <div className="sb-user-card">
-
         <div className="sb-user-info">
+          <div className="sb-user-name">{nickname || '사용자'}</div>
 
-          <div className="sb-user-name">
-            {nickname || "사용자"}
-          </div>
-
-          <div className="sb-user-xp">
-            {xp}xp
-          </div>
-
+          <div className="sb-user-xp">{xp}xp</div>
         </div>
-
       </div>
 
-      <div className="sb-section">
-        메뉴
-      </div>
+      <div className="sb-section">메뉴</div>
 
       <Link
         to="/home"
-        className={`sb-btn ${
-          location.pathname === "/home"
-            ? "on"
-            : ""
-        }`}
+        className={`sb-btn ${location.pathname === '/home' ? 'on' : ''}`}
       >
-        <span className="sb-icon">🏠</span>
-        홈
+        <span className="sb-icon">🏠</span>홈
       </Link>
 
       <Link
         to="/tracks"
-        className={`sb-btn ${
-          location.pathname === "/tracks"
-            ? "on"
-            : ""
-        }`}
+        className={`sb-btn ${location.pathname === '/tracks' ? 'on' : ''}`}
       >
         <span className="sb-icon">📚</span>
         학습 트랙
@@ -102,11 +69,7 @@ function Sidebar() {
 
       <Link
         to="/daily"
-        className={`sb-btn ${
-          location.pathname === "/daily"
-            ? "on"
-            : ""
-        }`}
+        className={`sb-btn ${location.pathname === '/daily' ? 'on' : ''}`}
       >
         <span className="sb-icon">⚡</span> 데일리 태스크
       </Link>
@@ -114,9 +77,7 @@ function Sidebar() {
       <Link
         to="/wrong-answer"
         className={`sb-btn ${
-          location.pathname === "/wrong-answer"
-            ? "on"
-            : ""
+          location.pathname === '/wrong-answer' ? 'on' : ''
         }`}
       >
         <span className="sb-icon">📝</span> 오답 노트
@@ -124,16 +85,11 @@ function Sidebar() {
 
       <Link
         to="/reports"
-        className={`sb-btn ${
-          location.pathname === "/reports"
-            ? "on"
-            : ""
-        }`}
+        className={`sb-btn ${location.pathname === '/reports' ? 'on' : ''}`}
       >
         <span className="sb-icon">📊</span>
         요약 리포트
       </Link>
-
     </div>
   );
 }

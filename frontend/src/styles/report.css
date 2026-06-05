@@ -25,18 +25,14 @@
 
 .track-page-card {
   background: #ffffff;
-  border: 1px solid #ffd7bd;
   border-radius: 24px;
   padding: 24px;
   cursor: pointer;
-
-  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  transition: transform 0.15s ease;
 }
 
 .track-page-card:hover {
-  transform: translateY(-4px);
-  border-color: #ffb37a;
-  box-shadow: 0 14px 30px rgba(255, 107, 0, 0.14);
+  transform: translateY(-3px);
 }
 
 .track-card-top {

@@ -1,18 +1,22 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import "../styles/WrongNote.css";
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import '../styles/WrongNote.css';
 
-const API_BASE = "http://210.125.96.59:8000";
+const API_BASE = 'http://210.125.96.59:8000';
 
 function parseJson(value) {
-  if (!value || typeof value !== "string") return value;
-  try { return JSON.parse(value); } catch { return value; }
+  if (!value || typeof value !== 'string') return value;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return value;
+  }
 }
 
 export default function WrongNoteReview() {
   const { trackId } = useParams();
   const navigate = useNavigate();
-  const isDaily = trackId === "daily";
+  const isDaily = trackId === 'daily';
 
   const [problems, setProblems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,13 +26,13 @@ export default function WrongNoteReview() {
   const [results, setResults] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
+    const token = localStorage.getItem('accessToken');
     const params = new URLSearchParams();
     if (isDaily) {
-      params.set("source_type", "daily");
+      params.set('source_type', 'daily');
     } else {
-      params.set("source_type", "learning");
-      params.set("track", trackId.toUpperCase());
+      params.set('source_type', 'learning');
+      params.set('track', trackId.toUpperCase());
     }
 
     fetch(`${API_BASE}/wrong-answers/review?${params.toString()}`, {
@@ -57,7 +61,7 @@ export default function WrongNoteReview() {
   }
 
   async function handleSubmit() {
-    const token = localStorage.getItem("accessToken");
+    const token = localStorage.getItem('accessToken');
     const body = {
       answers: problems.map((p) => ({
         wrongAnswerId: p.wrongAnswerId,
@@ -68,9 +72,9 @@ export default function WrongNoteReview() {
     setSubmitting(true);
     try {
       const r = await fetch(`${API_BASE}/wrong-answers/review`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify(body),
@@ -78,7 +82,6 @@ export default function WrongNoteReview() {
       const data = await r.json();
       setResults(data);
     } catch {
-      // 제출 실패 시 조용히 처리
     } finally {
       setSubmitting(false);
     }
@@ -87,7 +90,10 @@ export default function WrongNoteReview() {
   if (loading) {
     return (
       <div className="page-container">
-        <button className="back-btn" onClick={() => navigate(`/wrong-answer/${trackId}`)}>
+        <button
+          className="back-btn"
+          onClick={() => navigate(`/wrong-answer/${trackId}`)}
+        >
           &larr; 목록으로
         </button>
         <div className="empty-message">불러오는 중...</div>
@@ -98,7 +104,10 @@ export default function WrongNoteReview() {
   if (problems.length === 0) {
     return (
       <div className="page-container">
-        <button className="back-btn" onClick={() => navigate(`/wrong-answer/${trackId}`)}>
+        <button
+          className="back-btn"
+          onClick={() => navigate(`/wrong-answer/${trackId}`)}
+        >
           &larr; 목록으로
         </button>
         <div className="empty-message">복습할 오답이 없습니다.</div>
@@ -116,18 +125,20 @@ export default function WrongNoteReview() {
           <div className="review-result-label">정답</div>
           <div className="review-result-list">
             {results.results.map((r, i) => {
-              const item = problems.find((p) => p.wrongAnswerId === r.wrongAnswerId);
+              const item = problems.find(
+                (p) => p.wrongAnswerId === r.wrongAnswerId,
+              );
               return (
                 <div
                   key={r.wrongAnswerId}
-                  className={`review-result-row ${r.isCorrect ? "correct" : "wrong"}`}
+                  className={`review-result-row ${r.isCorrect ? 'correct' : 'wrong'}`}
                 >
                   <span className="review-result-num">Q{i + 1}</span>
                   <span className="review-result-chapter">
                     {item?.problem?.chapter}
                   </span>
                   <span className="review-result-badge">
-                    {r.isCorrect ? "정답" : "오답"}
+                    {r.isCorrect ? '정답' : '오답'}
                   </span>
                 </div>
               );
@@ -152,7 +163,10 @@ export default function WrongNoteReview() {
 
   return (
     <div className="page-container">
-      <button className="back-btn" onClick={() => navigate(`/wrong-answer/${trackId}`)}>
+      <button
+        className="back-btn"
+        onClick={() => navigate(`/wrong-answer/${trackId}`)}
+      >
         &larr; 목록으로
       </button>
 
@@ -174,7 +188,7 @@ export default function WrongNoteReview() {
           {choices.map((choice, idx) => (
             <div
               key={idx}
-              className={`quiz-choice${selected === idx + 1 ? " quiz-choice-selected" : ""}`}
+              className={`quiz-choice${selected === idx + 1 ? ' quiz-choice-selected' : ''}`}
               onClick={() => selectAnswer(item.wrongAnswerId, idx)}
             >
               <div className="quiz-choice-index">{idx + 1}</div>
@@ -188,7 +202,7 @@ export default function WrongNoteReview() {
         <button
           className="back-btn"
           onClick={() => setCurrent((c) => c - 1)}
-          style={{ visibility: current > 0 ? "visible" : "hidden" }}
+          style={{ visibility: current > 0 ? 'visible' : 'hidden' }}
         >
           &larr; 이전
         </button>
@@ -198,10 +212,13 @@ export default function WrongNoteReview() {
             onClick={handleSubmit}
             disabled={submitting}
           >
-            {submitting ? "제출 중..." : "제출"}
+            {submitting ? '제출 중...' : '제출'}
           </button>
         ) : (
-          <button className="review-btn" onClick={() => setCurrent((c) => c + 1)}>
+          <button
+            className="review-btn"
+            onClick={() => setCurrent((c) => c + 1)}
+          >
             다음 &rarr;
           </button>
         )}

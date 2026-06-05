@@ -1,273 +1,185 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 
-import "../../styles/MultipleChoice.css";
+import '../../styles/MultipleChoice.css';
 
-export default function MultipleChoice({
-  lesson,
-  registerSubmit,
-}) {
+export default function MultipleChoice({ lesson, registerSubmit }) {
+  const { trackId, chapterId } = useParams();
 
-  const { trackId, chapterId } =
-    useParams();
+  const [selected, setSelected] = useState(null);
 
-  const [selected, setSelected] =
-    useState(null);
+  const [isCorrect, setIsCorrect] = useState(null);
 
-  const [isCorrect, setIsCorrect] =
-    useState(null);
+  const [explanation, setExplanation] = useState('');
 
-  const [explanation, setExplanation] =
-    useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const [submitting, setSubmitting] =
-  useState(false);
+  const [openedHints, setOpenedHints] = useState([]);
 
-  const [openedHints, setOpenedHints] =
-    useState([]);
+  const [confirmHint, setConfirmHint] = useState(null);
 
-  const [confirmHint, setConfirmHint] =
-    useState(null);
+  const [blockedHintLevel, setBlockedHintLevel] = useState(null);
 
-  const [blockedHintLevel, setBlockedHintLevel] =
-    useState(null);
+  const [confirmReveal, setConfirmReveal] = useState(false);
 
-  const [confirmReveal, setConfirmReveal] =
-    useState(false);
-
-  const [revealedAnswer, setRevealedAnswer] =
-    useState(null);
+  const [revealedAnswer, setRevealedAnswer] = useState(null);
 
   useEffect(() => {
-
     setSelected(null);
     setIsCorrect(null);
-    setExplanation("");
+    setExplanation('');
     setSubmitting(false);
     setOpenedHints([]);
-    setOpenedHints(
-      lesson.usedHintLevels || []
-    );
+    setOpenedHints(lesson.usedHintLevels || []);
     setConfirmHint(null);
     setBlockedHintLevel(null);
     setConfirmReveal(false);
     setRevealedAnswer(null);
-
   }, [lesson.lessonId]);
 
   useEffect(() => {
-
-    registerSubmit?.(
-      () => submitAnswer
-    );
-
+    registerSubmit?.(() => submitAnswer);
   }, [selected, lesson]);
 
   const useHint = async () => {
-
     if (!confirmHint) return;
 
     try {
-
-      const token =
-        localStorage.getItem(
-          "accessToken"
-        );
+      const token = localStorage.getItem('accessToken');
 
       const res = await fetch(
         `http://210.125.96.59:8000/tracks/${trackId}/chapters/${chapterId}/hint`,
         {
-          method: "POST",
+          method: 'POST',
 
           headers: {
-            "Content-Type":
-              "application/json",
+            'Content-Type': 'application/json',
 
             ...(token && {
-              Authorization:
-                `Bearer ${token}`,
+              Authorization: `Bearer ${token}`,
             }),
           },
 
           body: JSON.stringify({
-            problemId:
-              lesson.problemId,
+            problemId: lesson.problemId,
 
-            hintLevel:
-              confirmHint.level,
+            hintLevel: confirmHint.level,
           }),
-        }
+        },
       );
 
       if (!res.ok) {
-        throw new Error(
-          "힌트 요청 실패"
-        );
+        throw new Error('힌트 요청 실패');
       }
 
       setOpenedHints((prev) =>
-        prev.includes(confirmHint.level)
-          ? prev
-          : [...prev, confirmHint.level]
+        prev.includes(confirmHint.level) ? prev : [...prev, confirmHint.level],
       );
 
       setConfirmHint(null);
-
     } catch (err) {
-
       console.error(err);
 
-      alert(
-        "힌트 요청 중 오류가 발생했습니다."
-      );
+      alert('힌트 요청 중 오류가 발생했습니다.');
     }
   };
 
-const revealAnswer = async () => {
+  const revealAnswer = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
 
-  try {
+      const res = await fetch(
+        `http://210.125.96.59:8000/tracks/${trackId}/chapters/${chapterId}/lessons/${lesson.lessonId}/reveal`,
+        {
+          method: 'POST',
 
-    const token =
-      localStorage.getItem(
-        "accessToken"
-      );
+          headers: {
+            'Content-Type': 'application/json',
 
-    const res = await fetch(
-      `http://210.125.96.59:8000/tracks/${trackId}/chapters/${chapterId}/lessons/${lesson.lessonId}/reveal`,
-      {
-        method: "POST",
+            ...(token && {
+              Authorization: `Bearer ${token}`,
+            }),
+          },
 
-        headers: {
-          "Content-Type":
-            "application/json",
-
-          ...(token && {
-            Authorization:
-              `Bearer ${token}`,
+          body: JSON.stringify({
+            problemId: lesson.problemId,
           }),
         },
-
-        body: JSON.stringify({
-          problemId:
-            lesson.problemId,
-        }),
-      }
-    );
-
-    if (!res.ok) {
-      throw new Error(
-        "정답 공개 실패"
       );
+
+      if (!res.ok) {
+        throw new Error('정답 공개 실패');
+      }
+
+      const data = await res.json();
+
+      console.log('✅ REVEAL RESULT:', data);
+
+      setRevealedAnswer(data.answer.correct_index);
+
+      setConfirmReveal(false);
+    } catch (err) {
+      console.error(err);
+
+      alert('정답 공개 중 오류가 발생했습니다.');
     }
-
-    const data =
-      await res.json();
-
-    console.log(
-      "✅ REVEAL RESULT:",
-      data
-    );
-
-    setRevealedAnswer(
-      data.answer.correct_index
-    );
-
-    setConfirmReveal(false);
-
-  } catch (err) {
-
-    console.error(err);
-
-    alert(
-      "정답 공개 중 오류가 발생했습니다."
-    );
-  }
-};
+  };
 
   const submitAnswer = async () => {
-
     if (selected === null) {
-
-      alert(
-        "선택지를 선택해주세요."
-      );
+      alert('선택지를 선택해주세요.');
 
       return false;
     }
 
     try {
-
       setSubmitting(true);
 
-      const token =
-        localStorage.getItem(
-          "accessToken"
-        );
+      const token = localStorage.getItem('accessToken');
 
       const res = await fetch(
         `http://210.125.96.59:8000/tracks/${trackId}/chapters/${chapterId}/submit`,
         {
-          method: "POST",
+          method: 'POST',
 
           headers: {
-            "Content-Type":
-              "application/json",
+            'Content-Type': 'application/json',
 
             ...(token && {
-              Authorization:
-                `Bearer ${token}`,
+              Authorization: `Bearer ${token}`,
             }),
           },
 
           body: JSON.stringify({
-            lessonId:
-              lesson.lessonId,
+            lessonId: lesson.lessonId,
 
-            problemId:
-              lesson.problemId,
+            problemId: lesson.problemId,
 
-            answer:
-              selected + 1,
+            answer: selected + 1,
           }),
-        }
+        },
       );
 
       if (!res.ok) {
-        throw new Error(
-          "답안 제출 실패"
-        );
+        throw new Error('답안 제출 실패');
       }
 
-      const data =
-        await res.json();
+      const data = await res.json();
 
-      console.log(
-        "✅ SUBMIT RESULT:",
-        data
-      );
+      console.log('✅ SUBMIT RESULT:', data);
 
-    setIsCorrect(
-      data.isCorrect
-    );
+      setIsCorrect(data.isCorrect);
 
-    setExplanation(
-      data.explanation || ""
-    );
+      setExplanation(data.explanation || '');
 
-    return data.isCorrect;
-
+      return data.isCorrect;
     } catch (err) {
-
       console.error(err);
 
-      alert(
-        "답안 제출 중 오류가 발생했습니다."
-      );
+      alert('답안 제출 중 오류가 발생했습니다.');
 
       return false;
-
     } finally {
-
       setSubmitting(false);
     }
   };
@@ -275,393 +187,205 @@ const revealAnswer = async () => {
   return (
     <div className="quiz-layout">
       <div className="quiz-left">
-
         <div className="quiz-info-card">
+          <div className="quiz-label">MULTIPLE CHOICE</div>
 
-          <div className="quiz-label">
-            MULTIPLE CHOICE
-          </div>
-
-          <div className="quiz-title">
-            {lesson.title}
-          </div>
+          <div className="quiz-title">{lesson.title}</div>
 
           <div className="quiz-desc">
-            정답이라고 생각하는
-            선택지를 하나 고르세요.
+            정답이라고 생각하는 선택지를 하나 고르세요.
           </div>
-
         </div>
         <div className="quiz-hint-group">
+          {lesson.hints?.map((hint) => {
+            const opened = openedHints.includes(hint.level);
 
-          {lesson.hints?.map(
-            (hint) => {
+            const canOpen =
+              hint.level === 1 || openedHints.includes(hint.level - 1);
 
-              const opened =
-                openedHints.includes(
-                  hint.level
-                );
-
-              const canOpen =
-                hint.level === 1 ||
-                openedHints.includes(
-                  hint.level - 1
-                );
-
-              return (
-                <div
-                  key={hint.level}
-                  className={`quiz-hint-dropdown ${
-                    opened
-                      ? "open"
-                      : ""
-                  }`}
-                >
-
-                  <button
-                    className={`quiz-hint-toggle ${
-                      !canOpen
-                        ? "disabled"
-                        : ""
-                    }`}
-                    onClick={() => {
-
-                      if (!canOpen) {
-
-                        setBlockedHintLevel(
-                          hint.level - 1
-                        );
-
-                        return;
-                      }
-
-                      if (opened) {
-
-                        setOpenedHints(
-                          openedHints.filter(
-                            (
-                              level
-                            ) =>
-                              level !==
-                              hint.level
-                          )
-                        );
-
-                        return;
-                      }
-
-                      setConfirmHint(
-                        hint
-                      );
-                    }}
-                  >
-
-                    <span>
-                      💡 Hint Level{" "}
-                      {hint.level}
-                    </span>
-
-                    <span className="quiz-hint-arrow">
-                      {opened
-                        ? "−"
-                        : "+"}
-                    </span>
-
-                  </button>
-
-                  {opened && (
-
-                    <div className="quiz-hint-content">
-                      {hint.text}
-                    </div>
-
-                  )}
-
-                </div>
-              );
-            }
-          )}
-            <div
-              className={`quiz-hint-dropdown ${
-                revealedAnswer !== null
-                  ? "open"
-                  : ""
-              }`}
-            >
-
-              <button
-                className="quiz-hint-toggle"
-                onClick={() => {
-
-                  const lastHintLevel =
-                    lesson.hints?.length || 0;
-
-                  const canReveal =
-                    openedHints.includes(
-                      lastHintLevel
-                    );
-
-                  if (!canReveal) {
-
-                    setBlockedHintLevel(
-                      lastHintLevel
-                    );
-
-                    return;
-                  }
-                  if (
-                    revealedAnswer !== null
-                  ) {
-
-                    setRevealedAnswer(
-                      null
-                    );
-
-                    return;
-                  }
-
-                  setConfirmReveal(
-                    true
-                  );
-                }}
+            return (
+              <div
+                key={hint.level}
+                className={`quiz-hint-dropdown ${opened ? 'open' : ''}`}
               >
+                <button
+                  className={`quiz-hint-toggle ${!canOpen ? 'disabled' : ''}`}
+                  onClick={() => {
+                    if (!canOpen) {
+                      setBlockedHintLevel(hint.level - 1);
 
-                <span>
-                  🎯 정답 공개
-                </span>
+                      return;
+                    }
 
-                <span className="quiz-hint-arrow">
-                  {revealedAnswer !== null
-                    ? "−"
-                    : "+"}
-                </span>
+                    if (opened) {
+                      setOpenedHints(
+                        openedHints.filter((level) => level !== hint.level),
+                      );
 
-              </button>
+                      return;
+                    }
 
-              {revealedAnswer !== null && (
+                    setConfirmHint(hint);
+                  }}
+                >
+                  <span>💡 Hint Level {hint.level}</span>
 
-                <div className="quiz-hint-content">
-                  🎯 정답: {revealedAnswer}번
-                </div>
+                  <span className="quiz-hint-arrow">{opened ? '−' : '+'}</span>
+                </button>
 
-              )}
+                {opened && <div className="quiz-hint-content">{hint.text}</div>}
+              </div>
+            );
+          })}
+          <div
+            className={`quiz-hint-dropdown ${
+              revealedAnswer !== null ? 'open' : ''
+            }`}
+          >
+            <button
+              className="quiz-hint-toggle"
+              onClick={() => {
+                const lastHintLevel = lesson.hints?.length || 0;
 
-            </div>
+                const canReveal = openedHints.includes(lastHintLevel);
 
+                if (!canReveal) {
+                  setBlockedHintLevel(lastHintLevel);
+
+                  return;
+                }
+                if (revealedAnswer !== null) {
+                  setRevealedAnswer(null);
+
+                  return;
+                }
+
+                setConfirmReveal(true);
+              }}
+            >
+              <span>🎯 정답 공개</span>
+
+              <span className="quiz-hint-arrow">
+                {revealedAnswer !== null ? '−' : '+'}
+              </span>
+            </button>
+
+            {revealedAnswer !== null && (
+              <div className="quiz-hint-content">
+                🎯 정답: {revealedAnswer}번
+              </div>
+            )}
+          </div>
         </div>
-
       </div>
       <div className="quiz-wrap">
-
-        <div className="quiz-question">
-          {
-            lesson.content.question
-          }
-        </div>
+        <div className="quiz-question">{lesson.content.question}</div>
 
         <div className="quiz-choices">
-
-          {lesson.content.choices.map(
-            (choice, idx) => (
-
-              <button
-                key={idx}
-                className={`quiz-choice
-                  ${
-                    selected === idx
-                      ? "selected"
-                      : ""
-                  }
-                  ${
-                    isCorrect === true &&
-                    selected === idx
-                      ? "correct"
-                      : ""
-                  }
-                  ${
-                    isCorrect === false &&
-                    selected === idx
-                      ? "wrong"
-                      : ""
-                  }
+          {lesson.content.choices.map((choice, idx) => (
+            <button
+              key={idx}
+              className={`quiz-choice
+                  ${selected === idx ? 'selected' : ''}
+                  ${isCorrect === true && selected === idx ? 'correct' : ''}
+                  ${isCorrect === false && selected === idx ? 'wrong' : ''}
                 `}
-                onClick={() => {
+              onClick={() => {
+                setSelected(idx);
 
-                  setSelected(idx);
+                setIsCorrect(null);
+              }}
+            >
+              <div className="quiz-choice-index">{idx + 1}</div>
 
-                  setIsCorrect(
-                    null
-                  );
-                }}
-              >
-
-                <div className="quiz-choice-index">
-                  {idx + 1}
-                </div>
-
-                <div className="quiz-choice-text">
-                  {choice}
-                </div>
-
-              </button>
-            )
-          )}
-
+              <div className="quiz-choice-text">{choice}</div>
+            </button>
+          ))}
         </div>
         {isCorrect !== null && (
+          <>
+            {explanation && (
+              <div className="quiz-explanation">
+                <div className="quiz-explanation-title">📖 해설</div>
 
-        <>
-
-          {explanation && (
-
-            <div
-              className="quiz-explanation"
-            >
-              <div
-                className="quiz-explanation-title"
-              >
-                📖 해설
+                <div className="quiz-explanation-content">{explanation}</div>
               </div>
-
-              <div
-                className="quiz-explanation-content"
-              >
-                {explanation}
-              </div>
-            </div>
-
-          )}
-        </>
-
-      )}      
-
+            )}
+          </>
+        )}
       </div>
       {confirmHint && (
-
         <div className="hint-confirm-popup">
-
-          <div className="hint-confirm-title">
-            💡 힌트를
-            사용하시겠습니까?
-          </div>
+          <div className="hint-confirm-title">💡 힌트를 사용하시겠습니까?</div>
 
           <div className="hint-confirm-desc">
-
-            Hint Level{" "}
-            {confirmHint.level}
+            Hint Level {confirmHint.level}
             을 사용합니다.
-
             <br />
-
             ⚠️ 5XP가 차감됩니다.
-
           </div>
 
           <div className="hint-confirm-actions">
-
             <button
               className="hint-cancel-btn"
-              onClick={() =>
-                setConfirmHint(
-                  null
-                )
-              }
+              onClick={() => setConfirmHint(null)}
             >
               취소
             </button>
 
-            <button
-              className="hint-use-btn"
-              onClick={useHint}
-            >
+            <button className="hint-use-btn" onClick={useHint}>
               사용하기
             </button>
-
           </div>
-
         </div>
       )}
 
       {confirmReveal && (
-
         <div className="hint-confirm-popup">
-
-          <div className="hint-confirm-title">
-            🎯 정답을
-            공개하시겠습니까?
-          </div>
+          <div className="hint-confirm-title">🎯 정답을 공개하시겠습니까?</div>
 
           <div className="hint-confirm-desc">
-
             정답을 공개합니다.
-
             <br />
-
             ⚠️ 5XP가 차감됩니다.
-
           </div>
 
           <div className="hint-confirm-actions">
-
             <button
               className="hint-cancel-btn"
-              onClick={() =>
-                setConfirmReveal(
-                  false
-                )
-              }
+              onClick={() => setConfirmReveal(false)}
             >
               취소
             </button>
 
-            <button
-              className="hint-use-btn"
-              onClick={revealAnswer}
-            >
+            <button className="hint-use-btn" onClick={revealAnswer}>
               공개하기
             </button>
-
           </div>
-
         </div>
       )}
 
       {blockedHintLevel !== null && (
-
         <div className="hint-confirm-popup">
-
           <div className="hint-confirm-title">
-            ⚠️ 먼저 이전 단계를
-            완료해주세요
+            ⚠️ 먼저 이전 단계를 완료해주세요
           </div>
 
           <div className="hint-confirm-desc">
-
-            Hint Level{" "}
-            {blockedHintLevel}
-            을 먼저 사용해야
-            다음 단계를 열 수 있습니다.
-
+            Hint Level {blockedHintLevel}을 먼저 사용해야 다음 단계를 열 수
+            있습니다.
           </div>
 
           <div className="hint-confirm-actions">
-
             <button
               className="hint-use-btn"
-              onClick={() =>
-                setBlockedHintLevel(
-                  null
-                )
-              }
+              onClick={() => setBlockedHintLevel(null)}
             >
               확인
             </button>
-
           </div>
-
         </div>
       )}
-
     </div>
   );
 }

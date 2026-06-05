@@ -13,7 +13,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  box-shadow: var(--shadow) rgba(230, 88, 0, .35);
+  box-shadow: var(--shadow) rgba(230, 88, 0, 0.35);
 }
 
 .hero-cobot {
@@ -33,7 +33,7 @@
 
 .hero-sub {
   font-size: 14px;
-  opacity: .9;
+  opacity: 0.9;
   margin-bottom: 20px;
   line-height: 1.6;
 }
@@ -47,19 +47,19 @@
   font-size: 14px;
   font-weight: 900;
   text-decoration: none;
-  box-shadow: 0 4px 0 rgba(0, 0, 0, .15);
-  transition: all .15s;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+  transition: all 0.15s;
   font-family: var(--ff);
 }
 
 .hero-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 0 rgba(0, 0, 0, .15);
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.15);
 }
 
 .hero-btn:active {
   transform: translateY(1px);
-  box-shadow: 0 2px 0 rgba(0, 0, 0, .15);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.15);
 }
 
 .sec-title {
@@ -85,7 +85,7 @@
   padding: 18px 20px;
   margin-bottom: 24px;
   cursor: pointer;
-  transition: all .15s;
+  transition: all 0.15s;
   box-shadow: 0 4px 0 var(--orB);
   text-decoration: none;
   display: block;
@@ -137,7 +137,7 @@
   height: 100%;
   border-radius: 20px;
   background: var(--or);
-  transition: width .5s;
+  transition: width 0.5s;
 }
 
 .daily-prog-txt {
@@ -166,7 +166,7 @@
   padding: 20px;
   cursor: pointer;
   border: 2px solid var(--gy2);
-  transition: all .18s;
+  transition: all 0.18s;
   position: relative;
   overflow: hidden;
   text-decoration: none;
@@ -177,16 +177,24 @@
 .track-card::before {
   content: '';
   position: absolute;
-  top: 0; left: 0; right: 0;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 5px;
 }
 
-.tc-ml::before { background: var(--or); }
-.tc-cv::before { background: var(--gr); }
-.tc-nlp::before { background: var(--pu); }
+.tc-ml::before {
+  background: var(--or);
+}
+.tc-cv::before {
+  background: var(--gr);
+}
+.tc-nlp::before {
+  background: var(--pu);
+}
 .track-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, .1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 }
 
 .tc-emoji {
@@ -214,7 +222,7 @@
   background: #e5e7eb;
   border-radius: 999px;
   overflow: hidden;
-  margin-top:10px
+  margin-top: 10px;
 }
 
 .tc-prog {
@@ -224,9 +232,15 @@
   transition: width 0.3s ease;
 }
 
-.tc-prog-ml { background: var(--or); }
-.tc-prog-cv { background: var(--gr); }
-.tc-prog-nlp { background: var(--pu); }
+.tc-prog-ml {
+  background: var(--or);
+}
+.tc-prog-cv {
+  background: var(--gr);
+}
+.tc-prog-nlp {
+  background: var(--pu);
+}
 .tc-info {
   margin-top: 10px;
   font-size: 11px;
