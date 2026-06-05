@@ -72,20 +72,6 @@ function Sidebar() {
 
       </div>
 
-      <div className="sb-progress">
-        <div className="sb-proglbl">
-          <span>오늘의 진도</span>
-          <span>3/8</span>
-        </div>
-
-        <div className="sb-progbar">
-          <div
-            className="sb-progfill"
-            style={{ width: "40%" }}
-          ></div>
-        </div>
-      </div>
-
       <div className="sb-section">
         메뉴
       </div>
