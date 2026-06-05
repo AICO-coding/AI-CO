@@ -136,6 +136,18 @@ function Sidebar() {
         <span className="sb-icon">📝</span> 오답 노트
       </Link>
 
+      <Link
+        to="/reports"
+        className={`sb-btn ${
+          location.pathname === "/reports"
+            ? "on"
+            : ""
+        }`}
+      >
+        <span className="sb-icon">📊</span>
+        요약 리포트
+      </Link>
+
     </div>
   );
 }
