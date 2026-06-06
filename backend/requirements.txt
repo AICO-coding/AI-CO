@@ -9,3 +9,7 @@ pydantic[email]
 alembic
 google-auth
 requests
+modal
+torch
+scikit-learn
+numpy
