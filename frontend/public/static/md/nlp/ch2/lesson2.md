@@ -8,7 +8,7 @@ NLP 전처리
 </div>
 
 <h1 style="margin: 0 0 12px 0; font-size: 28px; font-weight: 900; letter-spacing: -0.5px; color: #0f172a;">
-2-2. 노이즈 제거
+노이즈 제거
 </h1>
 
 <p style="margin: 0; line-height: 1.8; font-size: 15px; color: #334155;">
