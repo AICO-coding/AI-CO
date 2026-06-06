@@ -13,6 +13,10 @@ from app.models.noteModels import WrongAnswer
 client = Anthropic(api_key=ANTHROPIC_API_KEY)
 
 
+def normalize_track(track: str) -> str:
+    return ''.join(c.upper() if c.isascii() and c.isalpha() else c for c in track)
+
+
 def count_wrong_answers(db: Session, user_id: int, track: str, chapter: str) -> int:
     """틀린 문제 개수"""
     wrong_answers = db.query(WrongAnswer).filter(
@@ -301,7 +305,7 @@ def generate_report_background(user_id: int, track: str, chapter: str):
 
         # [7] progress 집계값과 AI 리포트 병합
         combined_report = {
-            "track": track,
+            "track": normalize_track(track),
             "chapter": chapter,
             "chapterTitle": chapter_title,
             "completedAt": progress.completed_at.isoformat() if progress.completed_at else None,
@@ -379,7 +383,8 @@ def get_report_service(
     return {
         "status": "completed",
         "grade": grade,
-        **report.ai_report  # track, chapter, chapterTitle, completedAt, totalProblems, xpEarned, wrongCount, hintCount, weakConcepts, cobotComment 등
+        **report.ai_report,
+        "track": normalize_track(report.ai_report.get("track", "")),
     }
 
 
@@ -410,7 +415,7 @@ def get_reports_list_service(
         })
 
     return {
-        "track": track,
+        "track": normalize_track(track),
         "reports": reports_list
     }
 
