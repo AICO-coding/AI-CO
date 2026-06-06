@@ -107,9 +107,9 @@ export default function Track() {
               </div>
 
               <div className="tc-stats">
-                <div>XP {progress?.totalXp || 0}</div>
+                <div>{progress?.totalXp || 0} XP</div>
 
-                <div>힌트 {progress?.hintUsed || 0}회</div>
+                <div>힌트 사용 {progress?.hintUsed || 0}회</div>
               </div>
             </div>
           );

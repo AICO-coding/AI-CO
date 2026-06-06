@@ -72,9 +72,15 @@ export default function ReportList() {
         {report.reports.map((item) => (
           <div key={item.chapter} className="report-row">
             <div className="report-center">
-              <div className="report-chapter">{item.chapter}</div>
+              <div className="report-tags">
+                <span className="report-track-badge">{report.track}</span>
+                {item.grade && <span className="report-grade-badge">{item.grade}</span>}
+              </div>
 
-              <div className="report-title">{item.title}</div>
+              <div className="report-main-title">
+                <span className="report-ch-label">{item.chapter}</span>
+                {item.title && <span className="report-ch-sub"> · {item.title}</span>}
+              </div>
 
               <div className="report-subtext">
                 완료일 :{' '}

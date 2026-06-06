@@ -124,12 +124,6 @@
   flex: 1;
 }
 
-.chapter-hero-eyebrow {
-  font-size: 12px;
-  font-weight: 700;
-  opacity: 0.85;
-}
-
 .chapter-hero-title {
   font-size: 32px;
   font-weight: 800;
@@ -224,7 +218,7 @@
 }
 
 .chapter-hero-eyebrow {
-  font-size: 12px;
+  font-size: 25px;
   font-weight: 700;
   opacity: 0.8;
 }
@@ -348,14 +342,8 @@
   margin-bottom: 24px;
 }
 
-.chapter-hero-eyebrow {
-  font-size: 14px;
-  font-weight: 800;
-  opacity: 0.9;
-}
-
 .chapter-hero-progress {
-  margin-top: 18px;
+  margin-top: 15px;
   width: 100%;
 }
 
@@ -376,8 +364,8 @@
 }
 
 .chapter-progress-text {
-  margin-top: 8px;
-  font-size: 13px;
+  margin-top: 12px;
+  font-size: 15px;
   font-weight: 700;
   opacity: 0.9;
 }

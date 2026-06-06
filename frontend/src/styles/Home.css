@@ -1,6 +1,5 @@
 .home-wrap {
   width: 100%;
-  padding: 24px;
 }
 
 .home-hero {
@@ -13,7 +12,6 @@
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  box-shadow: var(--shadow) rgba(230, 88, 0, 0.35);
 }
 
 .hero-cobot {
@@ -47,14 +45,12 @@
   font-size: 14px;
   font-weight: 900;
   text-decoration: none;
-  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
   transition: all 0.15s;
   font-family: var(--ff);
 }
 
 .hero-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.15);
 }
 
 .hero-btn:active {
@@ -80,13 +76,12 @@
 
 .daily-card {
   background: var(--wh);
-  border: 2px solid var(--or);
+  border: 2px solid var(--gy2);
   border-radius: var(--r16);
   padding: 18px 20px;
   margin-bottom: 24px;
   cursor: pointer;
   transition: all 0.15s;
-  box-shadow: 0 4px 0 var(--orB);
   text-decoration: none;
   display: block;
   color: var(--dk);
@@ -94,7 +89,6 @@
 
 .daily-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 0 var(--orB);
 }
 
 .daily-top {
@@ -119,18 +113,14 @@
 }
 
 .daily-badge-done {
-  background: #dcfce7;
-  color: #15803d;
+  background: #ffe5d2;
+  color: #ff6b03;
 }
 
 .daily-card-done {
-  border-color: #16a34a;
-  box-shadow: 0 4px 0 #bbf7d0;
+  border-color: #ff6b03;
 }
 
-.daily-card-done:hover {
-  box-shadow: 0 6px 0 #bbf7d0;
-}
 
 .daily-date {
   font-size: 12px;
@@ -154,7 +144,7 @@
 }
 
 .daily-card-done .daily-cta {
-  color: #16a34a;
+  color: #ff6b03;
 }
 
 .track-grid {

@@ -79,6 +79,8 @@ export default function WrongNotePage() {
             );
           })}
 
+          <div className="wn-daily-divider" />
+
           <div
             className="wn-track-card wn-daily-card"
             onClick={() => navigate('/wrong-answer/daily')}

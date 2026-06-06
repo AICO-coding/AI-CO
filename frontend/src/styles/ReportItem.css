@@ -4,6 +4,25 @@
   margin: 20px auto 50px;
 }
 
+.report-back-btn {
+  display: block;
+  margin: 32px auto 0;
+  padding: 12px 28px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: white;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.report-back-btn:hover {
+  background: #f8fafc;
+  transform: translateY(-1px);
+}
+
 .report-header {
   background: linear-gradient(135deg, #ff6b00, #ff914d);
 
@@ -24,7 +43,7 @@
 }
 
 .report-title {
-  font-size: 28px;
+  font-size: 20px;
   font-weight: 800;
   margin-top: 6px;
 }

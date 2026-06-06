@@ -254,7 +254,7 @@ export default function Lesson() {
               onClick={() => goToLesson(currentIndex + 1)}
               disabled={needsSubmit && !isSubmitted}
             >
-              다음 →
+              다음
             </button>
           )}
         </div>

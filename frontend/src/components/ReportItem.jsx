@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import '../styles/ReportItem.css';
 
 export default function ReportItem() {
   const { trackId, chapterId } = useParams();
+  const navigate = useNavigate();
 
   const [report, setReport] = useState(null);
 
@@ -145,6 +146,10 @@ export default function ReportItem() {
           ))}
         </div>
       </section>
+
+      <button className="report-back-btn" onClick={() => navigate(-1)}>
+        이전 페이지로
+      </button>
     </div>
   );
 }
