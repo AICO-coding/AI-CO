@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import Any
 from fastapi import HTTPException
 from sqlalchemy.orm import Session, joinedload
@@ -25,8 +25,11 @@ SOURCE_LEARNING = "learning"
 SOURCE_DAILY = "daily"
 
 
+KST = timezone(timedelta(hours=9))
+
+
 def to_date_string(dt: datetime) -> str:
-    return dt.date().isoformat()
+    return dt.astimezone(KST).date().isoformat()
 
 
 def get_lesson_title(db: Session, track: str | None, chapter: str | None) -> str | None:
