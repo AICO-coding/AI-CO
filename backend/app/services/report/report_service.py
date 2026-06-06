@@ -33,16 +33,13 @@ def count_wrong_answers(db: Session, user_id: int, track: str, chapter: str) -> 
 
 
 def get_chapter_title(db: Session, track: str, chapter: str) -> str:
-    """챕터 제목 조회 (첫 문제의 챕터명에서)"""
     lesson = db.query(Lesson).filter(
         func.upper(Lesson.track) == track.upper(),
         Lesson.chapter == chapter
-    ).first()
+    ).order_by(Lesson.order_index).first()
 
-    if lesson and lesson.content:
-        content = lesson.content
-        if isinstance(content, dict):
-            return content.get("chapterTitle", chapter)
+    if lesson and lesson.title:
+        return lesson.title
 
     return chapter
 
