@@ -158,7 +158,7 @@ def build_daily_prompt(selected_chapters: list[Progress]) -> str:
 규칙:
 - 강의자료에 나온 개념을 정확히 반영할 것
 - 보기는 반드시 4개
-- correct_index는 0부터 시작하는 정답 보기 인덱스 (0~3)
+- correct_index는 1부터 시작하는 정답 보기 인덱스 (1~4)
 - explanation은 한국어로 2~3문장
 
 {chapters_text}
@@ -172,7 +172,7 @@ def build_daily_prompt(selected_chapters: list[Progress]) -> str:
       "question": "<질문>",
       "choices": ["<보기0>", "<보기1>", "<보기2>", "<보기3>"]
     }},
-    "answer": {{"correct_index": <0~3>}},
+    "answer": {{"correct_index": <1~4>}},
     "explanation": "<설명>"
   }},
   ...
