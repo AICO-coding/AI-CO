@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import '../styles/WrongNote.css';
+import '../styles/CodeFill.css';
 
 const API_BASE = 'http://210.125.96.59:8000';
 
@@ -60,13 +61,29 @@ export default function WrongNoteReview() {
     setAnswers((prev) => ({ ...prev, [wrongAnswerId]: idx + 1 }));
   }
 
+  function setCodeFillAnswer(wrongAnswerId, key, value) {
+    setAnswers((prev) => ({
+      ...prev,
+      [wrongAnswerId]: {
+        ...(prev[wrongAnswerId] && typeof prev[wrongAnswerId] === 'object'
+          ? prev[wrongAnswerId]
+          : {}),
+        [key]: value,
+      },
+    }));
+  }
+
   async function handleSubmit() {
     const token = localStorage.getItem('accessToken');
     const body = {
-      answers: problems.map((p) => ({
-        wrongAnswerId: p.wrongAnswerId,
-        answer: { answer: answers[p.wrongAnswerId] ?? null },
-      })),
+      answers: problems.map((p) => {
+        const isCodeFill = p.problem?.problemType === 'code_fill';
+        const answer = answers[p.wrongAnswerId];
+        return {
+          wrongAnswerId: p.wrongAnswerId,
+          answer: isCodeFill ? (answer ?? {}) : { answer: answer ?? null },
+        };
+      }),
     };
 
     setSubmitting(true);
@@ -145,9 +162,19 @@ export default function WrongNoteReview() {
 
   const item = problems[current];
   const problem = item.problem;
-  const choices = problem?.content?.choices ?? [];
-  const selected = answers[item.wrongAnswerId];
+  const isCodeFill = problem?.problemType === 'code_fill';
   const isLast = current === problems.length - 1;
+
+  const meta = isDaily && (item.problem?.track || item.problem?.chapter) && (
+    <div className="review-problem-meta">
+      {item.problem?.track && (
+        <span className="track-badge">{item.problem.track}</span>
+      )}
+      {item.problem?.chapter && (
+        <span className="chapter-badge">{item.problem.chapter}</span>
+      )}
+    </div>
+  );
 
   return (
     <div className="page-container">
@@ -170,31 +197,63 @@ export default function WrongNoteReview() {
         </div>
       </div>
 
-      <div className="quiz-wrap">
-        {isDaily && (item.problem?.track || item.problem?.chapter) && (
-          <div className="review-problem-meta">
-            {item.problem?.track && (
-              <span className="track-badge">{item.problem.track}</span>
-            )}
-            {item.problem?.chapter && (
-              <span className="chapter-badge">{item.problem.chapter}</span>
-            )}
-          </div>
-        )}
-        <div className="quiz-question">{problem?.content?.question}</div>
-        <div className="quiz-choices">
-          {choices.map((choice, idx) => (
-            <div
-              key={idx}
-              className={`quiz-choice${selected === idx + 1 ? ' quiz-choice-selected' : ''}`}
-              onClick={() => selectAnswer(item.wrongAnswerId, idx)}
-            >
-              <div className="quiz-choice-index">{idx + 1}</div>
-              <div className="quiz-choice-text">{choice}</div>
+      {isCodeFill ? (
+        <div className="quiz-wrap" style={{ overflow: 'auto' }}>
+          {meta}
+          <div className="code-editor" style={{ borderRadius: 18 }}>
+            <div className="code-editor-header">
+              <div className="dots">
+                <span />
+                <span />
+                <span />
+              </div>
+              <div className="code-editor-title">practice.py</div>
             </div>
-          ))}
+            <div className="code-editor-body">
+              <div className="codefill-code">
+                {(problem?.content?.template ?? '').split(/({{.*?}})/g).map((part, idx) => {
+                  const match = part.match(/{{(.*?)}}/);
+                  if (!match) return <span key={idx}>{part}</span>;
+                  const key = match[1];
+                  const val =
+                    answers[item.wrongAnswerId] &&
+                    typeof answers[item.wrongAnswerId] === 'object'
+                      ? (answers[item.wrongAnswerId][key] ?? '')
+                      : '';
+                  return (
+                    <input
+                      key={`${key}-${idx}`}
+                      className="codefill-blank"
+                      value={val}
+                      onChange={(e) =>
+                        setCodeFillAnswer(item.wrongAnswerId, key, e.target.value)
+                      }
+                      placeholder={key}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="quiz-wrap">
+          {meta}
+          <div className="quiz-question">{problem?.content?.question}</div>
+          <div className="quiz-choices">
+            {(problem?.content?.choices ?? []).map((choice, idx) => (
+              <div
+                key={idx}
+                className={`quiz-choice${answers[item.wrongAnswerId] === idx + 1 ? ' quiz-choice-selected' : ''}`}
+                onClick={() => selectAnswer(item.wrongAnswerId, idx)}
+              >
+                <div className="quiz-choice-index">{idx + 1}</div>
+                <div className="quiz-choice-text">{choice}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="review-nav">
         <button
