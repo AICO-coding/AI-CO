@@ -13,3 +13,7 @@ modal
 torch
 scikit-learn
 numpy
+anthropic
+chromadb
+sentence-transformers
+beautifulsoup4
