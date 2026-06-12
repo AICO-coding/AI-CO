@@ -42,37 +42,28 @@ print(output_size(28, 3, 0, 1))
   </div>
 
   <div style="margin-top:18px;background:white;border:1.5px solid #e9d5ff;border-radius:14px;padding:18px;">
-
     <div style="font-size:15px;font-weight:800;color:#0f172a;margin-bottom:12px;">
       코드 설명
     </div>
-
     <div style="font-size:14px;color:#334155;line-height:2;">
-
       <strong style="color:#7c3aed;">W</strong><br>
       Input Size (입력 이미지 크기)
       <br><br>
-
       <strong style="color:#7c3aed;">K</strong><br>
       Kernel Size
       <br><br>
-
       <strong style="color:#7c3aed;">P</strong><br>
       Padding 크기
       <br><br>
-
       <strong style="color:#7c3aed;">S</strong><br>
       Stride 크기
       <br><br>
-
       함수는 Output Size 공식을 그대로 구현한 것입니다.
-
     </div>
 
   </div>
 
   <div style="margin-top:18px;background:#0f172a;border-radius:14px;padding:18px;overflow-x:auto;">
-
     <div style="font-size:14px;font-weight:700;color:white;margin-bottom:10px;">
       실행 결과
     </div>
@@ -84,11 +75,9 @@ print(output_size(28, 3, 0, 1))
   </div>
 
   <div style="margin-top:18px;background:white;border:1.5px solid #e9d5ff;border-radius:14px;padding:18px;">
-
     <div style="font-size:15px;font-weight:800;color:#0f172a;margin-bottom:12px;">
       계산 과정
     </div>
-
     <div style="font-size:14px;color:#334155;line-height:2;">
 
       입력값

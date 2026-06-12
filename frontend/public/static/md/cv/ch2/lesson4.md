@@ -13,22 +13,18 @@
   </div>
 
   <div style="background:white;border:1.5px solid #ffedd5;border-radius:14px;padding:18px;font-size:14px;line-height:2;color:#334155;">
-
     <div>
       Convolution을 여러 번 수행하면
       이미지 크기는 점점 작아집니다.
     </div>
-
     <div>
       특히 가장자리 픽셀은 Kernel이 충분히 덮지 못하기 때문에
       중요한 정보가 사라질 수 있습니다.
     </div>
-
     <div>
       이를 해결하기 위해 이미지 바깥쪽에
       0을 추가하는 기법을 Padding이라고 합니다.
     </div>
-
     <div>
       Padding을 사용하면 출력 크기를 유지하거나
       가장자리 특징을 더 잘 학습할 수 있습니다.

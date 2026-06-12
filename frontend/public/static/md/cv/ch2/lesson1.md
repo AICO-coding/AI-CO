@@ -45,7 +45,6 @@
       예시: 3×3 필터 적용
     </div>
     <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;font-family:monospace;font-size:13px;">
-
       <pre style="background:#f8fafc;padding:10px;border-radius:10px;margin:0;">1 2 3
 4 5 6
 7 8 9</pre>

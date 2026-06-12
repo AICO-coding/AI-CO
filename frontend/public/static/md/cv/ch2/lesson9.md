@@ -13,22 +13,18 @@
   </div>
 
   <div style="background:white;border:1.5px solid #bae6fd;border-radius:14px;padding:18px;font-size:14px;line-height:2;color:#334155;">
-
     <div>
       Kernel이 이미지를 스캔하면
       각 위치에서 계산된 결과값들이 생성됩니다.
     </div>
-
     <div>
       이 결과값들을 모아 만든 새로운 이미지를
       Feature Map이라고 합니다.
     </div>
-
     <div>
       Feature Map은 원본 이미지 전체를 저장하는 것이 아니라
       Kernel이 발견한 특징만 강조해서 표현합니다.
     </div>
-
     <div>
       하나의 Kernel은 하나의 Feature Map을 생성하며,
       여러 개의 Kernel을 사용하면 여러 개의 Feature Map이 만들어집니다.
