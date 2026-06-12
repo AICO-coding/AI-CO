@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 import LessonRenderer from '../components/lesson/LessonRenderer';
+import ChatBot from '../components/ChatBot';
 
 import '../styles/Lesson.css';
 
@@ -259,6 +260,12 @@ export default function Lesson() {
           )}
         </div>
       </div>
+
+      <ChatBot
+        track={trackId}
+        chapter={chapterId}
+        lessonType={lesson.lessonType}
+      />
 
       {showResultModal && chapterResult && (
         <div className="result-overlay">

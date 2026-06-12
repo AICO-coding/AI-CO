@@ -1,4 +1,5 @@
 # FastAPI 앱 생성, 라우터 등록
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from app.routers.authRouters import router as auth_router
 from app.routers.userRouters import router as user_router
@@ -9,8 +10,16 @@ from app.routers.dailyRouters import router as daliy_router
 from app.routers.reportRouters import router as report_router
 from app.routers.missionRouters import router as mission_router
 from fastapi.middleware.cors import CORSMiddleware
+from app.services.chatbot.indexer import build_index
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    build_index()
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
