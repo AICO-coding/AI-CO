@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import WrongNoteMultipleChoice from '../components/lesson/WrongNoteMultipleChoice';
+import WrongNoteCodeFill from '../components/lesson/WrongNoteCodeFill';
 import '../styles/WrongNote.css';
 
 const API_BASE = 'http://210.125.96.59:8000';
@@ -86,7 +87,11 @@ export default function WrongNoteDetail() {
         </span>
       </div>
 
-      <WrongNoteMultipleChoice detail={detail} />
+      {problem.problemType === 'code_fill' ? (
+        <WrongNoteCodeFill detail={detail} />
+      ) : (
+        <WrongNoteMultipleChoice detail={detail} />
+      )}
     </div>
   );
 }
