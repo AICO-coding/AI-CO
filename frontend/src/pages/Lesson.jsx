@@ -24,6 +24,8 @@ export default function Lesson() {
 
   const [isSubmitted, setIsSubmitted] = useState(false);
 
+  const [submitResult, setSubmitResult] = useState(null);
+
   const [chapterResult, setChapterResult] = useState(null);
 
   const [showResultModal, setShowResultModal] = useState(false);
@@ -52,6 +54,8 @@ export default function Lesson() {
 
         const data = await res.json();
 
+        console.log('[Lesson API response]', data);
+
         setLessons(data.lessons || []);
       } catch (err) {
         console.error(err);
@@ -72,6 +76,7 @@ export default function Lesson() {
 
   useEffect(() => {
     setIsSubmitted(false);
+    setSubmitResult(null);
   }, [currentIndex]);
 
   const completeLesson = async (lessonId) => {
@@ -98,17 +103,10 @@ export default function Lesson() {
   };
 
   const handleSubmit = async () => {
-    if (!submitHandler) {
-      alert('제출 함수를 찾을 수 없습니다.');
-
-      return;
-    }
-
+    if (!submitHandler) return;
     const success = await submitHandler();
-
-    if (success) {
-      setIsSubmitted(true);
-    }
+    setSubmitResult(success ? 'correct' : 'wrong');
+    if (success) setIsSubmitted(true);
   };
 
   const goToLesson = async (targetIndex) => {
@@ -231,6 +229,12 @@ export default function Lesson() {
             gap: '12px',
           }}
         >
+          {submitResult && (
+            <div className={`submit-result ${submitResult}`}>
+              {submitResult === 'correct' ? '🎉 정답!' : '😢 오답!'}
+            </div>
+          )}
+
           {needsSubmit && !isSubmitted && (
             <button className="nav-btn primary" onClick={handleSubmit}>
               제출하기
@@ -251,7 +255,7 @@ export default function Lesson() {
               onClick={() => goToLesson(currentIndex + 1)}
               disabled={needsSubmit && !isSubmitted}
             >
-              다음 →
+              다음
             </button>
           )}
         </div>

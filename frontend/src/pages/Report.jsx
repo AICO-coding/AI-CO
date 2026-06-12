@@ -8,7 +8,7 @@ export default function Report() {
 
   const [trackData, setTrackData] = useState(null);
 
-  const [progressData, setProgressData] = useState([]);
+  const [reportCounts, setReportCounts] = useState({});
 
   const [error, setError] = useState(null);
 
@@ -23,30 +23,38 @@ export default function Report() {
           }),
         };
 
-        const [trackRes, progressRes] = await Promise.all([
-          fetch('http://210.125.96.59:8000/tracks', {
-            headers,
-          }),
-          fetch('http://210.125.96.59:8000/tracks/progress', {
-            headers,
-          }),
-        ]);
+        const trackRes = await fetch('http://210.125.96.59:8000/tracks', {
+          headers,
+        });
 
-        if (trackRes.status === 401 || progressRes.status === 401) {
+        if (trackRes.status === 401) {
           throw new Error('로그인이 필요합니다.');
         }
 
-        if (!trackRes.ok || !progressRes.ok) {
+        if (!trackRes.ok) {
           throw new Error('트랙 정보를 불러오지 못했습니다.');
         }
 
         const trackJson = await trackRes.json();
-
-        const progressJson = await progressRes.json();
-
         setTrackData(trackJson);
 
-        setProgressData(progressJson.tracks || []);
+        const counts = {};
+        await Promise.all(
+          trackJson.tracks.map(async (track) => {
+            const id = track.track.toLowerCase();
+            const res = await fetch(
+              `http://210.125.96.59:8000/reports/${id}`,
+              { headers },
+            );
+            if (res.ok) {
+              const data = await res.json();
+              counts[track.track] = data.reports?.length ?? 0;
+            } else {
+              counts[track.track] = 0;
+            }
+          }),
+        );
+        setReportCounts(counts);
       } catch (err) {
         setError(err.message);
       }
@@ -78,42 +86,21 @@ export default function Report() {
       </div>
 
       <div className="track-page-grid">
-        {trackData.tracks.map((track) => {
-          const progress = progressData.find((p) => p.track === track.track);
-
-          return (
-            <div
-              key={track.track}
-              className="track-page-card"
-              onClick={() => navigate(`/reports/${track.track.toLowerCase()}`)}
-            >
-              <div className="track-card-top">
-                <div className="tc-name">📌 {track.track}</div>
-              </div>
-
-              <div className="tc-progress-wrap">
-                <div className="tc-progress-bar">
-                  <div
-                    className="tc-progress-fill"
-                    style={{
-                      width: `${progress?.completionRate || 0}%`,
-                    }}
-                  />
-                </div>
-
-                <div className="tc-progress-text">
-                  {progress?.completionRate || 0}% 완료
-                </div>
-              </div>
-
-              <div className="tc-stats">
-                <div>XP {progress?.totalXp || 0}</div>
-
-                <div>힌트 {progress?.hintUsed || 0}회</div>
-              </div>
+        {trackData.tracks.map((track) => (
+          <div
+            key={track.track}
+            className="track-page-card"
+            onClick={() => navigate(`/reports/${track.track.toLowerCase()}`)}
+          >
+            <div className="track-card-top">
+              <div className="tc-name">📌 {track.track}</div>
             </div>
-          );
-        })}
+
+            <div className="tc-report-count">
+              요약리포트 개수 : {reportCounts[track.track] ?? 0}개
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

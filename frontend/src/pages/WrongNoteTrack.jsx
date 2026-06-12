@@ -133,11 +133,10 @@ export default function WrongNoteTrack() {
 
   return (
     <div className="page-container">
-      <button className="back-btn" onClick={() => navigate('/wrong-answer')}>
-        &larr; 목록으로
-      </button>
-
       <div className="wrong-note-header">
+        <button className="back-btn" onClick={() => navigate('/wrong-answer')}>
+          목록으로
+        </button>
         <h2 className="title">{trackName} 오답</h2>
         <button
           className="review-btn"
@@ -147,9 +146,7 @@ export default function WrongNoteTrack() {
         </button>
       </div>
 
-      {loading ? (
-        <div className="empty-message">불러오는 중...</div>
-      ) : isDaily ? (
+      {!loading && isDaily ? (
         <>
           <div className="wn-calendar">
             <div className="wn-cal-header">
@@ -236,7 +233,10 @@ export default function WrongNoteTrack() {
                           <span className="track-badge">{item.track}</span>
                         )}
                         {item.chapter && (
-                          <span className="wn-daily-chapter-text">{item.chapter}</span>
+                          <span className="wn-daily-chapter-text">
+                            {item.chapter}
+                            {item.title && <span className="wrong-card-subtitle"> · {item.title}</span>}
+                          </span>
                         )}
                       </div>
                       <span className="wn-daily-type-badge">

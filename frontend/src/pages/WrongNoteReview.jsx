@@ -87,19 +87,7 @@ export default function WrongNoteReview() {
     }
   }
 
-  if (loading) {
-    return (
-      <div className="page-container">
-        <button
-          className="back-btn"
-          onClick={() => navigate(`/wrong-answer/${trackId}`)}
-        >
-          &larr; 목록으로
-        </button>
-        <div className="empty-message">불러오는 중...</div>
-      </div>
-    );
-  }
+  if (loading) return null;
 
   if (problems.length === 0) {
     return (
@@ -108,7 +96,7 @@ export default function WrongNoteReview() {
           className="back-btn"
           onClick={() => navigate(`/wrong-answer/${trackId}`)}
         >
-          &larr; 목록으로
+          목록으로
         </button>
         <div className="empty-message">복습할 오답이 없습니다.</div>
       </div>
@@ -167,7 +155,7 @@ export default function WrongNoteReview() {
         className="back-btn"
         onClick={() => navigate(`/wrong-answer/${trackId}`)}
       >
-        &larr; 목록으로
+        목록으로
       </button>
 
       <div className="review-progress-row">
@@ -229,7 +217,7 @@ export default function WrongNoteReview() {
             className="review-btn"
             onClick={() => setCurrent((c) => c + 1)}
           >
-            다음 &rarr;
+            다음
           </button>
         )}
       </div>

@@ -19,11 +19,12 @@
 .track-page-grid {
   margin-top: 36px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 24px;
 }
 
 .track-page-card {
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
   background: #ffffff;
   border-radius: 24px;
   padding: 24px;
@@ -52,7 +53,7 @@
 .tc-progress-bar {
   width: 100%;
   height: 12px;
-  background: #ffe6d4;
+  background: #e5e7eb;
   border-radius: 999px;
   overflow: hidden;
 }

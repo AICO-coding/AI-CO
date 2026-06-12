@@ -41,25 +41,14 @@ export default function WrongNoteDetail() {
               }
             : null,
         };
+        console.log('[WrongNoteDetail]', parsed);
         setDetail(parsed);
       })
       .catch(() => setDetail(null))
       .finally(() => setLoading(false));
   }, [wrongAnswerId]);
 
-  if (loading) {
-    return (
-      <div className="page-container">
-        <button
-          className="back-btn"
-          onClick={() => navigate(`/wrong-answer/${trackId}`)}
-        >
-          &larr; 목록으로
-        </button>
-        <div className="empty-message">불러오는 중...</div>
-      </div>
-    );
-  }
+  if (loading) return null;
 
   if (!detail || !detail.problem) {
     return (
@@ -68,7 +57,7 @@ export default function WrongNoteDetail() {
           className="back-btn"
           onClick={() => navigate(`/wrong-answer/${trackId}`)}
         >
-          &larr; 목록으로
+          목록으로
         </button>
         <div className="empty-message">오답 상세 정보를 찾을 수 없습니다.</div>
       </div>
@@ -83,17 +72,16 @@ export default function WrongNoteDetail() {
         className="back-btn"
         onClick={() => navigate(`/wrong-answer/${trackId}`)}
       >
-        &larr; 목록으로
+        목록으로
       </button>
 
-      <div className="detail-meta-row">
-        <span className="track-badge">{problem.track}</span>
-        <span className="chapter-badge">{problem.chapter}</span>
-        <span
-          className={
-            detail.isResolved ? 'status resolved' : 'status unresolved'
-          }
-        >
+      <div className="detail-meta-group">
+        <div className="detail-meta-left">
+          <span className="track-badge">{problem.track}</span>
+          <span className="detail-meta-sep">·</span>
+          <span className="detail-meta-chapter">{problem.chapter}</span>
+        </div>
+        <span className={detail.isResolved ? 'wn-status-dot resolved' : 'wn-status-dot unresolved'}>
           {detail.isResolved ? '해결완료' : '미해결'}
         </span>
       </div>

@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import '../styles/ReportItem.css';
 
 export default function ReportItem() {
   const { trackId, chapterId } = useParams();
+  const navigate = useNavigate();
 
   const [report, setReport] = useState(null);
 
@@ -45,7 +46,7 @@ export default function ReportItem() {
     fetchReport();
   }, [trackId, chapterId]);
 
-  if (loading) return <div>불러오는 중...</div>;
+  if (loading) return null;
 
   if (error) return <div>❌ {error}</div>;
 
@@ -93,7 +94,7 @@ export default function ReportItem() {
       </section>
 
       <section className="report-section">
-        <h3>🤖 코봇의 취약점 분석</h3>
+        <h3>🤖 코냥이의 취약점 분석</h3>
 
         <div className="cobot-box">
           <div className="cobot-comment">{report.cobotComment}</div>
@@ -145,6 +146,10 @@ export default function ReportItem() {
           ))}
         </div>
       </section>
+
+      <button className="report-back-btn" onClick={() => navigate(-1)}>
+        이전 페이지로
+      </button>
     </div>
   );
 }

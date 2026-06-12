@@ -6,7 +6,7 @@
 }
 
 .report-hero {
-  background: linear-gradient(135deg, #ff6b00, #ff8c42);
+  background: #ff6b00;
 
   border-radius: 28px;
   padding: 32px;
@@ -26,7 +26,7 @@
 }
 
 .report-hero-title {
-  font-size: 32px;
+  font-size:28px;
   font-weight: 800;
   margin-top: 10px;
 }
@@ -69,17 +69,51 @@
   flex: 1;
 }
 
-.report-chapter {
-  font-size: 13px;
-  color: #ff6b00;
+.report-tags {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.report-track-badge {
+  display: inline-flex;
+  align-items: center;
+  background-color: #ffedd5;
+  color: #c2410c;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.report-grade-badge {
+  display: inline-flex;
+  align-items: center;
+  background-color: #ede9fe;
+  color: #6d28d9;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px;
   font-weight: 700;
 }
 
-.report-title {
-  margin-top: 4px;
-  font-size: 18px;
+.report-main-title {
+  font-size: 15px;
   font-weight: 700;
   color: #111827;
+  margin-bottom: 6px;
+  line-height: 1.5;
+}
+
+.report-ch-label {
+  font-weight: 800;
+}
+
+.report-ch-sub {
+  font-size: 13px;
+  font-weight: 500;
+  color: #9ca3af;
 }
 
 .report-subtext {

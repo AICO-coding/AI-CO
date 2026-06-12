@@ -78,11 +78,11 @@ function Home() {
             AI를 이해하면서 직접 짜는 것,
             그게 진짜 실력이에요.
             <br />
-            오늘도 코봇과 함께 공부해보아요!
+            오늘도 코냥이와 함께 공부해보아요!
           </div>
 
           <Link to="/tracks" className="hero-btn">
-            학습 시작하기 →
+            학습 시작하기
           </Link>
         </div>
 
@@ -117,7 +117,7 @@ function Home() {
         </div>
 
         <div className="daily-cta">
-          {dailyData?.isCompleted ? '결과 보기 →' : '지금 풀기 →'}
+          {dailyData?.isCompleted ? '결과 보러 가기' : '문제 풀러 가기'}
         </div>
       </Link>
 

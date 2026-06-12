@@ -1,0 +1,127 @@
+{
+  "track": "ML",
+  "part": "regression",
+  "chapter": "ch4",
+  "title": "nn.Module 구조화",
+  "chapterXP": 100,
+  "completionRate": 0,
+  "lastLessonId": null,
+  "lessons": [
+
+    {
+      "lessonId": 19,
+      "lessonType": "concept_image",
+      "orderIndex": 1,
+      "isCompleted": false,
+      "markdownUrl": "/static/content/ml/ch4/lesson1.md",
+      "imageUrl": "/static/content/ml/ch4/mlp_structure.png"
+    },
+
+    {
+      "lessonId": 20,
+      "lessonType": "concept_code",
+      "orderIndex": 2,
+      "isCompleted": false,
+      "markdownUrl": "/static/content/ml/ch4/lesson2.md",
+      "content": {
+        "template": "import torch\nimport torch.nn as nn\n\n# nn.Linear(입력 수, 출력 수)\nlayer1 = nn.Linear({{blank1}}, 16)   # 4 → 16\nrelu   = nn.{{blank2}}()             # 비선형성!\nlayer2 = nn.Linear(16, {{blank3}})   # 16 → 1\n\n# 데이터 흘려보기\nx   = torch.randn(8, 4)\nh   = relu(layer1(x))          # (8, 16)\nout = layer2(h)                # (8, 1)",
+        "blanks": [
+          { "key": "blank1", "answer": "4" },
+          { "key": "blank2", "answer": "ReLU" },
+          { "key": "blank3", "answer": "1" }
+        ]
+      }
+    },
+
+
+    {
+      "lessonId": 21,
+      "lessonType": "concept_code",
+      "orderIndex": 3,
+      "isCompleted": false,
+      "markdownUrl": "/static/content/ml/ch4/lesson3.md",
+      "content": {
+        "template": "import torch.nn as nn\n\nclass IrisNet(nn.Module):\n    def __init__(self):\n        {{blank1}}()          # 필수! 빠뜨리면 파라미터 등록 안 됨\n        self.net = nn.{{blank2}}(   # 레이어 순서대로 묶기\n            nn.Linear(4, 16),\n            nn.ReLU(),\n            nn.Linear(16, 1)\n        )\n    def forward(self, x):\n        return self.{{blank3}}(x)   # Sequential 블록 호출\n\nmodel = IrisNet()\nprint(model)",
+        "blanks": [
+          { "key": "blank1", "answer": "super().__init__" },
+          { "key": "blank2", "answer": "Sequential" },
+          { "key": "blank3", "answer": "net" }
+        ]
+      }
+    },
+
+    {
+      "lessonId": 22,
+      "lessonType": "parameter",
+      "orderIndex": 4,
+      "isCompleted": false,
+      "markdownUrl": "/static/content/ml/ch4/lesson4.md"
+    },
+
+    {
+      "lessonId": 23,
+      "problemId": 401,
+      "lessonType": "code_fill",
+      "orderIndex": 5,
+      "isCompleted": false,
+      "markdownUrl": "/static/content/ml/ch4/lesson5.md",
+      "content": {
+        "template": "import torch\nimport torch.nn as nn\nfrom torch.utils.data import TensorDataset, DataLoader\n\nclass IrisNet(nn.Module):\n    def __init__(self):\n        super().__init__()\n        self.net = nn.Sequential(\n            nn.Linear({{blank1}}, 16),   # 입력 특성 수\n            nn.{{blank2}}(),              # 활성화 함수\n            nn.Linear(16, 1)\n        )\n    def forward(self, x):\n        return self.{{blank3}}(x)         # Sequential 블록 호출\n\nmodel = IrisNet()\ncrit  = nn.{{blank4}}()                  # Ch2에서 배운 손실함수\nopt   = torch.optim.{{blank5}}(model.parameters(), lr=0.01)\n\nfor Xb, yb in loader:                    # Ch3에서 만든 DataLoader\n    pred = model(Xb)\n    loss = crit(pred, yb)\n    opt.zero_grad() ; loss.backward() ; opt.step()",
+        "blanks": [
+          { "key": "blank1" },
+          { "key": "blank2" },
+          { "key": "blank3" },
+          { "key": "blank4" },
+          { "key": "blank5" }
+        ],
+        "hints": [
+          { "level": 1, "text": "① iris 특성 수  ② R___U  ③ self.n__  ④ MS_Loss  ⑤ Ad__" },
+          { "level": 2, "text": "① 숫자: 4  ② 첫 글자: R  ③ 첫 글자: n  ④ 첫 글자: M  ⑤ 첫 글자: A" }
+        ]
+      }
+    },
+
+    {
+      "lessonId": 24,
+      "problemId": 402,
+      "lessonType": "multiple_choice",
+      "orderIndex": 6,
+      "isCompleted": false,
+      "content": {
+        "question": "model(x) 대신 model.forward(x)를 직접 호출하면 안 되는 이유는?",
+        "choices": [
+          "① forward() 함수가 private이라 외부에서 호출이 불가능하다",
+          "② __call__을 거치지 않아 hook이 동작하지 않는다",
+          "③ PyTorch 버전에 따라 forward()가 없는 경우도 있다",
+          "④ model(x)와 반환값이 달라진다"
+        ],
+        "hints": [
+          { "level": 1, "text": "model(x) 호출 시 Python 내부에서 __call__이 먼저 실행돼요." },
+          { "level": 2, "text": "첫 글자: h (hook과 관련된 이유예요)" }
+        ]
+      }
+    },
+
+    {
+      "lessonId": 25,
+      "problemId": 403,
+      "lessonType": "multiple_choice",
+      "orderIndex": 7,
+      "isCompleted": false,
+      "content": {
+        "question": "nn.Linear 레이어 3개를 ReLU 없이 순서대로 쌓으면 어떻게 되는가?",
+        "choices": [
+          "① 층이 깊어질수록 표현력이 기하급수적으로 높아진다",
+          "② 각 층이 독립적으로 학습되어 다양한 패턴을 학습할 수 있다",
+          "③ 결국 하나의 선형 변환과 수학적으로 동일해진다",
+          "④ 역전파가 불안정해져 gradient exploding이 발생한다"
+        ],
+        "hints": [
+          { "level": 1, "text": "선형 함수의 합성(f∘g∘h)은 수학적으로 어떤 종류의 함수가 될까요?" },
+          { "level": 2, "text": "선형 + 선형 = 여전히 선형이에요." }
+        ]
+      }
+    }
+
+  ]
+}

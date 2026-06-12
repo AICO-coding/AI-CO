@@ -74,11 +74,14 @@ export default function WrongNoteMultipleChoice({ detail }) {
   }
 
   return (
-    <div className="quiz-layout">
+    <div className="wn-quiz-layout">
       <div className="quiz-left">
         <div className="quiz-info-card">
           <div className="quiz-label">MULTIPLE CHOICE</div>
-          <div className="quiz-title">{problem.chapter}</div>
+          <div className="quiz-title">
+            {problem.chapter}
+            {detail.title && <span className="wrong-card-subtitle"> · {detail.title}</span>}
+          </div>
           <div className="quiz-desc">
             빨간 선지가 내 오답, 초록 선지가 정답입니다.
           </div>
@@ -113,3 +116,4 @@ export default function WrongNoteMultipleChoice({ detail }) {
     </div>
   );
 }
+

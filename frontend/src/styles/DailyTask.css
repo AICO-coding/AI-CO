@@ -1,5 +1,4 @@
 .page-container {
-  background: #f3f4f6;
   min-height: 100vh;
   padding: 24px;
 }
@@ -14,7 +13,7 @@
   background: #ffffff;
   border: 2px solid #f97316;
   border-radius: 16px;
-  padding: 15px;
+  padding: 20px;
   margin-bottom: 20px;
 }
 
@@ -143,12 +142,11 @@
 }
 
 .daily-score-card {
-  background: linear-gradient(135deg, #f97316, #ea580c);
+  background: #f97316;
   border-radius: 20px;
   padding: 32px 24px;
   text-align: center;
   color: #ffffff;
-  box-shadow: 0 8px 24px rgba(249, 115, 22, 0.35);
 }
 
 .daily-score-perfect {
@@ -319,7 +317,7 @@
   width: auto;
   align-self: flex-end;
   margin: 8px 0 0;
-  background: #1e293b;
+  background: #f97316;
   border: none;
   border-radius: 999px;
   padding: 9px 20px;
@@ -332,9 +330,8 @@
 }
 
 .home-btn:hover {
-  background: #0f172a;
+  background: #f97316;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
 }
 
 .daily-result-explanation-label {

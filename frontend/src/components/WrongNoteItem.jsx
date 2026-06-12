@@ -47,7 +47,10 @@ export default function WrongNoteItem({ item, trackId, onDelete }) {
         </span>
       </div>
 
-      <div className="wrong-card-title">{item.chapter}</div>
+      <div className="wrong-card-title">
+        {item.chapter}
+        {item.title && <span className="wrong-card-subtitle"> · {item.title}</span>}
+      </div>
 
       <div className="wrong-card-bottom">
         <span className="wrong-review-count">

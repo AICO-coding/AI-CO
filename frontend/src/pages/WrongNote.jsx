@@ -43,13 +43,11 @@ export default function WrongNotePage() {
 
   return (
     <div className="page-container">
-      <div className="wrong-note-header">
-        <h2 className="title">오답 노트</h2>
-      </div>
-
-      {loading ? (
-        <div className="empty-message">불러오는 중...</div>
-      ) : (
+      {!loading && (
+        <>
+        <div className="wrong-note-header">
+          <h2 className="title">오답 노트</h2>
+        </div>
         <div className="wn-track-grid">
           {TRACKS.map((track) => {
             const trackItems = learningItems.filter((i) => i.track === track);
@@ -81,6 +79,8 @@ export default function WrongNotePage() {
             );
           })}
 
+          <div className="wn-daily-divider" />
+
           <div
             className="wn-track-card wn-daily-card"
             onClick={() => navigate('/wrong-answer/daily')}
@@ -99,6 +99,7 @@ export default function WrongNotePage() {
             </div>
           </div>
         </div>
+        </>
       )}
     </div>
   );

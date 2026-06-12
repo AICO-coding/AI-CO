@@ -13,6 +13,10 @@ from app.models.noteModels import WrongAnswer
 client = Anthropic(api_key=ANTHROPIC_API_KEY)
 
 
+def normalize_track(track: str) -> str:
+    return ''.join(c.upper() if c.isascii() and c.isalpha() else c for c in track)
+
+
 def count_wrong_answers(db: Session, user_id: int, track: str, chapter: str) -> int:
     """틀린 문제 개수"""
     wrong_answers = db.query(WrongAnswer).filter(
@@ -33,16 +37,13 @@ def count_wrong_answers(db: Session, user_id: int, track: str, chapter: str) -> 
 
 
 def get_chapter_title(db: Session, track: str, chapter: str) -> str:
-    """챕터 제목 조회 (첫 문제의 챕터명에서)"""
     lesson = db.query(Lesson).filter(
         func.upper(Lesson.track) == track.upper(),
         Lesson.chapter == chapter
-    ).first()
+    ).order_by(Lesson.order_index).first()
 
-    if lesson and lesson.content:
-        content = lesson.content
-        if isinstance(content, dict):
-            return content.get("chapterTitle", chapter)
+    if lesson and lesson.title:
+        return lesson.title
 
     return chapter
 
@@ -188,7 +189,7 @@ def generate_ai_report(
 
     try:
         message = client.messages.create(
-            model="claude-opus-4-8",
+            model="claude-haiku-4-5-20251001",
             max_tokens=2048,
             messages=[
                 {
@@ -304,7 +305,7 @@ def generate_report_background(user_id: int, track: str, chapter: str):
 
         # [7] progress 집계값과 AI 리포트 병합
         combined_report = {
-            "track": track,
+            "track": normalize_track(track),
             "chapter": chapter,
             "chapterTitle": chapter_title,
             "completedAt": progress.completed_at.isoformat() if progress.completed_at else None,
@@ -382,7 +383,8 @@ def get_report_service(
     return {
         "status": "completed",
         "grade": grade,
-        **report.ai_report  # track, chapter, chapterTitle, completedAt, totalProblems, xpEarned, wrongCount, hintCount, weakConcepts, cobotComment 등
+        **report.ai_report,
+        "track": normalize_track(report.ai_report.get("track", "")),
     }
 
 
@@ -413,7 +415,7 @@ def get_reports_list_service(
         })
 
     return {
-        "track": track,
+        "track": normalize_track(track),
         "reports": reports_list
     }
 
