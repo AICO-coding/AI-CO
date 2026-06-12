@@ -33,6 +33,7 @@ MISSION_CHAPTER = "mission"
 _AICO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 MISSION_JSON_MAP = {
     "ML-회귀": _AICO_ROOT / "frontend" / "public" / "static" / "md" / "regression" / "mission" / "misson.json",
+    "CV": _AICO_ROOT / "frontend" / "public" / "static" / "md" / "cv" / "misson" / "mission.json",
 }
 
 
@@ -89,6 +90,23 @@ def _parse_r2(stdout: str) -> Optional[float]:
     return float(match.group(1)) if match else None
 
 
+def _parse_accuracy(stdout: str) -> Optional[float]:
+    match = re.search(r"Test Accuracy:\s*([\d.]+)", stdout)
+    return float(match.group(1)) if match else None
+
+
+def _evaluate_passed(track: str, stdout: str) -> tuple[bool, Optional[float], Optional[float]]:
+    """(passed, r2, accuracy) 반환"""
+    if track == "CV":
+        accuracy = _parse_accuracy(stdout)
+        passed = accuracy is not None and accuracy >= 70.0
+        return passed, None, accuracy
+    else:
+        r2 = _parse_r2(stdout)
+        passed = r2 is not None and r2 >= 0.65
+        return passed, r2, None
+
+
 def _execute_code(track: str, code: str) -> tuple[str, str, int]:
     """코드 실행 후 (stdout, stderr, returncode) 반환"""
     if track in ["ML-회귀", "CV", "NLP"]:
@@ -118,8 +136,7 @@ def run_mission(
     _check_blacklist(code)
 
     stdout, stderr, returncode = _execute_code(payload.track, code)
-    r2 = _parse_r2(stdout)
-    passed = r2 is not None and r2 >= 0.65
+    passed, r2, _ = _evaluate_passed(payload.track, stdout)
 
     return MissionRunResponse(
         stdout=stdout,
@@ -141,8 +158,7 @@ def submit_mission(
     _check_blacklist(code)
 
     stdout, stderr, returncode = _execute_code(payload.track, code)
-    r2 = _parse_r2(stdout)
-    passed = r2 is not None and r2 >= 0.65
+    passed, r2, _ = _evaluate_passed(payload.track, stdout)
 
     # 불합격 시 DB 저장 없이 즉시 반환
     if not passed:

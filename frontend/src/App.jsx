@@ -15,11 +15,14 @@ import Lesson from './pages/Lesson';
 import Report from './pages/Report';
 import ReportList from './components/ReportList';
 import ReportItem from './components/ReportItem';
+import Mission from './pages/Mission';
 import './App.css';
 
 function Layout() {
   const location = useLocation();
-  const hideSidebar = location.pathname.includes('/lesson');
+  const hideSidebar =
+    location.pathname.includes('/lesson') ||
+    location.pathname.includes('/mission');
 
   return (
     <>
@@ -51,6 +54,11 @@ function Layout() {
               path="/tracks/:trackId/chapters/:chapterId/lessons/:lessonId"
               element={<Lesson />}
             />
+            <Route
+              path="/tracks/:trackId/mission"
+              element={<Mission />}
+            />
+
             <Route path="/wrong-answer" element={<WrongNote />} />
             <Route path="/wrong-answer/:trackId" element={<WrongNoteTrack />} />
             <Route
