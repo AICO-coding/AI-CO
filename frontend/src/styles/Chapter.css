@@ -373,3 +373,42 @@
 .chapter-name {
   font-size: smaller;
 }
+
+.chapter-row-mission {
+  background: #0f172a;
+  border-color: #1e293b;
+  margin-top: 8px;
+}
+
+.chapter-row-mission:hover {
+  border-color: #ff6b00;
+  transform: translateY(-2px);
+}
+
+.chapter-row-mission .chapter-name {
+  color: #ff6b00;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.chapter-row-mission .chapter-title {
+  color: #f1f5f9;
+}
+
+.chapter-row-mission .chapter-subtext {
+  color: #64748b;
+}
+
+.chapter-mission-icon {
+  border-color: #ff6b00 !important;
+  background: #1e293b !important;
+  font-size: 16px;
+}
+
+.chapter-mission-btn {
+  background: #ff6b00;
+}
+
+.chapter-mission-btn:hover {
+  background: #ea580c;
+}

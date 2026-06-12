@@ -146,6 +146,35 @@ export default function Chapter() {
             </div>
           );
         })}
+
+        <div
+          className="chapter-row chapter-row-mission"
+          onClick={() => navigate(`/tracks/${trackId}/mission`)}
+        >
+          <div className="chapter-left">
+            <div className="chapter-checkbox chapter-mission-icon">🏆</div>
+          </div>
+
+          <div className="chapter-center">
+            <div className="chapter-name">MISSION</div>
+            <div className="chapter-title">종합 미션</div>
+            <div className="chapter-subtext">
+              모든 챕터의 내용을 종합해 미션을 완료하세요
+            </div>
+          </div>
+
+          <div className="chapter-right">
+            <button
+              className="chapter-btn chapter-mission-btn"
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/tracks/${trackId}/mission`);
+              }}
+            >
+              미션 시작
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
