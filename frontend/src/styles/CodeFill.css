@@ -120,9 +120,13 @@
 }
 
 .codefill-right {
+  display: flex;
+
   flex-direction: column;
 
   min-height: 0;
+
+  overflow: hidden;
 }
 
 .editor-top {
