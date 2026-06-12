@@ -100,6 +100,47 @@
   cursor: pointer;
 }
 
+.daily-message-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 48px 32px;
+  text-align: center;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+}
+
+.daily-message-icon {
+  font-size: 48px;
+  margin-bottom: 20px;
+}
+
+.daily-message-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+  line-height: 1.7;
+  margin-bottom: 28px;
+}
+
+.daily-message-btn {
+  display: inline-block;
+  background: #f97316;
+  color: #ffffff;
+  border: none;
+  border-radius: 999px;
+  padding: 12px 28px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.daily-message-btn:hover {
+  background: #ea580c;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.35);
+}
+
 .daily-score-card {
   background: #f97316;
   border-radius: 20px;

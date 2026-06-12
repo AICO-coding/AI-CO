@@ -178,6 +178,25 @@ export default function DailyTask() {
     );
   }
 
+  if (dailyData?.message) {
+    return (
+      <div className="page-container">
+        <div className="page-inner">
+          <div className="daily-message-card">
+            <div className="daily-message-icon">📚</div>
+            <div className="daily-message-text">{dailyData.message}</div>
+            <button
+              className="daily-message-btn"
+              onClick={() => navigate('/tracks')}
+            >
+              학습 트랙 바로가기 →
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="page-container">
       <div className="page-inner">
