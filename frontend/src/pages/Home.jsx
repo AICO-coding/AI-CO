@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 
 import '../styles/Home.css';
 import { API_BASE_URL } from '../config/api';
+import cobotImg from '../assets/cobot.png';
 
 const API_BASE = API_BASE_URL;
 
@@ -88,7 +89,7 @@ function Home() {
         </div>
 
         <img
-          src="/src/assets/cobot.png"
+          src={cobotImg}
           alt="코봇"
           className="hero-cobot"
         />
