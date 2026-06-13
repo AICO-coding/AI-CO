@@ -550,7 +550,6 @@ export default function Mission() {
       {showSuccessModal && submitData && (
         <div className="mission-success-overlay">
           <div className="mission-success-modal">
-            <img src="/src/assets/cobot_complete.png" alt="완료" className="mission-success-cobot" />
             {submitData.isFirstCompletion ? (
               <>
                 <div className="mission-success-title">미션 완료!</div>
