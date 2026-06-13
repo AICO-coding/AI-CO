@@ -36,7 +36,7 @@ MISSION_CHAPTER = "mission"
 
 _AICO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 MISSION_JSON_MAP = {
-    "ML-회귀": _AICO_ROOT / "frontend" / "public" / "static" / "md" / "regression" / "mission" / "misson.json",
+    "ML-회귀": _AICO_ROOT / "frontend" / "public" / "static" / "md" / "regression" / "mission" / "mission.json",
     "CV": _AICO_ROOT / "frontend" / "public" / "static" / "md" / "cv" / "misson" / "mission.json",
 }
 
