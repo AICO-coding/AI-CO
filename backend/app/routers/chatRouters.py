@@ -39,7 +39,7 @@ def _generate_reply(track: str, chapter: str, message: str) -> str:
             detail="AI 응답 생성 중 오류가 발생했습니다.",
         )
 
-
+# POST /chat
 @router.post(
     "",
     response_model=ChatResponse,
@@ -78,11 +78,12 @@ def chat(
         expiresAt=saved.expires_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
     )
 
-
+# GET /chat/history
 @router.get(
     "/history",
     response_model=ChatHistoryResponse,
     status_code=status.HTTP_200_OK,
+    summary="오늘의 대화 기록 조회",
 )
 def get_chat_history(
     db: Session = Depends(get_db),
