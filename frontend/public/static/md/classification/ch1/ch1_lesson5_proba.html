@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --or:#FF6B00;--orL:#FFF4EE;--orB:#FFD9C0;
+  --bl:#1681c4;--blL:#eef7ff;--blB:#c2e4ff;
+  --gr:#2DAA24;--grL:#F0FEF0;
+  --re:#E53935;--reL:#FFF0F0;
+  --ye:#D97706;--yeL:#FFFBEB;
+  --bg:#FFFFFF;--bg2:#FFF8F4;
+  --tx:#1C1C1E;--tx2:#6B6B6B;--tx3:#A0A0A0;
+  --ff:'Nunito',sans-serif;--fm:'JetBrains Mono',monospace;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-family:var(--ff)}
+.wrap{display:flex;flex-direction:column;height:100vh;padding:16px;gap:12px}
+.hdr{display:flex;align-items:center;justify-content:space-between}
+.hdr-title{font-size:14px;font-weight:900;display:flex;align-items:center;gap:7px}
+.badge{font-family:var(--fm);font-size:13px;font-weight:700;padding:4px 14px;border-radius:20px;background:var(--blL);color:var(--bl);border:1px solid var(--blB)}
+
+.result-card{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:var(--bg2);border-radius:16px;border:2px solid var(--orB);padding:20px}
+.prob-display{font-family:var(--fm);font-size:56px;font-weight:700;transition:color .3s}
+.prob-label{font-size:13px;font-weight:800;color:var(--tx3)}
+.meter{width:100%;height:18px;background:#F0F0F0;border-radius:999px;overflow:hidden;position:relative}
+.meter-fill{height:100%;border-radius:999px;transition:width .3s,background .3s}
+.class-badges{display:flex;justify-content:space-between;width:100%;font-size:12px;font-weight:800}
+
+.interpret{border-radius:12px;padding:14px 16px;font-size:13px;font-weight:700;line-height:1.6;text-align:center;transition:all .3s}
+
+.ctrl{background:var(--bg2);border-radius:12px;padding:14px 16px;border:1px solid var(--orB)}
+.ctrl-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.ctrl-lbl{font-size:12px;font-weight:800;color:var(--tx2)}
+.ctrl-val{font-family:var(--fm);font-size:20px;font-weight:700;color:var(--or)}
+input[type=range]{width:100%;height:5px;-webkit-appearance:none;appearance:none;background:#FFD9C0;border-radius:3px;outline:none;cursor:pointer;margin-bottom:6px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;background:var(--or);border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 2px var(--orB);cursor:pointer}
+.ticks{display:flex;justify-content:space-between;font-size:10px;font-family:var(--fm);color:var(--tx3)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hdr">
+    <div class="hdr-title">🎲 확률값 해석기</div>
+    <span class="badge" id="badge">p = 0.50</span>
+  </div>
+
+  <div class="result-card">
+    <div class="prob-label">모델 출력 확률 (클래스 1)</div>
+    <div class="prob-display" id="probDisp">0.50</div>
+    <div style="width:100%">
+      <div class="meter">
+        <div class="meter-fill" id="meterFill" style="width:50%"></div>
+      </div>
+      <div class="class-badges">
+        <span style="color:var(--bl)">← 클래스 0 확신</span>
+        <span style="color:var(--or)">클래스 1 확신 →</span>
+      </div>
+    </div>
+    <div class="interpret" id="interpret"></div>
+  </div>
+
+  <div class="ctrl">
+    <div class="ctrl-row">
+      <span class="ctrl-lbl">모델 출력 확률 p</span>
+      <span class="ctrl-val" id="ctrlVal">0.50</span>
+    </div>
+    <input type="range" id="slider" min="0.01" max="0.99" step="0.01" value="0.50">
+    <div class="ticks"><span>0.01</span><span>0.25</span><span>0.50</span><span>0.75</span><span>0.99</span></div>
+  </div>
+</div>
+
+<script>
+const slider = document.getElementById('slider');
+
+function update(){
+  const p = parseFloat(slider.value);
+  const pStr = p.toFixed(2);
+
+  document.getElementById('badge').textContent = `p = ${pStr}`;
+  document.getElementById('probDisp').textContent = pStr;
+  document.getElementById('ctrlVal').textContent = pStr;
+  document.getElementById('meterFill').style.width = (p*100)+'%';
+
+  const disp = document.getElementById('probDisp');
+  const interp = document.getElementById('interpret');
+  const fill = document.getElementById('meterFill');
+
+  if(p >= 0.9){
+    disp.style.color = '#FF6B00';
+    fill.style.background = '#FF6B00';
+    interp.style.background = '#FFF4EE';
+    interp.style.border = '1.5px solid #FFD9C0';
+    interp.style.color = '#E55A00';
+    interp.textContent = `✅ ${Math.round(p*100)}% 확률로 클래스 1 → 클래스 1이라고 강하게 확신`;
+  } else if(p >= 0.6){
+    disp.style.color = '#FF6B00';
+    fill.style.background = '#FF6B00';
+    interp.style.background = '#FFF4EE';
+    interp.style.border = '1.5px solid #FFD9C0';
+    interp.style.color = '#E55A00';
+    interp.textContent = `🔶 ${Math.round(p*100)}% 확률로 클래스 1 → 클래스 1 쪽으로 기울어짐`;
+  } else if(p >= 0.4){
+    disp.style.color = '#D97706';
+    fill.style.background = '#D97706';
+    interp.style.background = '#FFFBEB';
+    interp.style.border = '1.5px solid #FCD88A';
+    interp.style.color = '#B45309';
+    interp.textContent = `⚠️ ${Math.round(p*100)}% 확률 → 0.5 근처, 모델이 판단을 못 내리는 상태`;
+  } else if(p >= 0.1){
+    disp.style.color = '#1681c4';
+    fill.style.background = '#1681c4';
+    interp.style.background = '#eef7ff';
+    interp.style.border = '1.5px solid #c2e4ff';
+    interp.style.color = '#1681c4';
+    interp.textContent = `🔷 ${Math.round(p*100)}% 확률로 클래스 1 → 클래스 0 쪽으로 기울어짐`;
+  } else {
+    disp.style.color = '#1681c4';
+    fill.style.background = '#1681c4';
+    interp.style.background = '#eef7ff';
+    interp.style.border = '1.5px solid #c2e4ff';
+    interp.style.color = '#1681c4';
+    interp.textContent = `✅ ${Math.round(p*100)}% 확률로 클래스 1 → 클래스 0이라고 강하게 확신`;
+  }
+}
+
+slider.addEventListener('input', update);
+update();
+</script>
+</body>
+</html>

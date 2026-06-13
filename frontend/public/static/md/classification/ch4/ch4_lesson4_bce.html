@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --or:#FF6B00;--orL:#FFF4EE;--orB:#FFD9C0;
+  --bl:#1681c4;--blL:#eef7ff;--blB:#c2e4ff;
+  --gr:#2DAA24;--grL:#F0FEF0;
+  --re:#E53935;--reL:#FFF0F0;
+  --bg:#FFFFFF;--bg2:#FFF8F4;
+  --tx:#1C1C1E;--tx2:#6B6B6B;--tx3:#A0A0A0;
+  --ff:'Nunito',sans-serif;--fm:'JetBrains Mono',monospace;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-family:var(--ff)}
+.wrap{display:flex;flex-direction:column;height:100vh;padding:16px;gap:10px}
+.hdr{font-size:14px;font-weight:900;display:flex;align-items:center;gap:7px}
+
+.result-card{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:var(--bg2);border-radius:16px;border:2px solid var(--orB);padding:20px}
+.loss-display{font-family:var(--fm);font-size:52px;font-weight:700;transition:color .3s}
+.loss-label{font-size:12px;font-weight:800;color:var(--tx3)}
+.formula{font-size:12px;font-family:var(--fm);color:var(--tx3);text-align:center;line-height:1.8}
+
+.loss-meter{width:100%;height:18px;background:#F0F0F0;border-radius:999px;overflow:hidden}
+.loss-fill{height:100%;border-radius:999px;transition:width .3s,background .3s;max-width:100%}
+
+.interpret{border-radius:12px;padding:12px 16px;font-size:13px;font-weight:700;text-align:center;transition:all .3s;width:100%}
+
+.ctrls{display:flex;flex-direction:column;gap:8px}
+.ctrl{background:var(--bg2);border-radius:12px;padding:12px 14px;border:1px solid var(--orB)}
+.ctrl-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.ctrl-lbl{font-size:12px;font-weight:800;color:var(--tx2)}
+.ctrl-val{font-family:var(--fm);font-size:18px;font-weight:700;color:var(--or)}
+.y-btns{display:flex;gap:8px}
+.y-btn{flex:1;padding:8px;border-radius:8px;border:2px solid var(--orB);background:transparent;font-family:var(--ff);font-size:13px;font-weight:800;cursor:pointer;transition:all .15s;color:var(--tx2)}
+.y-btn.active{background:var(--or);color:#fff;border-color:var(--or)}
+input[type=range]{width:100%;height:5px;-webkit-appearance:none;appearance:none;background:#FFD9C0;border-radius:3px;outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;background:var(--or);border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 2px var(--orB);cursor:pointer}
+.ticks{display:flex;justify-content:space-between;font-size:10px;font-family:var(--fm);color:var(--tx3);margin-top:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hdr">📊 BCE Loss 계산기</div>
+
+  <div class="result-card">
+    <div class="loss-label">BCE Loss</div>
+    <div class="loss-display" id="lossDisp">0.693</div>
+    <div class="formula" id="formula"></div>
+    <div class="loss-meter">
+      <div class="loss-fill" id="lossFill"></div>
+    </div>
+    <div class="interpret" id="interpret"></div>
+  </div>
+
+  <div class="ctrls">
+    <div class="ctrl">
+      <div class="ctrl-row">
+        <span class="ctrl-lbl">실제 레이블 y</span>
+        <span class="ctrl-val" id="yVal">1</span>
+      </div>
+      <div class="y-btns">
+        <button class="y-btn active" id="btn1" onclick="setY(1)">y = 1 (양성)</button>
+        <button class="y-btn" id="btn0" onclick="setY(0)">y = 0 (음성)</button>
+      </div>
+    </div>
+    <div class="ctrl">
+      <div class="ctrl-row">
+        <span class="ctrl-lbl">예측 확률 p (모델 출력)</span>
+        <span class="ctrl-val" id="pVal">0.50</span>
+      </div>
+      <input type="range" id="sliderP" min="0.01" max="0.99" step="0.01" value="0.50">
+      <div class="ticks"><span>0.01</span><span>0.25</span><span>0.50</span><span>0.75</span><span>0.99</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+let yVal = 1;
+const sliderP = document.getElementById('sliderP');
+
+function setY(v){
+  yVal = v;
+  document.getElementById('yVal').textContent = v;
+  document.getElementById('btn1').className = v===1 ? 'y-btn active' : 'y-btn';
+  document.getElementById('btn0').className = v===0 ? 'y-btn active' : 'y-btn';
+  update();
+}
+
+function update(){
+  const p = parseFloat(sliderP.value);
+  const pStr = p.toFixed(2);
+  document.getElementById('pVal').textContent = pStr;
+
+  let loss;
+  if(yVal===1){
+    loss = -Math.log(p);
+  } else {
+    loss = -Math.log(1-p);
+  }
+
+  const lossStr = loss > 10 ? loss.toFixed(1) : loss.toFixed(3);
+  document.getElementById('lossDisp').textContent = lossStr;
+
+  const formula = document.getElementById('formula');
+  if(yVal===1){
+    formula.innerHTML = `y=1 → L = -log(p) = -log(${pStr}) = ${lossStr}`;
+  } else {
+    formula.innerHTML = `y=0 → L = -log(1-p) = -log(${(1-p).toFixed(2)}) = ${lossStr}`;
+  }
+
+  // Meter: max loss ~5
+  const pct = Math.min(loss/5*100, 100);
+  const fill = document.getElementById('lossFill');
+  fill.style.width = pct+'%';
+
+  const lossEl = document.getElementById('lossDisp');
+  const interp = document.getElementById('interpret');
+
+  const isCorrect = (yVal===1 && p>0.5) || (yVal===0 && p<0.5);
+
+  if(loss < 0.3){
+    lossEl.style.color='#2DAA24';
+    fill.style.background='#2DAA24';
+    interp.style.background='#F0FEF0'; interp.style.border='1.5px solid #B6EAB3'; interp.style.color='#229619';
+    interp.textContent=`✅ Loss ≈ ${lossStr} — 매우 낮음! 모델이 정답에 가깝게 예측했어요`;
+  } else if(loss < 1.0){
+    lossEl.style.color='#FF6B00';
+    fill.style.background='#FF6B00';
+    interp.style.background='#FFF4EE'; interp.style.border='1.5px solid #FFD9C0'; interp.style.color='#E55A00';
+    interp.textContent=`🔶 Loss = ${lossStr} — 중간. 예측이 조금 애매해요`;
+  } else if(loss < 3.0){
+    lossEl.style.color='#D97706';
+    fill.style.background='#D97706';
+    interp.style.background='#FFFBEB'; interp.style.border='1.5px solid #FCD88A'; interp.style.color='#B45309';
+    interp.textContent=`⚠️ Loss = ${lossStr} — 높음. 예측이 정답과 많이 달라요`;
+  } else {
+    lossEl.style.color='#E53935';
+    fill.style.background='#E53935';
+    interp.style.background='#FFF0F0'; interp.style.border='1.5px solid #FFBDBD'; interp.style.color='#E53935';
+    interp.textContent=`❌ Loss = ${lossStr} — 매우 높음! 확신을 갖고 완전히 틀린 예측이에요`;
+  }
+}
+
+sliderP.addEventListener('input', update);
+update();
+</script>
+</body>
+</html>
