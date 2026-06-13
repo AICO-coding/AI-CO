@@ -7,6 +7,7 @@ import ChatBot from '../components/ChatBot';
 
 import '../styles/Lesson.css';
 import { API_BASE_URL } from '../config/api';
+import cobotCompleteImg from '../assets/cobot_complete.png';
 
 export default function Lesson() {
   const { trackId, chapterId } = useParams();
@@ -272,7 +273,7 @@ export default function Lesson() {
         <div className="result-overlay">
           <div className="result-modal">
             <img
-              src="/src/assets/cobot_complete.png"
+              src={cobotCompleteImg}
               alt="코봇"
               className="result-cobot"
             />
