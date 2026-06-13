@@ -21,7 +21,7 @@ def _prepare_klue_ynat_data():
 
 image = modal.Image.debian_slim().pip_install(
     "torch", "torchvision", "transformers",
-    "scikit-learn", "numpy", "Pillow", "pandas", "sentencepiece", "datasets"
+    "scikit-learn", "numpy", "Pillow", "pandas", "sentencepiece", "datasets<4.0"
 ).run_function(_prepare_klue_ynat_data)
 
 
