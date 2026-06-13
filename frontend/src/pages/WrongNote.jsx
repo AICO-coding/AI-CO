@@ -43,7 +43,9 @@ export default function WrongNotePage() {
 
   return (
     <div className="page-container">
-      {!loading && (
+      {loading ? (
+        <div className="empty-message">오답을 찾고 있어요</div>
+      ) : (
         <>
         <div className="wrong-note-header">
           <h2 className="title">오답 노트</h2>
@@ -104,3 +106,4 @@ export default function WrongNotePage() {
     </div>
   );
 }
+
