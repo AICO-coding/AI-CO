@@ -4,6 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import '../styles/Mission.css';
+import { API_BASE_URL } from '../config/api';
 
 const TRACK_CONFIG = {
   cv: {
@@ -35,7 +36,7 @@ const TRACK_CONFIG = {
   },
 };
 
-const API_BASE = 'http://210.125.96.59:8000';
+const API_BASE = API_BASE_URL;
 
 export default function Mission() {
   const { trackId } = useParams();

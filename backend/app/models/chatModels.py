@@ -1,4 +1,3 @@
-# app/models/chatModels.py
 from datetime import datetime, timezone
 from sqlalchemy import Column, BigInteger, String, Text, DateTime, ForeignKey
 from app.core.database import Base
@@ -19,7 +18,7 @@ class ChatMessage(Base):
     track = Column(String(100), nullable=False)
     chapter = Column(String(100), nullable=False)
 
-    role = Column(String(20), nullable=False)  # "user" 또는 "assistant"
+    role = Column(String(20), nullable=False) 
     content = Column(Text, nullable=False)
 
     created_at = Column(

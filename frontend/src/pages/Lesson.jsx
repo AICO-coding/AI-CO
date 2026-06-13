@@ -6,6 +6,8 @@ import LessonRenderer from '../components/lesson/LessonRenderer';
 import ChatBot from '../components/ChatBot';
 
 import '../styles/Lesson.css';
+import { API_BASE_URL } from '../config/api';
+import cobotCompleteImg from '../assets/cobot_complete.png';
 
 export default function Lesson() {
   const { trackId, chapterId } = useParams();
@@ -38,7 +40,7 @@ export default function Lesson() {
         const token = localStorage.getItem('accessToken');
 
         const res = await fetch(
-          `http://210.125.96.59:8000/tracks/${trackId}/chapters/${chapterId}/lessons`,
+          `${API_BASE_URL}/tracks/${trackId}/chapters/${chapterId}/lessons`,
           {
             headers: {
               ...(token && {
@@ -84,7 +86,7 @@ export default function Lesson() {
       const token = localStorage.getItem('accessToken');
 
       await fetch(
-        `http://210.125.96.59:8000/tracks/${trackId}/chapters/${chapterId}/lessons/${lessonId}/complete`,
+        `${API_BASE_URL}/tracks/${trackId}/chapters/${chapterId}/lessons/${lessonId}/complete`,
         {
           method: 'POST',
 
@@ -140,7 +142,7 @@ export default function Lesson() {
       const token = localStorage.getItem('accessToken');
 
       const res = await fetch(
-        `http://210.125.96.59:8000/tracks/${trackId}/chapters/${chapterId}/complete`,
+        `${API_BASE_URL}/tracks/${trackId}/chapters/${chapterId}/complete`,
         {
           method: 'POST',
 
@@ -271,7 +273,7 @@ export default function Lesson() {
         <div className="result-overlay">
           <div className="result-modal">
             <img
-              src="/src/assets/cobot_complete.png"
+              src={cobotCompleteImg}
               alt="코봇"
               className="result-cobot"
             />

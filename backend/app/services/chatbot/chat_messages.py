@@ -5,7 +5,6 @@ from app.models.chatModels import ChatMessage
 
 KST = timezone(timedelta(hours=9))
 
-# KST 오늘 00:00 ~ 23:59:59 를 UTC로 반환
 def _today_kst_range_utc() -> tuple[datetime, datetime]:
     now_kst = datetime.now(KST)
     start = now_kst.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -13,14 +12,12 @@ def _today_kst_range_utc() -> tuple[datetime, datetime]:
     return start.astimezone(timezone.utc), end.astimezone(timezone.utc)
 
 
-# KST 오늘 23:59:59 를 UTC로 반환
 def _get_expires_at() -> datetime:
     now_kst = datetime.now(KST)
     end_kst = now_kst.replace(hour=23, minute=59, second=59, microsecond=0)
     return end_kst.astimezone(timezone.utc)
 
 
-# 사용자 메시지 + 어시스턴트 답변을 함께 저장하고 assistant 메시지를 반환
 def save_chat_messages(
     db: Session,
     user_id: int,
@@ -59,7 +56,6 @@ def save_chat_messages(
     return assistant_msg
 
 
-# 오늘 KST 기준 대화 기록 조회. 없으면 None 반환
 def fetch_today_history(db: Session, user_id: int) -> Optional[dict]:
     start_utc, end_utc = _today_kst_range_utc()
 

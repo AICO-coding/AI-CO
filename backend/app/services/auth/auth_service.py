@@ -6,7 +6,6 @@ from app.core.config import GOOGLE_CLIENT_ID
 from app.models.userModels import User
 
 
-# Google ID Token 검증
 def verify_google_token(id_token_str: str) -> dict:
     if not id_token_str:
         raise ValueError("Google ID Token이 비어 있습니다.")
@@ -33,7 +32,6 @@ def verify_google_token(id_token_str: str) -> dict:
     
 
 def get_user_by_google_id(db: Session, google_id: str) -> Optional[User]:
-    """Google ID로 유저 조회"""
     return db.query(User).filter(User.google_id == google_id).first()
 
 
@@ -57,7 +55,6 @@ def create_user(
     return user
 
 
-# 닉네임 업데이트
 def update_nickname(db: Session, user: User, nickname: str) -> User:
     user.nickname = nickname
 

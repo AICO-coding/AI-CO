@@ -1,0 +1,17 @@
+**/__pycache__/
+**/*.pyc
+
+backend/venv/
+backend/.env
+backend/data/
+
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/src/
+frontend/index.html
+frontend/*.config.js
+frontend/.env
+
+.git/
+.idea/

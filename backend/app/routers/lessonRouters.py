@@ -34,16 +34,8 @@ from app.services.report.report_service import generate_report_background
 router = APIRouter(prefix="/tracks", tags=["Tracks"])
 
 
-# 비로그인용 전체 트랙 목록 조회
-@router.get("", summary="전체 트랙 목록 조회")
+@router.get("", summary="비로그인용 전체 트랙 목록 조회")
 def get_public_tracks():
-    """
-    로그인 없이 전체 트랙 목록을 조회합니다.
-
-    프론트에서 메인 화면, 트랙 선택 화면 등에서 사용할 수 있습니다.
-    유저별 진도 정보는 포함하지 않습니다.
-    """
-
     return {
         "tracks": [
             {
@@ -70,7 +62,6 @@ def get_public_tracks():
     }
 
 
-#  로그인 유저용 전체 트랙 진도 조회
 @router.get(
     "/progress",
     response_model=AllTracksResponse,
@@ -83,7 +74,6 @@ def get_all_tracks_progress(
     return get_all_progress_service(db=db, user_id=current_user.id)
 
 
-# 특정 트랙 챕터 목록 및 진도 조회
 @router.get(
     "/{track}/chapters",
     response_model=TrackChaptersResponse,
@@ -109,7 +99,6 @@ def get_track_chapters(
     return result
 
 
-# 특정 챕터의 레슨 목록 조회
 @router.get(
     "/{track}/chapters/{chapter}/lessons",
     response_model=ChapterLessonsResponse,
@@ -137,7 +126,6 @@ def get_chapter_lessons(
     return result
 
 
-# 콘텐츠형 레슨 완료 처리
 @router.post(
     "/{track}/chapters/{chapter}/lessons/{lessonId}/complete",
     response_model=LessonCompleteResponse,
@@ -167,7 +155,6 @@ def complete_lesson(
     return result
 
 
-# 답안 제출
 @router.post(
     "/{track}/chapters/{chapter}/submit",
     response_model=SubmitResponse,
@@ -201,7 +188,6 @@ def submit_answer(
     return result
 
 
-# 힌트 사용
 @router.post(
     "/{track}/chapters/{chapter}/hint",
     response_model=HintResponse,
@@ -238,7 +224,6 @@ def use_hint(
     return result
 
 
-# 정답 공개
 @router.post(
     "/{track}/chapters/{chapter}/lessons/{lessonId}/reveal",
     response_model=RevealResponse,
@@ -275,7 +260,6 @@ def reveal_answer(
     return result
 
 
-# 챕터 완료
 @router.post(
     "/{track}/chapters/{chapter}/complete",
     response_model=ChapterCompleteResponse,
@@ -323,29 +307,6 @@ def complete_chapter(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """
-    챕터의 마지막 레슨을 완료한 후 챕터 완료 처리를 합니다.
-
-    **첫 학습 완료** (`isFirstCompletion: true`):
-    - 기본 50 XP 지급
-    - 힌트 사용 1회당 5 XP 차감 (사용 시점에 이미 차감됨)
-    - 정답 공개 1회당 5 XP 차감 (사용 시점에 이미 차감됨)
-    - `xpEarned` = baseXP(50) - xpDeducted
-
-    **복습 완료** (`isFirstCompletion: false`):
-    - XP 지급 없음
-    - 이번 복습 세션에서 새로 사용한 힌트/정답공개에 한해 5 XP씩 차감 (사용 시점에 이미 차감됨)
-    - `xpDeducted`, `hintUsed`, `revealUsed`: 이번 복습에서 차감된 내역 (없으면 0)
-    - `baseXP`, `xpEarned`는 응답에 포함되지 않음
-
-    **힌트/정답공개 공통 규칙:**
-    - 이전에 이미 사용한 힌트 레벨 또는 공개한 정답 → XP 차감 없이 즉시 반환
-    - 처음 사용하는 경우에만 5 XP 차감
-
-    **AI 리포트 생성:**
-    - 백그라운드에서 비동기로 AI 리포트가 생성됩니다
-    - GET /reports/{track}/{chapter}에서 조회 가능합니다
-    """
     result = complete_chapter_service(
         db=db,
         user_id=current_user.id,
@@ -365,7 +326,6 @@ def complete_chapter(
             detail=result["error"],
         )
 
-    # 백그라운드에서 AI 리포트 생성
     if result.get("isFirstCompletion"):
         background_tasks.add_task(
             generate_report_background,

@@ -2,8 +2,9 @@ import { useEffect, useState, useMemo, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import WrongNoteItem from '../components/WrongNoteItem';
 import '../styles/WrongNote.css';
+import { API_BASE_URL } from '../config/api';
 
-const API_BASE = 'http://210.125.96.59:8000';
+const API_BASE = API_BASE_URL;
 
 const PROBLEM_TYPE_LABEL = {
   multiple_choice: '객관식',

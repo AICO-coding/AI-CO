@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/WrongNote.css';
+import { API_BASE_URL } from '../config/api';
 
-const API_BASE = 'http://210.125.96.59:8000';
+const API_BASE = API_BASE_URL;
 const TRACKS = ['ML-분류', 'ML-회귀', 'CV', 'NLP'];
 
 function getTrackIcon(track) {

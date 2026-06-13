@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { API_BASE_URL } from '../config/api';
 
 export default function Nickname() {
   const [nickname, setNickname] = useState('');
@@ -12,7 +13,7 @@ export default function Nickname() {
       const accessToken = localStorage.getItem('accessToken');
 
       await axios.post(
-        'http://210.125.96.59:8000/auth/nickname',
+        `${API_BASE_URL}/auth/nickname`,
         {
           nickname,
         },

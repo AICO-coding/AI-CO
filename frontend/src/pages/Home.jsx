@@ -2,8 +2,10 @@ import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
 import '../styles/Home.css';
+import { API_BASE_URL } from '../config/api';
+import cobotImg from '../assets/cobot.png';
 
-const API_BASE = 'http://210.125.96.59:8000';
+const API_BASE = API_BASE_URL;
 
 function getTimeLeft(expiresAt) {
   const diff = new Date(expiresAt) - new Date();
@@ -87,7 +89,7 @@ function Home() {
         </div>
 
         <img
-          src="/src/assets/cobot.png"
+          src={cobotImg}
           alt="코봇"
           className="hero-cobot"
         />
