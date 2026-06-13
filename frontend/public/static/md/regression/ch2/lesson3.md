@@ -49,11 +49,9 @@
 <pre style="margin:0;background:transparent;border:none;padding:0;"><code><span style="color:#cba6f7;">for</span> epoch <span style="color:#cba6f7;">in</span> range(<span style="color:#fab387;">100</span>):
     pred = model(x)
     loss = crit(pred, y)
-
     opt.zero_grad()   <span style="color:#545478;font-style:italic;"># ① gradient 초기화 — 반드시 먼저!</span>
     loss.backward()   <span style="color:#545478;font-style:italic;"># ② 역전파: gradient 계산</span>
     opt.step()        <span style="color:#545478;font-style:italic;"># ③ 파라미터 업데이트</span>
-
     <span style="color:#cba6f7;">if</span> (epoch+<span style="color:#fab387;">1</span>) % <span style="color:#fab387;">20</span> == <span style="color:#fab387;">0</span>:
         print(f<span style="color:#a6e3a1;">"Epoch {epoch+1} | Loss: {loss.item():.4f}"</span>)</code></pre>
   </div>
