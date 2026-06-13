@@ -13,17 +13,43 @@
   </div>
 
   <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 8px; font-size: 13px;">
-    <div style="background: #f1f5f9; border-radius: 12px; padding: 12px 15px; color: #334155; font-family: monospace; font-size: 12px; line-height: 2.0;">
-      criterion = nn.BCELoss()<br>
-      loss = criterion(pred, y)  # pred는 Sigmoid 통과한 확률값
-    </div>
-    <div style="background: #f1f5f9; border-radius: 12px; padding: 12px 15px; color: #334155; font-family: monospace; font-size: 12px; line-height: 2.0;">
-      criterion = nn.BCEWithLogitsLoss()<br>
-      loss = criterion(logit, y)  # logit은 Sigmoid 통과 전 raw 값
-    </div>
     <div style="background: #fff3eb; border: 1px solid #ffd0b0; border-radius: 12px; padding: 12px 15px; color: #334155;">
       💼 <b>실무 팁</b> — nn.BCEWithLogitsLoss가 수치적으로 더 안정적이라 실무에서 더 많이 씁니다
     </div>
+  </div>
+</div>
+
+<br>
+
+<div style="background-color: #1e1e2e; border: 2px solid #e2e8f0; border-radius: 12px; overflow: hidden; font-family: 'JetBrains Mono', monospace; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+  <div style="background-color: #0d0d1a; border-bottom: 1px solid #1a1a2e; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between;">
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <div style="width: 10px; height: 10px; background: #ff5f57; border-radius: 50%;"></div>
+      <div style="width: 10px; height: 10px; background: #ffbd2e; border-radius: 50%;"></div>
+      <div style="width: 10px; height: 10px; background: #28ca41; border-radius: 50%;"></div>
+      <span style="color: #6060a0; margin-left: 8px; font-size: 12px;">📄 reference.py</span>
+    </div>
+    <div style="background-color: rgba(255,107,0,.2); color: #FF6B00; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 800; font-family: 'Nunito', sans-serif;">
+      참고 코드 ← 보고 채워요
+    </div>
+  </div>
+  <div style="padding: 15px; color: #cdd6f4; font-size: 13px; line-height: 1.6; overflow-x: auto;">
+<pre style="margin: 0; background: transparent; border: none; padding: 0;"><code><span style="color: #cba6f7;">import</span> torch
+<span style="color: #cba6f7;">import</span> torch.nn <span style="color: #cba6f7;">as</span> nn
+
+pred = torch.tensor([<span style="color: #fab387;">0.95</span>])  <span style="color: #545478; font-style: italic;"># 시그모이드 통과한 확률값</span>
+y    = torch.tensor([<span style="color: #fab387;">1.0</span>])   <span style="color: #545478; font-style: italic;"># 실제 레이블</span>
+
+<span style="color: #545478; font-style: italic;"># BCELoss: Sigmoid 통과한 확률값 입력</span>
+criterion = nn.BCELoss()
+loss = criterion(pred, y)
+print(loss)  <span style="color: #545478; font-style: italic;"># tensor(0.0513)</span>
+
+<span style="color: #545478; font-style: italic;"># BCEWithLogitsLoss: raw logit 입력 (Sigmoid 불필요)</span>
+logit = torch.tensor([<span style="color: #fab387;">3.0</span>])  <span style="color: #545478; font-style: italic;"># Sigmoid 통과 전 값</span>
+criterion2 = nn.BCEWithLogitsLoss()
+loss2 = criterion2(logit, y)
+print(loss2)  <span style="color: #545478; font-style: italic;"># tensor(0.0486)</span></code></pre>
   </div>
 </div>
 
