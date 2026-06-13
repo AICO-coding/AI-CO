@@ -6,10 +6,23 @@ import os
 
 app = modal.App("aico-code-runner")
 
+
+def _prepare_klue_ynat_data():
+    import os
+    import pandas as pd
+    from datasets import load_dataset
+
+    ds = load_dataset("klue", "ynat", trust_remote_code=True)
+    os.makedirs("/root/data/klue_ynat", exist_ok=True)
+    for split, filename in [("train", "train.tsv"), ("validation", "test.tsv")]:
+        df = ds[split].to_pandas()[["title", "label"]]
+        df.to_csv(f"/root/data/klue_ynat/{filename}", sep="\t", index=False)
+
+
 image = modal.Image.debian_slim().pip_install(
     "torch", "torchvision", "transformers",
-    "scikit-learn", "numpy", "Pillow"
-)
+    "scikit-learn", "numpy", "Pillow", "pandas", "sentencepiece", "datasets"
+).run_function(_prepare_klue_ynat_data)
 
 
 @app.function(image=image, gpu="T4", timeout=120)
