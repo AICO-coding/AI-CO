@@ -2,8 +2,9 @@ import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
 import '../styles/Home.css';
+import { API_BASE_URL } from '../config/api';
 
-const API_BASE = 'http://210.125.96.59:8000';
+const API_BASE = API_BASE_URL;
 
 function getTimeLeft(expiresAt) {
   const diff = new Date(expiresAt) - new Date();

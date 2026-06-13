@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import '../../styles/MultipleChoice.css';
+import { API_BASE_URL } from '../../config/api';
 
 export default function MultipleChoice({ lesson, registerSubmit }) {
   const { trackId, chapterId } = useParams();
@@ -48,7 +49,7 @@ export default function MultipleChoice({ lesson, registerSubmit }) {
       const token = localStorage.getItem('accessToken');
 
       const res = await fetch(
-        `http://210.125.96.59:8000/tracks/${trackId}/chapters/${chapterId}/hint`,
+        `${API_BASE_URL}/tracks/${trackId}/chapters/${chapterId}/hint`,
         {
           method: 'POST',
 
@@ -89,7 +90,7 @@ export default function MultipleChoice({ lesson, registerSubmit }) {
       const token = localStorage.getItem('accessToken');
 
       const res = await fetch(
-        `http://210.125.96.59:8000/tracks/${trackId}/chapters/${chapterId}/lessons/${lesson.lessonId}/reveal`,
+        `${API_BASE_URL}/tracks/${trackId}/chapters/${chapterId}/lessons/${lesson.lessonId}/reveal`,
         {
           method: 'POST',
 
@@ -138,7 +139,7 @@ export default function MultipleChoice({ lesson, registerSubmit }) {
       const token = localStorage.getItem('accessToken');
 
       const res = await fetch(
-        `http://210.125.96.59:8000/tracks/${trackId}/chapters/${chapterId}/submit`,
+        `${API_BASE_URL}/tracks/${trackId}/chapters/${chapterId}/submit`,
         {
           method: 'POST',
 

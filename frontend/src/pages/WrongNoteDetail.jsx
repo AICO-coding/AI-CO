@@ -3,8 +3,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import WrongNoteMultipleChoice from '../components/lesson/WrongNoteMultipleChoice';
 import WrongNoteCodeFill from '../components/lesson/WrongNoteCodeFill';
 import '../styles/WrongNote.css';
+import { API_BASE_URL } from '../config/api';
 
-const API_BASE = 'http://210.125.96.59:8000';
+const API_BASE = API_BASE_URL;
 
 function parseJson(value) {
   if (!value || typeof value !== 'string') return value;

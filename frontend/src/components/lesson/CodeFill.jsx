@@ -6,6 +6,7 @@ import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 
 import '../../styles/CodeFill.css';
+import { API_BASE_URL } from '../../config/api';
 
 export default function CodeFill({ lesson, registerSubmit }) {
   const { trackId, chapterId } = useParams();
@@ -44,7 +45,7 @@ export default function CodeFill({ lesson, registerSubmit }) {
     try {
       const token = localStorage.getItem('accessToken');
       const res = await fetch(
-        `http://210.125.96.59:8000/tracks/${trackId}/chapters/${chapterId}/hint`,
+        `${API_BASE_URL}/tracks/${trackId}/chapters/${chapterId}/hint`,
         {
           method: 'POST',
           headers: {
@@ -72,7 +73,7 @@ export default function CodeFill({ lesson, registerSubmit }) {
     try {
       const token = localStorage.getItem('accessToken');
       const res = await fetch(
-        `http://210.125.96.59:8000/tracks/${trackId}/chapters/${chapterId}/submit`,
+        `${API_BASE_URL}/tracks/${trackId}/chapters/${chapterId}/submit`,
         {
           method: 'POST',
           headers: {

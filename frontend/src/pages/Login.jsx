@@ -2,6 +2,7 @@ import { GoogleLogin } from '@react-oauth/google';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/Login.css';
+import { API_BASE_URL } from '../config/api';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -10,7 +11,7 @@ export default function Login() {
     try {
       const token = credentialResponse.credential;
       const response = await axios.post(
-        'http://210.125.96.59:8000/auth/google/login',
+        `${API_BASE_URL}/auth/google/login`,
         {
           idToken: token,
         },
