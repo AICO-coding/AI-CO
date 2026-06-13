@@ -53,6 +53,14 @@ class MissionRunRequest(BaseModel):
     blanks: dict[str, str]
 
 
+class MissionSubmitRequest(BaseModel):
+    track: str
+    blanks: dict[str, str]
+    stdout: Optional[str] = None
+    stderr: Optional[str] = None
+    returncode: Optional[int] = None
+
+
 class MissionRunResponse(BaseModel):
     stdout: str
     stderr: str
@@ -225,15 +233,20 @@ def run_mission(
 
 @router.post("/submit", response_model=MissionSubmitResponse)
 def submit_mission(
-    payload: MissionRunRequest,
+    payload: MissionSubmitRequest,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    code = _build_code(payload.track, payload.blanks)
-    _check_blacklist(code)
+    if payload.stdout is not None:
+        stdout = payload.stdout
+        stderr = payload.stderr or ""
+        returncode = payload.returncode if payload.returncode is not None else 0
+    else:
+        code = _build_code(payload.track, payload.blanks)
+        _check_blacklist(code)
+        stdout, stderr, returncode = _execute_code(payload.track, code)
 
-    stdout, stderr, returncode = _execute_code(payload.track, code)
     passed, r2, _ = _evaluate_passed(payload.track, stdout)
 
     if not passed:
