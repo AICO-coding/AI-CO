@@ -1,12 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import Optional
 from pathlib import Path
 from datetime import datetime, timezone
-import os
-import re
+import asyncio
 import json
+import os
+import queue as queue_module
+import re
+import threading
 import modal
 
 # 단순 문자열 대신 정규식 패턴 사용 (점 뒤 eval은 메서드 호출이므로 허용)
@@ -35,6 +39,16 @@ MISSION_JSON_MAP = {
     "ML-회귀": _AICO_ROOT / "frontend" / "public" / "static" / "md" / "regression" / "mission" / "misson.json",
     "CV": _AICO_ROOT / "frontend" / "public" / "static" / "md" / "cv" / "misson" / "mission.json",
 }
+
+
+class MissionHintRequest(BaseModel):
+    track: str
+    todoId: int
+
+
+class MissionHintResponse(BaseModel):
+    text: str
+    xpDeducted: int
 
 
 class MissionRunRequest(BaseModel):
@@ -99,7 +113,7 @@ def _evaluate_passed(track: str, stdout: str) -> tuple[bool, Optional[float], Op
     """(passed, r2, accuracy) 반환"""
     if track == "CV":
         accuracy = _parse_accuracy(stdout)
-        passed = accuracy is not None and accuracy >= 70.0
+        passed = accuracy is not None and accuracy >= 30.0
         return passed, None, accuracy
     else:
         r2 = _parse_r2(stdout)
@@ -124,6 +138,73 @@ def _execute_code(track: str, code: str) -> tuple[str, str, int]:
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="지원하지 않는 트랙입니다.",
         )
+
+
+@router.post("/hint", response_model=MissionHintResponse)
+def use_mission_hint(
+    payload: MissionHintRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    json_path = MISSION_JSON_MAP.get(payload.track)
+    if not json_path or not json_path.exists():
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="미션을 찾을 수 없습니다.",
+        )
+
+    with open(json_path, encoding="utf-8") as f:
+        mission = json.load(f)
+
+    hints = mission["content"].get("hints", [])
+    hint = next((h for h in hints if h["todoId"] == payload.todoId), None)
+    if not hint:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="힌트를 찾을 수 없습니다.",
+        )
+
+    xp_cost = hint.get("xpCost", 10)
+    current_user.xp = max(0, current_user.xp - xp_cost)
+    db.commit()
+
+    return MissionHintResponse(text=hint["text"], xpDeducted=xp_cost)
+
+
+@router.post("/run/stream")
+async def run_mission_stream(
+    payload: MissionRunRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    code = _build_code(payload.track, payload.blanks)
+    _check_blacklist(code)
+
+    async def generate():
+        yield f"data: {json.dumps({'type': 'status', 'message': 'GPU 연결 중...'})}\n\n"
+
+        q: queue_module.Queue = queue_module.Queue()
+
+        def modal_worker():
+            try:
+                stream_fn = modal.Function.from_name("aico-code-runner", "run_code_gpu_stream")
+                for chunk in stream_fn.remote_gen(code):
+                    q.put(chunk)
+            except Exception as e:
+                q.put({"type": "error", "message": str(e)})
+            finally:
+                q.put(None)
+
+        threading.Thread(target=modal_worker, daemon=True).start()
+
+        loop = asyncio.get_event_loop()
+        while True:
+            chunk = await loop.run_in_executor(None, q.get)
+            if chunk is None:
+                break
+            yield f"data: {json.dumps(chunk)}\n\n"
+
+    return StreamingResponse(generate(), media_type="text/event-stream")
 
 
 @router.post("/run", response_model=MissionRunResponse)
