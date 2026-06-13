@@ -234,10 +234,11 @@ export default function Mission() {
   };
 
   const submit = async () => {
+    if (!output) {
+      alert('먼저 실행 버튼으로 코드를 실행해주세요.');
+      return;
+    }
     setSubmitting(true);
-    setOutput(null);
-    setStreamLines([]);
-    startTimer();
     try {
       const token = localStorage.getItem('accessToken');
       const res = await fetch(`${API_BASE}/mission/submit`, {
@@ -246,7 +247,13 @@ export default function Mission() {
           'Content-Type': 'application/json',
           ...(token && { Authorization: `Bearer ${token}` }),
         },
-        body: JSON.stringify({ track: config.apiName, blanks: answers }),
+        body: JSON.stringify({
+          track: config.apiName,
+          blanks: answers,
+          stdout: output.stdout,
+          stderr: output.stderr,
+          returncode: output.returncode,
+        }),
       });
       const data = await res.json();
       setOutput(data);
@@ -259,7 +266,6 @@ export default function Mission() {
     } catch (err) {
       setOutput({ stdout: '', stderr: String(err), returncode: 1, passed: false });
     } finally {
-      stopTimer();
       setSubmitting(false);
     }
   };
@@ -412,6 +418,8 @@ export default function Mission() {
                     </div>
                   ))}
                 </div>
+              ) : submitting ? (
+                <span className="output-placeholder">채점 중... GPU에서 코드를 실행하고 있습니다 ({elapsed}s)</span>
               ) : running ? (
                 <span className="output-placeholder">GPU 연결 중... {elapsed}s</span>
               ) : output ? (

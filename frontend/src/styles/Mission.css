@@ -521,7 +521,7 @@
   animation: pop-in 0.2s ease;
 }
 .submit-badge.pass { background: #dcfce7; color: #15803d; }
-.submit-badge.fail { background: #fee2e2; color: #dc2626; }
+.submit-badge.fail { background: #fee2e2; color: #dc2626; margin-bottom: 10px; }
 
 .bottom-blank-counter {
   font-size: 12px;
