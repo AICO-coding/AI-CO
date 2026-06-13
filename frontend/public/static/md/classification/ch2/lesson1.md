@@ -1,4 +1,4 @@
-﻿<div style="background-color: #eef7ff; border: 2px solid #c2e4ff; border-radius: 18px; padding: 24px 26px; font-family: 'Nunito', 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);">
+<div style="background-color: #eef7ff; border: 2px solid #c2e4ff; border-radius: 18px; padding: 24px 26px; font-family: 'Nunito', 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);">
   <h3 style="margin-top: 0; color: #0f172a; font-weight: 900;">X와 y — 모델에 넣는 데이터의 형태</h3>
   <div style="line-height: 2.2; color: #334155; font-size: 14px;">
     sklearn 모델을 쓰려면 데이터가 정해진 형태여야 합니다. 입력 데이터 X와 정답 레이블 y, 두 가지가 필요합니다.<br><br>
@@ -16,11 +16,35 @@
     <div style="background: #eef7ff; border-radius: 12px; padding: 12px 15px; color: #334155;">
       📐 <b>y shape 읽는 법</b> — y.shape = (100,) → 샘플 100개의 정답. 값은 0(정상) 또는 1(악성)
     </div>
-    <div style="background: #f1f5f9; border-radius: 12px; padding: 12px 15px; color: #334155; font-family: monospace; font-size: 12px; line-height: 2.0;">
-      print(X.shape)  # (100, 5)<br>
-      print(y.shape)  # (100,)<br>
-      print(y[:5])    # [0, 1, 0, 0, 1]
+  </div>
+</div>
+
+<br>
+
+<div style="background-color: #1e1e2e; border: 2px solid #e2e8f0; border-radius: 12px; overflow: hidden; font-family: 'JetBrains Mono', monospace; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+  <div style="background-color: #0d0d1a; border-bottom: 1px solid #1a1a2e; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between;">
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <div style="width: 10px; height: 10px; background: #ff5f57; border-radius: 50%;"></div>
+      <div style="width: 10px; height: 10px; background: #ffbd2e; border-radius: 50%;"></div>
+      <div style="width: 10px; height: 10px; background: #28ca41; border-radius: 50%;"></div>
+      <span style="color: #6060a0; margin-left: 8px; font-size: 12px;">📄 reference.py</span>
     </div>
+    <div style="background-color: rgba(255,107,0,.2); color: #FF6B00; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 800; font-family: 'Nunito', sans-serif;">
+      참고 코드 ← 보고 채워요
+    </div>
+  </div>
+  <div style="padding: 15px; color: #cdd6f4; font-size: 13px; line-height: 1.6; overflow-x: auto;">
+<pre style="margin: 0; background: transparent; border: none; padding: 0;"><code><span style="color: #cba6f7;">import</span> numpy <span style="color: #cba6f7;">as</span> np
+
+<span style="color: #545478; font-style: italic;"># X: 2차원 배열 (샘플 수, 특성 수)</span>
+X = np.array([[<span style="color: #fab387;">1</span>, <span style="color: #fab387;">2</span>, <span style="color: #fab387;">3</span>, <span style="color: #fab387;">4</span>, <span style="color: #fab387;">5</span>],
+              [<span style="color: #fab387;">6</span>, <span style="color: #fab387;">7</span>, <span style="color: #fab387;">8</span>, <span style="color: #fab387;">9</span>, <span style="color: #fab387;">10</span>]])
+
+<span style="color: #545478; font-style: italic;"># y: 1차원 배열 (샘플 수,)</span>
+y = np.array([<span style="color: #fab387;">0</span>, <span style="color: #fab387;">1</span>])
+
+print(X.shape)  <span style="color: #545478; font-style: italic;"># (2, 5)</span>
+print(y.shape)  <span style="color: #545478; font-style: italic;"># (2,)</span></code></pre>
   </div>
 </div>
 
