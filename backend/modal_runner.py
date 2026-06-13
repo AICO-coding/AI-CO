@@ -6,16 +6,9 @@ import os
 
 app = modal.App("aico-code-runner")
 
-def _download_datasets():
-    import torchvision
-    torchvision.datasets.CIFAR10(root='/root/data', train=True,  download=True)
-    torchvision.datasets.CIFAR10(root='/root/data', train=False, download=True)
-
-
-image = (
-    modal.Image.debian_slim()
-    .pip_install("torch", "torchvision", "transformers", "scikit-learn", "numpy", "Pillow")
-    .run_function(_download_datasets)
+image = modal.Image.debian_slim().pip_install(
+    "torch", "torchvision", "transformers",
+    "scikit-learn", "numpy", "Pillow"
 )
 
 

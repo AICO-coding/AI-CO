@@ -8,9 +8,7 @@ from datetime import datetime, timezone
 import asyncio
 import json
 import os
-import queue as queue_module
 import re
-import threading
 import modal
 
 # 단순 문자열 대신 정규식 패턴 사용 (점 뒤 eval은 메서드 호출이므로 허용)
@@ -36,7 +34,7 @@ MISSION_CHAPTER = "mission"
 
 _AICO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 MISSION_JSON_MAP = {
-    "ML-회귀": _AICO_ROOT / "frontend" / "public" / "static" / "md" / "regression" / "mission" / "misson.json",
+    "ML-회귀": _AICO_ROOT / "frontend" / "public" / "static" / "md" / "regression" / "mission" / "mission.json",
     "CV": _AICO_ROOT / "frontend" / "public" / "static" / "md" / "cv" / "misson" / "mission.json",
 }
 
@@ -181,28 +179,28 @@ async def run_mission_stream(
     _check_blacklist(code)
 
     async def generate():
-        yield f"data: {json.dumps({'type': 'status', 'message': 'GPU 연결 중...'})}\n\n"
-
-        q: queue_module.Queue = queue_module.Queue()
-
-        def modal_worker():
-            try:
-                stream_fn = modal.Function.from_name("aico-code-runner", "run_code_gpu_stream")
-                for chunk in stream_fn.remote_gen(code):
-                    q.put(chunk)
-            except Exception as e:
-                q.put({"type": "error", "message": str(e)})
-            finally:
-                q.put(None)
-
-        threading.Thread(target=modal_worker, daemon=True).start()
-
         loop = asyncio.get_event_loop()
-        while True:
-            chunk = await loop.run_in_executor(None, q.get)
-            if chunk is None:
-                break
-            yield f"data: {json.dumps(chunk)}\n\n"
+        future = loop.run_in_executor(None, _execute_code, payload.track, code)
+
+        elapsed = 0
+        while not future.done():
+            yield f"data: {json.dumps({'type': 'status', 'message': f'GPU 실행 중... {elapsed}s'})}\n\n"
+            await asyncio.sleep(1)
+            elapsed += 1
+
+        try:
+            stdout, stderr, returncode = future.result()
+        except Exception as e:
+            yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+            return
+
+        for line in stdout.split('\n'):
+            yield f"data: {json.dumps({'type': 'stdout', 'line': line})}\n\n"
+        if stderr:
+            for line in stderr.split('\n'):
+                if line:
+                    yield f"data: {json.dumps({'type': 'stderr', 'line': line})}\n\n"
+        yield f"data: {json.dumps({'type': 'done', 'returncode': returncode})}\n\n"
 
     return StreamingResponse(generate(), media_type="text/event-stream")
 
