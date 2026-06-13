@@ -18,7 +18,6 @@ def normalize_track(track: str) -> str:
 
 
 def count_wrong_answers(db: Session, user_id: int, track: str, chapter: str) -> int:
-    """틀린 문제 개수"""
     wrong_answers = db.query(WrongAnswer).filter(
         WrongAnswer.user_id == user_id,
         WrongAnswer.source_type == "learning"
@@ -49,7 +48,6 @@ def get_chapter_title(db: Session, track: str, chapter: str) -> str:
 
 
 def get_problem_title(db: Session, problem_id: int) -> str:
-    """문제 제목 조회"""
     problem = db.query(Problem).filter(Problem.id == problem_id).first()
     if problem and problem.content:
         return problem.content.get("title", f"문제 {problem_id}")
@@ -57,7 +55,6 @@ def get_problem_title(db: Session, problem_id: int) -> str:
 
 
 def build_wrong_problems_list(db: Session, user_id: int, track: str, chapter: str) -> list:
-    """틀린 문제 목록 구성"""
     wrong_answers = db.query(WrongAnswer).filter(
         WrongAnswer.user_id == user_id,
         WrongAnswer.source_type == "learning"
@@ -68,7 +65,6 @@ def build_wrong_problems_list(db: Session, user_id: int, track: str, chapter: st
         if wa.track_problem:
             problem = wa.track_problem
 
-            # 문제가 해당 트랙/챕터에 속하는지 확인
             if (problem.track.upper() == track.upper() and
                 problem.chapter == chapter):
 
@@ -85,7 +81,6 @@ def build_wrong_problems_list(db: Session, user_id: int, track: str, chapter: st
 
 
 def build_hint_usage(db: Session, user_id: int, track: str, chapter: str) -> dict:
-    """문제별 힌트 사용 패턴"""
     progress = db.query(Progress).filter(
         Progress.user_id == user_id,
         func.upper(Progress.track) == track.upper(),
@@ -104,7 +99,6 @@ def build_hint_usage(db: Session, user_id: int, track: str, chapter: str) -> dic
 
 
 def check_reveal_used(db: Session, user_id: int, track: str, chapter: str) -> bool:
-    """정답 공개 사용 여부"""
     progress = db.query(Progress).filter(
         Progress.user_id == user_id,
         func.upper(Progress.track) == track.upper(),
@@ -128,18 +122,12 @@ def generate_ai_report(
     wrong_problems: list,
     reveal_used: bool
 ) -> dict:
-    """Claude API를 사용해 AI 리포트 생성"""
 
     correct_count = total_problems - wrong_count
     accuracy_rate = int((correct_count / total_problems) * 100) if total_problems > 0 else 0
-
-    # 약점 개념 추출
     weak_concepts = [p["title"] for p in wrong_problems[:3]]
-
-    # 힌트 사용 문제들
     hint_problems = ", ".join([f"{title}({count}회)" for title, count in list(hint_usage.items())[:3]])
 
-    # 프롬프트 구성
     prompt = f"""당신은 AI-CO 딥러닝 학습 플랫폼의 "코냥이" 튜터입니다.
 학생이 '{chapter_title}' 챕터를 완료했습니다. 학습 진도를 분석해서 개인화된 피드백을 제공하세요.
 
@@ -201,11 +189,9 @@ def generate_ai_report(
 
         response_text = message.content[0].text
 
-        # JSON 파싱
         try:
             ai_report = json.loads(response_text)
         except json.JSONDecodeError:
-            # JSON 파싱 실패 시 텍스트에서 JSON 추출 시도
             json_start = response_text.find('{')
             json_end = response_text.rfind('}') + 1
             if json_start != -1 and json_end > json_start:
@@ -221,7 +207,6 @@ def generate_ai_report(
 
 
 def format_wrong_problems_for_prompt(wrong_problems: list) -> str:
-    """틀린 문제 포맷팅"""
     if not wrong_problems:
         return ""
 
@@ -237,7 +222,6 @@ def format_wrong_problems_for_prompt(wrong_problems: list) -> str:
 
 
 def get_fallback_report(chapter_title: str, weak_concepts: list) -> dict:
-    """API 실패 시 폴백 리포트"""
     return {
         "weakConcepts": weak_concepts,
         "cobotComment": f"{chapter_title} 챕터 완료를 축하합니다! 리포트 생성 중 일시적 오류가 발생했어요. 잠시 후 다시 시도해주세요.",
@@ -255,13 +239,11 @@ def get_fallback_report(chapter_title: str, weak_concepts: list) -> dict:
 
 
 def generate_report_background(user_id: int, track: str, chapter: str):
-    """백그라운드에서 비동기로 AI 리포트 생성"""
     from app.core.database import SessionLocal
 
     db = SessionLocal()
 
     try:
-        # [1] progress 조회
         progress = db.query(Progress).filter(
             Progress.user_id == user_id,
             func.upper(Progress.track) == track.upper(),
@@ -272,10 +254,8 @@ def generate_report_background(user_id: int, track: str, chapter: str):
             print(f"⚠️ Progress 없음: {user_id} - {track} {chapter}")
             return
 
-        # [2] 챕터 정보 조회
         chapter_title = get_chapter_title(db, track, chapter)
 
-        # [3] 통계 계산
         lessons = db.query(Lesson).filter(
             func.upper(Lesson.track) == track.upper(),
             Lesson.chapter == chapter,
@@ -284,15 +264,10 @@ def generate_report_background(user_id: int, track: str, chapter: str):
 
         total_problems = len(lessons)
         wrong_count = count_wrong_answers(db, user_id, track, chapter)
-
-        # [4] 힌트/정답공개 패턴
         hint_usage = build_hint_usage(db, user_id, track, chapter)
         reveal_used = check_reveal_used(db, user_id, track, chapter)
-
-        # [5] 틀린 문제 상세
         wrong_problems = build_wrong_problems_list(db, user_id, track, chapter)
 
-        # [6] Claude API 호출
         ai_report = generate_ai_report(
             chapter_title=chapter_title,
             track=track,
@@ -303,7 +278,6 @@ def generate_report_background(user_id: int, track: str, chapter: str):
             reveal_used=reveal_used
         )
 
-        # [7] progress 집계값과 AI 리포트 병합
         combined_report = {
             "track": normalize_track(track),
             "chapter": chapter,
@@ -316,7 +290,6 @@ def generate_report_background(user_id: int, track: str, chapter: str):
             **ai_report
         }
 
-        # [8] reports 테이블에 저장
         report = Report(
             user_id=user_id,
             track=track,
@@ -345,9 +318,7 @@ def get_report_service(
     track: str,
     chapter: str
 ) -> dict | None:
-    """리포트 조회"""
 
-    # progress 조회
     progress = db.query(Progress).filter(
         Progress.user_id == user_id,
         func.upper(Progress.track) == track.upper(),
@@ -357,7 +328,6 @@ def get_report_service(
     if not progress:
         return None
 
-    # reports 조회
     report = db.query(Report).filter(
         Report.user_id == user_id,
         Report.track == track,
@@ -365,18 +335,15 @@ def get_report_service(
     ).first()
 
     if not report:
-        # 아직 생성 중
         return {
             "status": "pending",
             "message": "리포트를 생성 중입니다. 잠시 후 다시 확인해주세요."
         }
 
-    # 완료된 리포트 반환
     total_problems = report.ai_report.get("totalProblems", 0)
     wrong_count = report.ai_report.get("wrongCount", 0)
     correct_count = total_problems - wrong_count
 
-    # 학점 계산
     accuracy_rate = int((correct_count / total_problems) * 100) if total_problems > 0 else 0
     grade = calculate_grade(accuracy_rate)
 
@@ -393,7 +360,6 @@ def get_reports_list_service(
     user_id: int,
     track: str
 ) -> dict | None:
-    """트랙 내 모든 완료된 리포트 요약 목록"""
 
     reports = db.query(Report).filter(
         Report.user_id == user_id,
@@ -421,7 +387,6 @@ def get_reports_list_service(
 
 
 def calculate_grade(accuracy_rate: int) -> str:
-    """정답률에 따른 학점 계산"""
     if accuracy_rate >= 95:
         return "A+"
     elif accuracy_rate >= 90:

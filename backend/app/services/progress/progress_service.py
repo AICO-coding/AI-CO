@@ -19,7 +19,6 @@ def _chapter_sort_key(chapter: str | None):
 
 
 def get_all_progress_service(db: Session, user_id: int) -> dict:
-    """유저의 전체 트랙별 진도 집계 조회"""
     rows = db.query(Progress).filter(Progress.user_id == user_id).all()
 
     track_map = {}
@@ -38,7 +37,6 @@ def get_all_progress_service(db: Session, user_id: int) -> dict:
         track_map[track]["xp"] += r.xp_earned
         track_map[track]["hint"] += r.hint_used
 
-    # 트랙별 전체 챕터 수 조회 (Progress row 없는 챕터 포함)
     track_chapter_counts = {}
     for track in track_map:
         total = (
@@ -69,14 +67,11 @@ def get_all_progress_service(db: Session, user_id: int) -> dict:
 
 
 def get_track_chapters_service(db: Session, user_id: int, track: str) -> dict | None:
-    """특정 트랙의 챕터별 진도 조회"""
     track = track.upper()
 
     if track not in VALID_TRACKS:
         return None
 
-    # 1. Lesson 테이블에서 해당 트랙의 lesson 전체 조회
-    # 챕터 순서가 먼저 고정되어야 잠금 상태 계산(prev_completed)이 안정적으로 동작함
     lessons = (
         db.query(Lesson)
         .filter(func.upper(Lesson.track) == track)
@@ -88,7 +83,6 @@ def get_track_chapters_service(db: Session, user_id: int, track: str) -> dict | 
         lesson.id,
     ))
 
-    # 2. Progress 테이블에서 해당 유저의 진도 조회
     progress_rows = (
         db.query(Progress)
         .filter(
@@ -105,7 +99,6 @@ def get_track_chapters_service(db: Session, user_id: int, track: str) -> dict | 
 
     chapters = []
 
-    # 3. Lesson에 챕터가 있으면 Lesson 기준으로 응답 구성
     if lessons:
         prev_completed = True
         seen_chapters = set()
@@ -113,7 +106,6 @@ def get_track_chapters_service(db: Session, user_id: int, track: str) -> dict | 
         for lesson in lessons:
             chapter_name = lesson.chapter
 
-            # 이미 응답에 넣은 챕터면 건너뜀
             if chapter_name in seen_chapters:
                 continue
 
@@ -146,7 +138,6 @@ def get_track_chapters_service(db: Session, user_id: int, track: str) -> dict | 
 
             prev_completed = is_completed
 
-    # 4. Lesson에 데이터가 없으면 Progress 기준으로라도 응답 구성
     else:
         prev_completed = True
 

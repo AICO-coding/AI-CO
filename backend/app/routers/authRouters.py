@@ -28,18 +28,11 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 @router.post(
     "/google/login",
     response_model=GoogleLoginResponse,
-    summary="Google ID Token 검증 후 로그인",
 )
 def google_login(
     body: GoogleLoginRequest,
     db: Session = Depends(get_db),
 ):
-    """
-    Google ID Token으로 로그인
-
-    - 기존 회원: accessToken, refreshToken 반환
-    - 신규 회원: 자동 회원가입 후 accessToken, refreshToken 반환
-    """
 
     try:
         print("Google login request received")
@@ -71,10 +64,8 @@ def google_login(
             detail="Google 계정 이메일 정보를 가져올 수 없습니다.",
         )
 
-    # 기존 유저 조회
     user = get_user_by_google_id(db, google_id)
 
-    # 신규 회원이면 자동 회원가입
     if user is None:
         user = create_user(
             db=db,
@@ -98,7 +89,6 @@ def google_login(
     "/google/signup",
     response_model=SignupResponse,
     status_code=status.HTTP_201_CREATED,
-    summary="Google 회원가입",
 )
 def google_signup(
     body: SignupRequest,
@@ -111,7 +101,6 @@ def google_signup(
             detail="필수 정보를 모두 입력해야 합니다.",
         )
 
-    # 이미 가입된 유저인지 확인
     existing_user = get_user_by_google_id(db, body.googleId)
 
     if existing_user is not None:
@@ -124,7 +113,6 @@ def google_signup(
             refreshToken=refresh_token,
         )
 
-    # 신규 유저 생성
     user = create_user(
         db=db,
         google_id=body.googleId,
@@ -132,7 +120,6 @@ def google_signup(
         gender=body.gender,
     )
 
-    # 토큰 발급
     access_token = create_access_token(user.id)
     refresh_token = create_refresh_token(user.id)
 
@@ -146,14 +133,12 @@ def google_signup(
 @router.post(
     "/nickname",
     response_model=NicknameResponse,
-    summary="닉네임 설정",
 )
 def set_nickname(
     body: NicknameRequest,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """닉네임 설정"""
 
     user = update_nickname(db, current_user, body.nickname)
 
@@ -166,13 +151,11 @@ def set_nickname(
 @router.post(
     "/refresh",
     response_model=RefreshResponse,
-    summary="Refresh Token으로 Access Token 재발급",
 )
 def refresh_token(
     body: RefreshRequest,
     db: Session = Depends(get_db),
 ):
-    """Refresh Token으로 새 Access Token 발급"""
 
     try:
         payload = jwt.decode(

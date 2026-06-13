@@ -8,7 +8,7 @@ class DailyProblemItem(BaseModel):
     problemType: str
     track: str | None = None
     chapter: str | None = None
-    content: Any  # { question, choices } - 정답/힌트 미포함
+    content: Any  
 
 
 class DailyResponse(BaseModel):
@@ -21,7 +21,7 @@ class DailyResponse(BaseModel):
 
 class DailySubmitAnswerItem(BaseModel):
     dailyProblemId: int
-    answer: Any  # multiple_choice: { correct_index: int }
+    answer: Any  
 
 
 class DailySubmitRequest(BaseModel):

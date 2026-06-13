@@ -40,7 +40,6 @@ def _generate_reply(track: str, chapter: str, message: str) -> str:
         )
 
 
-# POST /chat
 @router.post(
     "",
     response_model=ChatResponse,
@@ -80,12 +79,10 @@ def chat(
     )
 
 
-# GET /chat/history
 @router.get(
     "/history",
     response_model=ChatHistoryResponse,
     status_code=status.HTTP_200_OK,
-    summary="오늘의 대화 기록 조회",
 )
 def get_chat_history(
     db: Session = Depends(get_db),
