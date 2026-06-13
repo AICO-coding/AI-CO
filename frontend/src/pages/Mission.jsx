@@ -23,7 +23,7 @@ const TRACK_CONFIG = {
     tech: 'PyTorch 완전 구현',
     xp: 150,
     jsonUrl: '/static/md/regression/mission/mission.json',
-    mdFallback: '/static/md/regression/mission/misson.md',
+    mdFallback: '/static/md/regression/mission/mission.md',
   },
   nlp: {
     apiName: 'NLP',
@@ -51,16 +51,22 @@ export default function Mission() {
   const [output, setOutput] = useState(null);
   const [streamLines, setStreamLines] = useState([]);
   const [submitResult, setSubmitResult] = useState(null);
+  const [submitData, setSubmitData] = useState(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [lastRunTime, setLastRunTime] = useState(null);
   const [showHintList, setShowHintList] = useState(false);
   const [confirmHint, setConfirmHint] = useState(null);
   const [openedHints, setOpenedHints] = useState([]);
   const [leftWidth, setLeftWidth] = useState(360);
+  const [outputHeight, setOutputHeight] = useState(160);
   const [elapsed, setElapsed] = useState(0);
   const timerRef = useRef(null);
   const dragging = useRef(false);
   const dragStartX = useRef(0);
   const dragStartWidth = useRef(0);
+  const vDragging = useRef(false);
+  const vDragStartY = useRef(0);
+  const vDragStartHeight = useRef(0);
 
   const startTimer = () => {
     setElapsed(0);
@@ -79,15 +85,30 @@ export default function Mission() {
     document.body.style.userSelect = 'none';
   }, [leftWidth]);
 
+  const onVResizerMouseDown = useCallback((e) => {
+    vDragging.current = true;
+    vDragStartY.current = e.clientY;
+    vDragStartHeight.current = outputHeight;
+    document.body.style.cursor = 'row-resize';
+    document.body.style.userSelect = 'none';
+  }, [outputHeight]);
+
   useEffect(() => {
     const onMouseMove = (e) => {
-      if (!dragging.current) return;
-      const delta = e.clientX - dragStartX.current;
-      const next = Math.min(Math.max(dragStartWidth.current + delta, 200), 700);
-      setLeftWidth(next);
+      if (dragging.current) {
+        const delta = e.clientX - dragStartX.current;
+        const next = Math.min(Math.max(dragStartWidth.current + delta, 200), 700);
+        setLeftWidth(next);
+      }
+      if (vDragging.current) {
+        const delta = vDragStartY.current - e.clientY;
+        const next = Math.min(Math.max(vDragStartHeight.current + delta, 80), 500);
+        setOutputHeight(next);
+      }
     };
     const onMouseUp = () => {
       dragging.current = false;
+      vDragging.current = false;
       document.body.style.cursor = '';
       document.body.style.userSelect = '';
     };
@@ -114,9 +135,12 @@ export default function Mission() {
           return;
         }
         const fallback = await fetch(config.mdFallback);
-        if (fallback.ok) setMarkdown(await fallback.text());
+        const fallbackType = fallback.headers.get('content-type') || '';
+        if (fallback.ok && !fallbackType.includes('text/html')) {
+          setMarkdown(await fallback.text());
+        }
       } catch (err) {
-        console.error('미션 로드 실패', err);
+        void err;
       }
     }
     load();
@@ -169,21 +193,35 @@ export default function Mission() {
             const chunk = JSON.parse(raw);
             if (chunk.type === 'stdout') {
               stdoutLines.push(chunk.line);
-              setStreamLines((prev) => [...prev, { type: 'stdout', text: chunk.line }]);
             } else if (chunk.type === 'stderr') {
               stderrLines.push(chunk.line);
-              setStreamLines((prev) => [...prev, { type: 'stderr', text: chunk.line }]);
             } else if (chunk.type === 'status') {
-              setStreamLines((prev) => [...prev, { type: 'status', text: chunk.message }]);
+              setStreamLines((prev) => {
+                const last = prev[prev.length - 1];
+                if (last?.type === 'status') return [...prev.slice(0, -1), { type: 'status', text: chunk.message }];
+                return [...prev, { type: 'status', text: chunk.message }];
+              });
             } else if (chunk.type === 'error') {
               stderrLines.push(chunk.message);
-              setStreamLines((prev) => [...prev, { type: 'stderr', text: chunk.message }]);
             } else if (chunk.type === 'done') {
               returncode = chunk.returncode;
             }
           } catch { /* ignore parse errors */ }
         }
       }
+
+      await new Promise((resolve) => {
+        if (stdoutLines.length === 0) { resolve(); return; }
+        stdoutLines.forEach((line, i) => {
+          setTimeout(() => {
+            setStreamLines((prev) => [...prev, { type: 'stdout', text: line }]);
+            if (i === stdoutLines.length - 1) resolve();
+          }, i * 800);
+        });
+      });
+      stderrLines.forEach((line) => {
+        setStreamLines((prev) => [...prev, { type: 'stderr', text: line }]);
+      });
 
       setOutput({ stdout: stdoutLines.join('\n'), stderr: stderrLines.join('\n'), returncode, passed: returncode === 0 });
       setLastRunTime(new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }));
@@ -198,6 +236,7 @@ export default function Mission() {
   const submit = async () => {
     setSubmitting(true);
     setOutput(null);
+    setStreamLines([]);
     startTimer();
     try {
       const token = localStorage.getItem('accessToken');
@@ -213,6 +252,10 @@ export default function Mission() {
       setOutput(data);
       setLastRunTime(new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }));
       setSubmitResult(data.passed ? 'passed' : 'failed');
+      if (data.passed) {
+        setSubmitData(data);
+        setShowSuccessModal(true);
+      }
     } catch (err) {
       setOutput({ stdout: '', stderr: String(err), returncode: 1, passed: false });
     } finally {
@@ -297,7 +340,6 @@ export default function Mission() {
 
   return (
     <div className="mission-page">
-      {/* Top bar */}
       <div className="mission-topbar">
         <button
           className="mission-back-btn"
@@ -321,9 +363,7 @@ export default function Mission() {
         </div>
       </div>
 
-      {/* Body */}
       <div className="mission-body">
-        {/* Left: Markdown */}
         <div className="mission-left" style={{ width: leftWidth, minWidth: leftWidth }}>
           <div className="mission-markdown-body">
             <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
@@ -332,10 +372,8 @@ export default function Mission() {
           </div>
         </div>
 
-        {/* Resizer */}
         <div className="mission-resizer" onMouseDown={onResizerMouseDown} />
 
-        {/* Right: Editor + Output */}
         <div className="mission-right">
           <div className="mission-editor">
             <div className="mission-editor-header">
@@ -343,6 +381,10 @@ export default function Mission() {
                 <span /><span /><span />
               </div>
               <span className="editor-filename">main.py</span>
+              <span className="editor-blank-counter">
+                <span className={`counter-dot ${filledCount === totalBlanks && totalBlanks > 0 ? 'done' : ''}`} />
+                {filledCount} / {totalBlanks}
+              </span>
               <span className="editor-lang">Python 3 · PyTorch</span>
             </div>
             <div className="mission-editor-body">
@@ -350,7 +392,9 @@ export default function Mission() {
             </div>
           </div>
 
-          <div className="mission-output">
+          <div className="mission-v-resizer" onMouseDown={onVResizerMouseDown} />
+
+          <div className="mission-output" style={{ height: outputHeight }}>
             <div className="mission-output-header">
               <span className={`output-dot output-dot-${outputStatus}`} />
               <span className="output-label">출력</span>
@@ -360,7 +404,7 @@ export default function Mission() {
               </span>
             </div>
             <div className="mission-output-body">
-              {running && streamLines.length > 0 ? (
+              {streamLines.length > 0 ? (
                 <div className="stream-output">
                   {streamLines.map((item, i) => (
                     <div key={i} className={`stream-line stream-line-${item.type}`}>
@@ -384,7 +428,6 @@ export default function Mission() {
         </div>
       </div>
 
-      {/* Bottom bar */}
       <div className="mission-bottombar">
         <div className="mission-btn-group">
           <button
@@ -399,7 +442,7 @@ export default function Mission() {
             onClick={submit}
             disabled={running || submitting}
           >
-            {submitting ? `제출 중... ${elapsed}s` : '제출 →'}
+            {submitting ? `제출 중... ${elapsed}s` : '제출'}
           </button>
           {hints.length > 0 && (
             <button
@@ -427,13 +470,16 @@ export default function Mission() {
               {submitResult === 'passed' ? '🎉 통과!' : '😢 미통과'}
             </span>
           )}
-          <span className="bottom-blank-counter">
-            {filledCount} / {totalBlanks}
-          </span>
+          <button
+            className={`mission-btn btn-back-chapter ${submitResult === 'passed' ? 'active' : ''}`}
+            onClick={() => navigate(`/tracks/${trackId}/chapters`)}
+            disabled={submitResult !== 'passed'}
+          >
+            챕터로 돌아가기
+          </button>
         </div>
       </div>
 
-      {/* 힌트 목록 팝업 */}
       {showHintList && (
         <div className="hint-overlay" onClick={() => setShowHintList(false)}>
           <div className="hint-list-popup" onClick={(e) => e.stopPropagation()}>
@@ -472,7 +518,6 @@ export default function Mission() {
         </div>
       )}
 
-      {/* 힌트 사용 확인 모달 */}
       {confirmHint && (
         <div className="hint-overlay" onClick={() => setConfirmHint(null)}>
           <div className="hint-confirm-modal" onClick={(e) => e.stopPropagation()}>
@@ -490,6 +535,28 @@ export default function Mission() {
                 사용하기
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showSuccessModal && submitData && (
+        <div className="mission-success-overlay">
+          <div className="mission-success-modal">
+            <img src="/src/assets/cobot_complete.png" alt="완료" className="mission-success-cobot" />
+            {submitData.isFirstCompletion ? (
+              <>
+                <div className="mission-success-title">미션 완료!</div>
+                <div className="mission-success-xp">+{submitData.xpEarned} XP</div>
+              </>
+            ) : (
+              <div className="mission-success-title">미션 복습 완료!</div>
+            )}
+            <button
+              className="mission-success-btn"
+              onClick={() => setShowSuccessModal(false)}
+            >
+              닫기
+            </button>
           </div>
         </div>
       )}

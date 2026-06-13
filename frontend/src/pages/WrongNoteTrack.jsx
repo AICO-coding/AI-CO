@@ -263,7 +263,9 @@ export default function WrongNoteTrack() {
         </>
       ) : (
         <div className="list">
-          {items.length > 0 ? (
+          {loading ? (
+            <div className="empty-message">오답을 찾고 있어요</div>
+          ) : items.length > 0 ? (
             items.map((item) => (
               <WrongNoteItem
                 key={item.id}

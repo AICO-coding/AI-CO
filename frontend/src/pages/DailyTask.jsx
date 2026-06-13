@@ -142,25 +142,22 @@ export default function DailyTask() {
                   {item.content?.question}
                 </div>
 
-                {!item.isCorrect && (
-                  <div className="daily-result-answer-row">
+                <div className="daily-result-answer-row">
+                  {!item.isCorrect && (
                     <div className="daily-result-answer-box wrong">
                       <span className="daily-result-answer-label">내 답</span>
                       <span className="daily-result-answer-text">
-                        {item.content?.choices?.[item.userAnswer?.answer - 1] ??
-                          '-'}
+                        {item.content?.choices?.[item.userAnswer?.answer - 1] ?? '-'}
                       </span>
                     </div>
-                    <div className="daily-result-answer-box correct">
-                      <span className="daily-result-answer-label">정답</span>
-                      <span className="daily-result-answer-text">
-                        {item.content?.choices?.[
-                          item.correctAnswer?.answer - 1
-                        ] ?? '-'}
-                      </span>
-                    </div>
+                  )}
+                  <div className="daily-result-answer-box correct">
+                    <span className="daily-result-answer-label">정답</span>
+                    <span className="daily-result-answer-text">
+                      {item.content?.choices?.[item.correctAnswer?.answer - 1] ?? '-'}
+                    </span>
                   </div>
-                )}
+                </div>
 
                 {item.explanation && (
                   <div className="daily-result-explanation">
@@ -224,9 +221,6 @@ export default function DailyTask() {
             {submitting ? '채점 중...' : '제출하기'}
           </button>
         </div>
-        <button className="home-btn" onClick={() => navigate('/home')}>
-          홈으로 돌아가기
-        </button>
       </div>
     </div>
   );

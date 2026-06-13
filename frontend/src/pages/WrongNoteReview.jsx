@@ -26,8 +26,16 @@ export default function WrongNoteReview() {
   const [answers, setAnswers] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [results, setResults] = useState(null);
+  const [navReady, setNavReady] = useState(false);
 
   useEffect(() => {
+    setNavReady(false);
+    setLoading(true);
+    setCurrent(0);
+    setAnswers({});
+    setResults(null);
+
+    const controller = new AbortController();
     const token = localStorage.getItem('accessToken');
     const params = new URLSearchParams();
     if (isDaily) {
@@ -39,6 +47,7 @@ export default function WrongNoteReview() {
 
     fetch(`${API_BASE}/wrong-answers/review?${params.toString()}`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
+      signal: controller.signal,
     })
       .then((r) => r.json())
       .then((data) => {
@@ -53,9 +62,18 @@ export default function WrongNoteReview() {
             : null,
         }));
         setProblems(parsed);
+        setCurrent(0);
+        setLoading(false);
+        setTimeout(() => setNavReady(true), 400);
       })
-      .catch(() => setProblems([]))
-      .finally(() => setLoading(false));
+      .catch((e) => {
+        if (e.name === 'AbortError') return;
+        setProblems([]);
+        setLoading(false);
+        setNavReady(true);
+      });
+
+    return () => controller.abort();
   }, [trackId]);
 
   function selectAnswer(wrongAnswerId, idx) {
@@ -261,6 +279,7 @@ export default function WrongNoteReview() {
           className="back-btn"
           onClick={() => setCurrent((c) => c - 1)}
           style={{ visibility: current > 0 ? 'visible' : 'hidden' }}
+          disabled={!navReady}
         >
           &larr; 이전
         </button>
@@ -268,7 +287,7 @@ export default function WrongNoteReview() {
           <button
             className="review-btn"
             onClick={handleSubmit}
-            disabled={submitting}
+            disabled={submitting || !navReady}
           >
             {submitting ? '제출 중...' : '제출'}
           </button>
@@ -276,6 +295,7 @@ export default function WrongNoteReview() {
           <button
             className="review-btn"
             onClick={() => setCurrent((c) => c + 1)}
+            disabled={!navReady}
           >
             다음
           </button>

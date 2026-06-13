@@ -22,40 +22,15 @@ export default function Chapter() {
         console.log('🚀 API REQUEST URL:', url);
 
         const res = await fetch(url, {
-          headers: {
-            ...(token && {
-              Authorization: `Bearer ${token}`,
-            }),
-          },
+          headers: { ...(token && { Authorization: `Bearer ${token}` }) },
         });
-
-        console.log('📡 STATUS:', res.status);
-        console.log('📡 OK?:', res.ok);
-
-        const raw = await res.text();
-
-        console.log('📦 RAW RESPONSE:');
-        console.log(raw);
-
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status}`);
-        }
-
-        const data = JSON.parse(raw);
-
-        console.log('✅ PARSED JSON:');
-        console.log(data);
-
-        console.log('📊 CHAPTER LIST:');
-        console.table(data.chapters);
-
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = JSON.parse(await res.text());
         setChapterData(data);
       } catch (err) {
-        console.error('❌ FETCH ERROR:', err);
         setError(err.message);
       }
     };
-
     if (trackId) fetchChapters();
   }, [trackId]);
 
@@ -79,6 +54,10 @@ export default function Chapter() {
           100,
       )
     : 0;
+
+  const allCompleted =
+    chapterData.chapters.length > 0 &&
+    chapterData.chapters.every((c) => c.isCompleted);
 
   return (
     <div className="chapter-wrap">
@@ -149,31 +128,39 @@ export default function Chapter() {
         })}
 
         <div
-          className="chapter-row chapter-row-mission"
-          onClick={() => navigate(`/tracks/${trackId}/mission`)}
+          className={`chapter-row chapter-row-mission ${!allCompleted ? 'locked' : ''}`}
+          onClick={() => allCompleted && navigate(`/tracks/${trackId}/mission`)}
         >
           <div className="chapter-left">
-            <div className="chapter-checkbox chapter-mission-icon">🏆</div>
+            <div className="chapter-checkbox chapter-mission-icon">
+              {allCompleted ? '🏆' : '🔒'}
+            </div>
           </div>
 
           <div className="chapter-center">
             <div className="chapter-name">MISSION</div>
             <div className="chapter-title">종합 미션</div>
             <div className="chapter-subtext">
-              모든 챕터의 내용을 종합해 미션을 완료하세요
+              {allCompleted
+                ? '모든 챕터의 내용을 종합해 미션을 완료하세요'
+                : '모든 챕터를 완료해야 미션에 도전할 수 있습니다'}
             </div>
           </div>
 
           <div className="chapter-right">
-            <button
-              className="chapter-btn chapter-mission-btn"
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate(`/tracks/${trackId}/mission`);
-              }}
-            >
-              미션 시작
-            </button>
+            {allCompleted ? (
+              <button
+                className="chapter-btn chapter-mission-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/tracks/${trackId}/mission`);
+                }}
+              >
+                미션 시작
+              </button>
+            ) : (
+              <span className="chapter-lock-text">🔒 잠김</span>
+            )}
           </div>
         </div>
       </div>

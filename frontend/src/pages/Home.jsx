@@ -104,7 +104,7 @@ function Home() {
             <div className="daily-title">데일리 태스크</div>
           </div>
           {dailyData?.isCompleted ? (
-            <div className="daily-badge daily-badge-done">✅ 완료</div>
+            <div className="daily-badge daily-badge-done">완료</div>
           ) : (
             <div className="daily-badge">
               ⏰ {dailyData ? getTimeLeft(dailyData.expiresAt) : '...'}
