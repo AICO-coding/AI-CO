@@ -31,7 +31,6 @@ router = APIRouter(
     "",
     response_model=WrongAnswerListResponse,
     summary="오답 목록 조회",
-    description="내 오답노트 목록을 조회합니다. track, source_type, is_resolved로 필터링할 수 있습니다.",
 )
 def get_wrong_answers(
     track: str | None = Query(default=None, description="트랙명 예: ML, CV, NLP"),
@@ -53,7 +52,6 @@ def get_wrong_answers(
     "/review",
     response_model=ReviewProblemResponse,
     summary="오답 복습 문제 조회",
-    description="아직 해결되지 않은 내 오답을 복습용 문제로 조회합니다. 최대 5개까지 반환하며, 오답이 5개 미만이면 전체 반환합니다.",
 )
 def get_review_wrong_answers(
     track: str | None = Query(default=None, description="트랙명 예: ML"),
@@ -73,7 +71,6 @@ def get_review_wrong_answers(
     "/review",
     response_model=ReviewSubmitResponse,
     summary="오답 복습 제출",
-    description="오답 복습 답안을 제출하고 정답 여부를 확인합니다. XP는 부여하지 않습니다.",
 )
 def submit_review_answers(
     request: ReviewSubmitRequest,
@@ -91,7 +88,6 @@ def submit_review_answers(
     "/{wrong_answer_id}",
     response_model=WrongAnswerDetailResponse,
     summary="오답 상세 조회",
-    description="특정 오답의 상세 정보와 문제 내용을 조회합니다.",
 )
 def get_wrong_answer_detail(
     wrong_answer_id: int,
@@ -109,7 +105,6 @@ def get_wrong_answer_detail(
     "/{wrong_answer_id}",
     response_model=DeleteWrongAnswerResponse,
     summary="오답 삭제",
-    description="오답노트에서 특정 오답 기록을 삭제합니다.",
 )
 def delete_wrong_answer(
     wrong_answer_id: int,

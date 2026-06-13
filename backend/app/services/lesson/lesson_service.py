@@ -10,7 +10,6 @@ from app.models.userModels import User
 
 
 def complete_lesson_service(db: Session, user_id: int, track: str, chapter: str, lesson_id: int):
-    """concept_image, concept_code, parameter 타입 레슨 완료 처리"""
 
     normalized_track = track.upper()
 
@@ -65,7 +64,6 @@ def complete_lesson_service(db: Session, user_id: int, track: str, chapter: str,
     }
 
 def submit_answer_service(db: Session, user_id: int, track: str, chapter: str, lesson_id: int, problem_id: int, answers: dict | int):
-    """code_fill, multiple_choice 답안 채점"""
     track = track.upper()
     problem = db.query(Problem).filter(Problem.id == problem_id).first()
     if not problem:
@@ -75,7 +73,6 @@ def submit_answer_service(db: Session, user_id: int, track: str, chapter: str, l
     if not lesson:
         return None
 
-    # 답안 비교
     is_correct = False
 
     if lesson.lesson_type == "code_fill":
@@ -87,7 +84,6 @@ def submit_answer_service(db: Session, user_id: int, track: str, chapter: str, l
         if problem_answer == answers:
             is_correct = True
 
-    # 오답이고 처음 틀린 경우 오답노트 등록
     if not is_correct:
         existing_wrong_answer = db.query(WrongAnswer).filter(
             WrongAnswer.user_id == user_id,
@@ -106,7 +102,6 @@ def submit_answer_service(db: Session, user_id: int, track: str, chapter: str, l
             db.add(wrong_answer)
             db.commit()
 
-    # 정답인 경우만 progress.report 업데이트
     if is_correct:
         progress = db.query(Progress).filter(
             Progress.user_id == user_id,
@@ -157,21 +152,17 @@ def submit_answer_service(db: Session, user_id: int, track: str, chapter: str, l
 
 
 def get_chapter_lessons_service(db: Session, user_id: int, track: str, chapter: str):
-    """특정 트랙/챕터의 lessons 조회 및 진도 정보 합산"""
 
     normalized_track = track.upper()
 
-    # 1. lessons 조회: track은 대소문자 무시, chapter는 그대로 비교
     lessons = db.query(Lesson).filter(
         func.upper(Lesson.track) == normalized_track,
         Lesson.chapter == chapter
     ).order_by(Lesson.order_index.asc()).all()
 
-    # 결과 없으면 404
     if not lessons:
         return None
 
-    # 2. progress 조회: track은 대소문자 무시, chapter는 그대로 비교
     progress = db.query(Progress).filter(
         Progress.user_id == user_id,
         func.upper(Progress.track) == normalized_track,
@@ -234,7 +225,6 @@ def get_chapter_lessons_service(db: Session, user_id: int, track: str, chapter: 
 
 
 def hint_service(db: Session, user_id: int, track: str, chapter: str, problem_id: int, hint_level: int):
-    """힌트 사용 처리 - 힌트 사용 시 즉시 5 XP 차감"""
     track = track.upper()
     problem = db.query(Problem).filter(Problem.id == problem_id).first()
     if not problem:
@@ -271,7 +261,6 @@ def hint_service(db: Session, user_id: int, track: str, chapter: str, problem_id
 
     used_levels = problem_entry.get("usedHintLevels", [])
     if hint_level in used_levels:
-        # 이미 사용한 힌트 — XP 차감 없이 반환
         return {
             "xpDeducted": 0,
             "totalXP": user.xp,
@@ -286,7 +275,6 @@ def hint_service(db: Session, user_id: int, track: str, chapter: str, problem_id
 
     user.xp = max(user.xp - 5, 0)
 
-    # 복습 중 신규 힌트 사용 — 차감분 누적
     if progress.is_completed:
         review = progress.report.get("reviewDeductions", {"hintXP": 0, "revealXP": 0})
         review["hintXP"] = review.get("hintXP", 0) + 5
@@ -303,7 +291,6 @@ def hint_service(db: Session, user_id: int, track: str, chapter: str, problem_id
 
 
 def reveal_answer_service(db: Session, user_id: int, track: str, chapter: str, problem_id: int):
-    """정답 공개 처리 - 정답 공개 시 즉시 5 XP 차감"""
     track = track.upper()
     problem = db.query(Problem).filter(Problem.id == problem_id).first()
     if not problem:
@@ -330,7 +317,6 @@ def reveal_answer_service(db: Session, user_id: int, track: str, chapter: str, p
 
     already_revealed = problem_entry.get("usedReveal", False) if problem_entry else False
     if already_revealed:
-        # 이미 공개한 정답 — XP 차감 없이 반환
         result = {"answer": problem.answer, "xpDeducted": 0, "totalXP": user.xp}
         if problem.explanation:
             result["explanation"] = problem.explanation
@@ -345,7 +331,6 @@ def reveal_answer_service(db: Session, user_id: int, track: str, chapter: str, p
 
     user.xp = max(user.xp - 5, 0)
 
-    # 복습 중 신규 정답공개 — 차감분 누적
     if progress.is_completed:
         review = progress.report.get("reviewDeductions", {"hintXP": 0, "revealXP": 0})
         review["revealXP"] = review.get("revealXP", 0) + 5
@@ -365,7 +350,6 @@ def reveal_answer_service(db: Session, user_id: int, track: str, chapter: str, p
 
 
 def complete_chapter_service(db: Session, user_id: int, track: str, chapter: str):
-    """챕터 완료 처리"""
     track = track.upper()
 
     user = db.query(User).filter(User.id == user_id).first()
@@ -384,7 +368,6 @@ def complete_chapter_service(db: Session, user_id: int, track: str, chapter: str
     if not progress.report:
         progress.report = {}
 
-    # 모든 레슨이 완료됐는지 확인
     completed_lessons = set(progress.report.get("completedLessons", []))
     all_lessons = db.query(Lesson).filter(
         func.upper(Lesson.track) == track,
@@ -394,13 +377,10 @@ def complete_chapter_service(db: Session, user_id: int, track: str, chapter: str
     if len(completed_lessons) < all_lessons:
         return {"error": "완료하지 않은 레슨이 있습니다."}
 
-    # 복습인 경우 (이미 완료된 챕터) — XP 지급 없이 복습 완료 응답
     if progress.is_completed:
         review = progress.report.get("reviewDeductions", {"hintXP": 0, "revealXP": 0})
         hint_xp = review.get("hintXP", 0)
         reveal_xp = review.get("revealXP", 0)
-
-        # 복습 차감 기록 초기화
         progress.report["reviewDeductions"] = {"hintXP": 0, "revealXP": 0}
         flag_modified(progress, "report")
         db.commit()
@@ -414,7 +394,6 @@ def complete_chapter_service(db: Session, user_id: int, track: str, chapter: str
             "revealUsed": reveal_xp // 5,
         }
 
-    # 첫 학습 완료 — 50 XP 지급, 힌트/정답공개 차감분 계산
     CHAPTER_COMPLETION_XP = 50
     problems = progress.report.get("problems", [])
     total_hints_used = sum(p.get("hintsUsed", 0) for p in problems)
@@ -422,13 +401,11 @@ def complete_chapter_service(db: Session, user_id: int, track: str, chapter: str
     total_xp_deducted = (total_hints_used + total_reveals_used) * 5
     xp_earned = CHAPTER_COMPLETION_XP - total_xp_deducted
 
-    # 진도 업데이트
     progress.is_completed = True
     progress.completed_at = datetime.now(timezone.utc)
     progress.xp_earned = xp_earned
     progress.hint_used = total_hints_used
 
-    # 유저 총 XP 누적 (힌트/정답공개 차감은 사용 시점에 이미 반영됨)
     user.xp += CHAPTER_COMPLETION_XP
 
     db.commit()

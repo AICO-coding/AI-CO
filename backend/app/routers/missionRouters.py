@@ -11,7 +11,6 @@ import os
 import re
 import modal
 
-# 단순 문자열 대신 정규식 패턴 사용 (점 뒤 eval은 메서드 호출이므로 허용)
 _BLACKLIST_PATTERNS = [
     r"os\.system\s*\(",
     r"shutil\.rmtree\s*\(",
@@ -65,7 +64,7 @@ class MissionRunResponse(BaseModel):
 class MissionSubmitResponse(BaseModel):
     passed: bool
     r2: Optional[float] = None
-    isFirstCompletion: Optional[bool] = None  # 불합격 시 None
+    isFirstCompletion: Optional[bool] = None 
     xpEarned: int = 0
     stdout: str
     stderr: str
@@ -108,7 +107,6 @@ def _parse_accuracy(stdout: str) -> Optional[float]:
 
 
 def _evaluate_passed(track: str, stdout: str) -> tuple[bool, Optional[float], Optional[float]]:
-    """(passed, r2, accuracy) 반환"""
     if track == "CV":
         accuracy = _parse_accuracy(stdout)
         passed = accuracy is not None and accuracy >= 30.0
@@ -120,7 +118,6 @@ def _evaluate_passed(track: str, stdout: str) -> tuple[bool, Optional[float], Op
 
 
 def _execute_code(track: str, code: str) -> tuple[str, str, int]:
-    """코드 실행 후 (stdout, stderr, returncode) 반환"""
     if track in ["ML-회귀", "CV", "NLP"]:
         try:
             run_code_gpu = modal.Function.from_name("aico-code-runner", "run_code_gpu")
@@ -239,7 +236,6 @@ def submit_mission(
     stdout, stderr, returncode = _execute_code(payload.track, code)
     passed, r2, _ = _evaluate_passed(payload.track, stdout)
 
-    # 불합격 시 DB 저장 없이 즉시 반환
     if not passed:
         return MissionSubmitResponse(
             passed=False,
@@ -250,7 +246,6 @@ def submit_mission(
             returncode=returncode,
         )
 
-    # Progress upsert (track + chapter="mission")
     progress = (
         db.query(Progress)
         .filter_by(user_id=current_user.id, track=payload.track, chapter=MISSION_CHAPTER)

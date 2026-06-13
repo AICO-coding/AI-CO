@@ -17,7 +17,7 @@ def search(query: str, track: str, chapter: str, n_results: int = 4) -> list[str
     if collection.count() == 0:
         return []
 
-    chapters = _chapter_range(chapter)  # ch3 → ["ch1", "ch2", "ch3"]
+    chapters = _chapter_range(chapter)  
 
     try:
         results = collection.query(
@@ -29,7 +29,6 @@ def search(query: str, track: str, chapter: str, n_results: int = 4) -> list[str
     except Exception:
         pass
 
-    # 필터 결과가 n_results보다 적을 때 전체에서 검색
     try:
         total = collection.count()
         results = collection.query(

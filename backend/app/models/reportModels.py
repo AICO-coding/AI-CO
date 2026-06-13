@@ -14,7 +14,6 @@ class Report(Base):
     chapter = Column(String(100), nullable=False)
     progress_id = Column(BigInteger, ForeignKey("progress.id", ondelete="CASCADE"), nullable=False, unique=True)
 
-    # Claude API로 생성한 AI 리포트 전체 저장
     ai_report = Column(JSONB, nullable=False)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())

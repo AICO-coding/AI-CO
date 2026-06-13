@@ -10,7 +10,7 @@ class Lesson(Base):
     track       = Column(String(50), nullable=False)
     chapter     = Column(String(100), nullable=False)
     title       = Column(String(255), nullable=False)
-    lesson_type = Column(String(50), nullable=False)   # text | image | code | markdown | problem
+    lesson_type = Column(String(50), nullable=False)  
     content     = Column(JSONB, nullable=False)
     problem_id  = Column(BigInteger, ForeignKey("problems.id", ondelete="SET NULL"), nullable=True)
     part        = Column(String(), nullable=True)

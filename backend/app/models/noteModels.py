@@ -15,7 +15,7 @@ class WrongAnswer(Base):
     track_problem_id = Column(BigInteger, ForeignKey("problems.id"), nullable=True)
     daily_problem_id = Column(BigInteger, ForeignKey("daily_problems.id"), nullable=True)
 
-    source_type = Column(String(30), nullable=False)  # learning / daily
+    source_type = Column(String(30), nullable=False)  
     user_answer = Column(JSONB, nullable=False)
 
     is_resolved = Column(Boolean, nullable=False, default=False)

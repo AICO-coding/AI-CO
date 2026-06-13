@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
-
 from app.core.security import get_current_user
 from app.core.database import get_db
 from app.models.userModels import User
@@ -13,7 +12,6 @@ router = APIRouter(prefix="/users", tags=["Users"])
 def get_user(
     current_user: User = Depends(get_current_user),
 ):
-    """현재 유저 정보 조회 (userId, nickname, xp, createdAt)"""
     return UserResponse(
         id=current_user.id,
         nickname=current_user.nickname,
@@ -26,7 +24,6 @@ def get_user(
 def get_xp(
     current_user: User = Depends(get_current_user),
 ):
-    """현재 유저의 총 XP 및 트랙별 XP 조회"""
     return XpResponse(
         xp=current_user.xp,
         tracks={"ML-분류": 0, "ML-회귀": 0, "CV": 0, "NLP": 0},

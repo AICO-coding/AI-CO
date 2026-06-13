@@ -8,11 +8,11 @@ class LessonResponse(BaseModel):
     orderIndex: int
     isCompleted: bool
     part: str | None = None
-    markdownUrl: str | None = None   # concept_image/concept_code/parameter
-    imageUrl: str | None = None      # concept_image
-    problemId: int | None = None     # code_fill/multiple_choice
-    hints: list[Any] | None = None   # code_fill/multiple_choice
-    usedHintLevels: list[int] | None = None  # code_fill/multiple_choice
+    markdownUrl: str | None = None   
+    imageUrl: str | None = None     
+    problemId: int | None = None    
+    hints: list[Any] | None = None  
+    usedHintLevels: list[int] | None = None  
     content: dict[str, Any] | None = None
 
     class Config:
@@ -77,10 +77,8 @@ class ChapterCompleteResponse(BaseModel):
     chapter: str
     isCompleted: bool
     isFirstCompletion: bool
-    # 첫 학습 & 복습 공통 (이번 세션 차감 정보)
     xpDeducted: int | None = None
     hintUsed: int | None = None
     revealUsed: int | None = None
-    # 첫 학습일 때만 포함
     baseXP: int | None = None
     xpEarned: int | None = None

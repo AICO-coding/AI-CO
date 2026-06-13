@@ -1,4 +1,3 @@
-# FastAPI 앱 생성, 라우터 등록
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from app.routers.authRouters import router as auth_router

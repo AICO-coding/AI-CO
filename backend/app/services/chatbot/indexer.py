@@ -2,6 +2,7 @@ from pathlib import Path
 from bs4 import BeautifulSoup
 import chromadb
 from chromadb.utils import embedding_functions
+from app.core.config import OPENAI_API_KEY, OPENAI_EMBEDDING_MODEL
 
 MD_DIR = Path(__file__).resolve().parents[4] / "frontend" / "public" / "static" / "md"
 CHROMA_DIR = Path(__file__).resolve().parents[3] / "chroma_db"
@@ -10,8 +11,9 @@ _collection = None
 
 
 def _embedding_function():
-    return embedding_functions.SentenceTransformerEmbeddingFunction(
-        model_name="paraphrase-multilingual-MiniLM-L12-v2"
+    return embedding_functions.OpenAIEmbeddingFunction(
+        api_key=OPENAI_API_KEY,
+        model_name=OPENAI_EMBEDDING_MODEL,
     )
 
 
