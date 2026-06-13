@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
 import '../styles/Report.css';
+import { API_BASE_URL } from '../config/api';
 
 export default function Report() {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ export default function Report() {
           }),
         };
 
-        const trackRes = await fetch('http://210.125.96.59:8000/tracks', {
+        const trackRes = await fetch(`${API_BASE_URL}/tracks`, {
           headers,
         });
 
@@ -43,7 +44,7 @@ export default function Report() {
           trackJson.tracks.map(async (track) => {
             const id = track.track.toLowerCase();
             const res = await fetch(
-              `http://210.125.96.59:8000/reports/${id}`,
+              `${API_BASE_URL}/reports/${id}`,
               { headers },
             );
             if (res.ok) {

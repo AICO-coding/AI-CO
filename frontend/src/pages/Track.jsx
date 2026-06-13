@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
 import '../styles/Track.css';
+import { API_BASE_URL } from '../config/api';
 
 export default function Track() {
   const navigate = useNavigate();
@@ -24,10 +25,10 @@ export default function Track() {
         };
 
         const [trackRes, progressRes] = await Promise.all([
-          fetch('http://210.125.96.59:8000/tracks', {
+          fetch(`${API_BASE_URL}/tracks`, {
             headers,
           }),
-          fetch('http://210.125.96.59:8000/tracks/progress', {
+          fetch(`${API_BASE_URL}/tracks/progress`, {
             headers,
           }),
         ]);

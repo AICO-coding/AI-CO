@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { QuizItem } from '../components/QuizItem';
 import '../styles/DailyTask.css';
+import { API_BASE_URL } from '../config/api';
 
-const API_BASE = 'http://210.125.96.59:8000';
+const API_BASE = API_BASE_URL;
 
 export default function DailyTask() {
   const navigate = useNavigate();

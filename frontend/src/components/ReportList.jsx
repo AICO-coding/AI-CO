@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 import '../styles/ReportList.css';
+import { API_BASE_URL } from '../config/api';
 
 export default function ReportList() {
   const { trackId } = useParams();
@@ -19,7 +20,7 @@ export default function ReportList() {
         const token = localStorage.getItem('accessToken');
 
         const res = await fetch(
-          `http://210.125.96.59:8000/reports/${trackId}`,
+          `${API_BASE_URL}/reports/${trackId}`,
           {
             headers: {
               ...(token && {

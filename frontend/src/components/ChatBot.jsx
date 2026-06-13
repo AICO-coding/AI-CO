@@ -2,9 +2,10 @@ import { useState, useEffect, useRef } from 'react';
 import '../styles/ChatBot.css';
 import cobotImg from '../assets/cobot.png';
 import cobotThinkingImg from '../assets/cobot_thinking.png';
+import { API_BASE_URL } from '../config/api';
 
 const CONCEPT_TYPES = ['concept_image', 'concept_code', 'parameter'];
-const API_BASE = 'http://210.125.96.59:8000';
+const API_BASE = API_BASE_URL;
 
 export default function ChatBot({ track, chapter, lessonType }) {
   const [isOpen, setIsOpen] = useState(false);

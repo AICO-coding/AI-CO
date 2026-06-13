@@ -4,6 +4,7 @@ import axios from 'axios';
 
 import '../styles/Sidebar.css';
 import cobot from '../assets/cobot.png';
+import { API_BASE_URL } from '../config/api';
 
 function Sidebar() {
   const location = useLocation();
@@ -16,7 +17,7 @@ function Sidebar() {
       try {
         const accessToken = localStorage.getItem('accessToken');
 
-        const response = await axios.get('http://210.125.96.59:8000/users', {
+        const response = await axios.get(`${API_BASE_URL}/users`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },

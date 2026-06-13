@@ -2,6 +2,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
 import '../styles/Chapter.css';
+import { API_BASE_URL } from '../config/api';
 
 export default function Chapter() {
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ export default function Chapter() {
         const token = localStorage.getItem('accessToken');
         const normalizedTrackId = trackId?.toLowerCase();
 
-        const url = `http://210.125.96.59:8000/tracks/${normalizedTrackId.toUpperCase()}/chapters`;
+        const url = `${API_BASE_URL}/tracks/${normalizedTrackId.toUpperCase()}/chapters`;
 
         console.log('🚀 API REQUEST URL:', url);
 
