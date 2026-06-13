@@ -10,10 +10,7 @@ alembic
 google-auth
 requests
 modal
-torch
-scikit-learn
-numpy
 anthropic
+openai
 chromadb
-sentence-transformers
 beautifulsoup4
