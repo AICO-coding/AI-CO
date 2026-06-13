@@ -17,4 +17,3 @@ anthropic
 chromadb
 sentence-transformers
 beautifulsoup4
-
