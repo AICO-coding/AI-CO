@@ -1,0 +1,186 @@
+{
+  "lessonType": "mission",
+  "content": {
+    "markdownUrl": "/static/content/nlp/mission/mission.md",
+    "template": "# ══ Mission: 뉴스 카테고리 분류 + GPT 헤드라인 자동완성 · Ch1~Ch7 종합 구현 ════════════\nimport torch, torch.nn as nn\nimport pandas as pd\nfrom torch.utils.data import Dataset, DataLoader\nfrom transformers import BertTokenizer, BertModel, BertForSequenceClassification\nfrom transformers import AutoTokenizer, AutoModelForCausalLM\n\n# ─── 제공됨: 데이터 로드 (KLUE-YNAT 뉴스 제목 · 7개 카테고리) ────────────────────────────\nCATEGORIES = ['IT과학', '경제', '사회', '생활문화', '세계', '스포츠', '정치']\n\ntrain_df = pd.read_csv('/root/data/klue_ynat/train.tsv', sep='\\t').dropna()\ntest_df  = pd.read_csv('/root/data/klue_ynat/test.tsv',  sep='\\t').dropna()\ntrain_df = train_df.sample(n=3000, random_state=42).reset_index(drop=True)\ntest_df  = test_df.sample(n=500,  random_state=42).reset_index(drop=True)\n\nMODEL_NAME  = 'klue/bert-base'\ntokenizer   = BertTokenizer.from_pretrained(MODEL_NAME)\nsample_text = train_df.iloc[0]['title']\n\n# ── TODO 1 · Ch1 ──────────────────────────────────────────────────\n# 뉴스 제목을 토큰 단위로 나누고, BERT가 알고 있는 전체 단어 사전 크기를 확인하세요\ntokens = tokenizer.{{blank1}}(sample_text)             # 문장 → 토큰 리스트\nprint(f\"제목: {sample_text}\")\nprint(f\"토큰: {tokens}\")\nprint(f\"토큰 개수: {len(tokens)}개\")\nprint(f\"BERT 단어 사전 크기: {tokenizer.{{blank2}}}\")  # vocab 전체 크기 속성\n\n# ── TODO 2 · Ch2 ──────────────────────────────────────────────────\n# 토큰화 결과를 모델 입력 형태로 변환하세요 (패딩 + 길이 제한 + attention mask)\nencoded = tokenizer(\n    sample_text,\n    padding={{blank3}},          # 최대 길이에 맞춰 패딩\n    truncation={{blank4}},       # 최대 길이를 넘으면 잘라내기\n    max_length=32,\n    return_tensors='pt'\n)\nprint(f\"input_ids shape: {encoded['input_ids'].shape}\")\nprint(f\"attention_mask: {encoded['{{blank5}}'][0]}\")  # 0=패딩, 1=실제 토큰\n\n# ── TODO 3 · Ch3 ──────────────────────────────────────────────────\n# Dataset 클래스를 완성하세요 (제목 → input_ids / attention_mask / 카테고리 label)\nclass NewsDataset(Dataset):\n    def __init__(self, df, tokenizer, max_length=32):\n        self.texts  = df['title'].tolist()\n        self.labels = df['label'].tolist()\n        self.tokenizer  = tokenizer\n        self.max_length = max_length\n\n    def __len__(self):\n        return {{blank6}}                  # 전체 데이터 개수\n\n    def __getitem__(self, idx):\n        enc = self.tokenizer(\n            self.texts[idx],\n            padding='max_length',\n            truncation=True,\n            max_length=self.max_length,\n            return_tensors='pt'\n        )\n        return {\n            'input_ids':      enc['input_ids'].squeeze(0),\n            'attention_mask': enc['{{blank7}}'].squeeze(0),\n            'labels':         torch.tensor(self.{{blank8}}[idx])  # 정답 카테고리(0~6)\n        }\n\ntrain_ds = NewsDataset(train_df, tokenizer)\ntest_ds  = NewsDataset(test_df,  tokenizer)\ntrain_ld = DataLoader(train_ds, batch_size=16, shuffle={{blank9}})\ntest_ld  = DataLoader(test_ds,  batch_size=16, shuffle={{blank10}})\n\n# ── TODO 4 · Ch4 ──────────────────────────────────────────────────\n# BERT(Self-Attention)를 통과한 결과에서 [CLS] 토큰 벡터를 추출하세요\nbase_model = BertModel.from_pretrained(MODEL_NAME)\nbase_model.eval()\nwith torch.no_grad():\n    output = base_model(input_ids=encoded['input_ids'], attention_mask=encoded['attention_mask'])\nlast_hidden = output.{{blank11}}              # (배치, 토큰 수, hidden_size)\ncls_vector  = last_hidden[:, {{blank12}}, :]  # [CLS] 토큰은 항상 첫 번째 위치\nprint(f\"전체 토큰별 벡터 shape: {last_hidden.shape}\")\nprint(f\"[CLS] 벡터 shape: {cls_vector.shape}\")\n\n# ── TODO 5 · Ch5 ──────────────────────────────────────────────────\n# BERT(Transformer Encoder)의 구조를 config에서 확인하세요\nconfig = base_model.config\nprint(f\"인코더 블록(레이어) 수: {config.{{blank13}}}\")\nprint(f\"hidden size: {config.hidden_size}\")\nprint(f\"Multi-Head Attention의 head 수: {config.{{blank14}}}\")\n\n# ── TODO 6 · Ch6 ──────────────────────────────────────────────────\n# 뉴스 카테고리(7개 클래스) 분류 모델 + 옵티마이저를 완성하세요\nmodel = BertForSequenceClassification.from_pretrained(MODEL_NAME, num_labels={{blank15}})\nopt   = torch.optim.{{blank16}}(model.parameters(), lr=2e-5)\n\n# ── TODO 7 · Ch6 ──────────────────────────────────────────────────\n# 학습 루프: 학습모드 전환 → zero_grad → forward(labels 포함) → backward → step\n{{blank17}}  # 학습 모드 (Dropout 활성화)\nfor epoch in range(2):\n    total_loss, correct, total = 0.0, 0, 0\n    for batch in train_ld:\n        outputs = model(\n            input_ids=batch['input_ids'],\n            attention_mask=batch['attention_mask'],\n            labels=batch['{{blank18}}']         # 정답 카테고리 전달\n        )\n        loss = outputs.{{blank19}}              # 모델이 자동 계산한 분류 손실\n        {{blank20}}                   # gradient 누적 방지\n        loss.backward()\n        opt.step()\n        total_loss += loss.item()\n        preds = outputs.logits.{{blank21}}(dim=1)  # 예측 카테고리\n        correct += (preds == batch['labels']).sum().item()\n        total   += batch['labels'].size(0)\n    acc = correct / total * 100\n    print(f\"Epoch {epoch+1}/2 | Loss: {total_loss/len(train_ld):.4f} | Train Acc: {acc:.1f}%\")\n\n# ── TODO 8 · Ch6 ──────────────────────────────────────────────────\n# 평가: eval 모드 + no_grad + accuracy 계산, 첫 번째 테스트 기사의 예측 카테고리 저장\n{{blank22}}  # 평가 모드 (Dropout 비활성화)\nwith torch.{{blank23}}:\n    correct, total = 0, 0\n    pred_category = None\n    for i, batch in enumerate(test_ld):\n        outputs = model(input_ids=batch['input_ids'], attention_mask=batch['attention_mask'])\n        preds = outputs.logits.argmax(dim=1)\n        correct += (preds == batch['{{blank24}}']).sum().item()  # 정답 라벨과 비교\n        total   += batch['labels'].size(0)\n        if i == 0:\n            pred_category = CATEGORIES[preds[0].item()]\n    test_acc = correct / total * 100\n\nprint(f\"\\nTest Accuracy: {test_acc:.1f}%  (목표 ≥ 60%)\")\nprint(f\"예측된 카테고리: {pred_category}\")\n\n# ── TODO 9 · Ch7 ──────────────────────────────────────────────────\n# GPT로 헤드라인을 한 토큰씩 자동완성하세요 (Causal Attention = 단방향 Self-Attention)\ngpt_name      = 'skt/kogpt2-base-v2'\ngpt_tokenizer = AutoTokenizer.from_pretrained(gpt_name)\ngpt_model     = AutoModelForCausalLM.from_pretrained(gpt_name)\ngpt_model.eval()\n\nprompt    = f\"[{pred_category}] 오늘의 주요 뉴스:\"\ninput_ids = gpt_tokenizer.encode(prompt, return_tensors='pt')\n\nfor _ in range(20):\n    with torch.{{blank25}}:\n        outputs = gpt_model(input_ids)\n        next_token_logits = outputs.{{blank26}}[:, -1, :]              # 마지막 토큰의 다음 단어 분포\n        next_token = next_token_logits.{{blank27}}(dim=-1, keepdim=True)  # 확률이 가장 높은 토큰\n    input_ids = torch.{{blank28}}([input_ids, next_token], dim=-1)     # 생성된 토큰을 입력 뒤에 이어붙이기\n\ngenerated = gpt_tokenizer.decode(input_ids[0], skip_special_tokens=True)\nprint(f\"\\n자동완성된 헤드라인: {generated}\")\nprint(f\"💡 BERT(인코더)는 문장 전체를 한 번에 보고 분류하고, GPT(디코더)는 토큰을 한 개씩 예측해 글을 생성합니다\")",
+    "blanks": [
+      {
+        "key": "blank1"
+      },
+      {
+        "key": "blank2"
+      },
+      {
+        "key": "blank3"
+      },
+      {
+        "key": "blank4"
+      },
+      {
+        "key": "blank5"
+      },
+      {
+        "key": "blank6"
+      },
+      {
+        "key": "blank7"
+      },
+      {
+        "key": "blank8"
+      },
+      {
+        "key": "blank9"
+      },
+      {
+        "key": "blank10"
+      },
+      {
+        "key": "blank11"
+      },
+      {
+        "key": "blank12"
+      },
+      {
+        "key": "blank13"
+      },
+      {
+        "key": "blank14"
+      },
+      {
+        "key": "blank15"
+      },
+      {
+        "key": "blank16"
+      },
+      {
+        "key": "blank17"
+      },
+      {
+        "key": "blank18"
+      },
+      {
+        "key": "blank19"
+      },
+      {
+        "key": "blank20"
+      },
+      {
+        "key": "blank21"
+      },
+      {
+        "key": "blank22"
+      },
+      {
+        "key": "blank23"
+      },
+      {
+        "key": "blank24"
+      },
+      {
+        "key": "blank25"
+      },
+      {
+        "key": "blank26"
+      },
+      {
+        "key": "blank27"
+      },
+      {
+        "key": "blank28"
+      }
+    ],
+    "hints": [
+      {
+        "todoId": 1,
+        "blankKeys": [
+          "blank1",
+          "blank2"
+        ],
+        "text": "tokenizer.tokenize()로 문장을 토큰 리스트로 분리 · tokenizer.vocab_size로 전체 단어 사전 크기 확인",
+        "xpCost": 15
+      },
+      {
+        "todoId": 2,
+        "blankKeys": [
+          "blank3",
+          "blank4",
+          "blank5"
+        ],
+        "text": "padding='max_length' · truncation=True · attention_mask는 패딩(0)과 실제 토큰(1)을 구분",
+        "xpCost": 15
+      },
+      {
+        "todoId": 3,
+        "blankKeys": [
+          "blank6",
+          "blank7",
+          "blank8",
+          "blank9",
+          "blank10"
+        ],
+        "text": "__len__은 len(self.texts) 반환 · 'attention_mask' 키 사용 · self.labels[idx]로 라벨 추출 · train은 shuffle=True, test는 shuffle=False",
+        "xpCost": 15
+      },
+      {
+        "todoId": 4,
+        "blankKeys": [
+          "blank11",
+          "blank12"
+        ],
+        "text": "output.last_hidden_state는 모든 토큰의 벡터 (배치, 시퀀스, hidden) · [CLS] 토큰은 인덱스 0번 위치",
+        "xpCost": 15
+      },
+      {
+        "todoId": 5,
+        "blankKeys": [
+          "blank13",
+          "blank14"
+        ],
+        "text": "config.num_hidden_layers = Transformer 인코더 블록 수 · config.num_attention_heads = Multi-Head Attention의 head 수",
+        "xpCost": 15
+      },
+      {
+        "todoId": 6,
+        "blankKeys": [
+          "blank15",
+          "blank16"
+        ],
+        "text": "num_labels=7 (뉴스 카테고리 7개) · Transformer 계열 모델의 표준 옵티마이저 = AdamW",
+        "xpCost": 15
+      },
+      {
+        "todoId": 7,
+        "blankKeys": [
+          "blank17",
+          "blank18",
+          "blank19",
+          "blank20",
+          "blank21"
+        ],
+        "text": "model.train() → opt.zero_grad() → loss.backward() 순서 고정 · labels 키로 정답 전달 · outputs.loss로 손실값 바로 사용 · argmax(dim=1)로 예측 카테고리 추출",
+        "xpCost": 15
+      },
+      {
+        "todoId": 8,
+        "blankKeys": [
+          "blank22",
+          "blank23",
+          "blank24"
+        ],
+        "text": "model.eval()로 Dropout 비활성화 · torch.no_grad()로 gradient 추적 차단 · 'labels' 키로 정답과 비교",
+        "xpCost": 15
+      },
+      {
+        "todoId": 9,
+        "blankKeys": [
+          "blank25",
+          "blank26",
+          "blank27",
+          "blank28"
+        ],
+        "text": "추론은 torch.no_grad() · outputs.logits에서 다음 토큰 분포 추출 · argmax(dim=-1, keepdim=True)로 가장 확률 높은 토큰 선택 · torch.cat으로 생성된 토큰을 입력 뒤에 이어붙이기",
+        "xpCost": 15
+      }
+    ]
+  }
+}
