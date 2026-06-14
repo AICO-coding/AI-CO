@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --or:#FF6B00;--or2:#E55A00;--orL:#FFF4EE;--orB:#FFD9C0;
+  --gr:#2DAA24;--gr2:#229619;--grL:#F0FEF0;
+  --re:#E53935;--reL:#FFF0F0;
+  --ye:#D97706;--ye2:#B45309;--yeL:#FFFBEB;
+  --bg:#FFFFFF;--bg2:#FFF8F4;
+  --tx:#1C1C1E;--tx2:#6B6B6B;--tx3:#A0A0A0;
+  --ff:'Nunito',sans-serif;--fm:'JetBrains Mono',monospace;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-family:var(--ff)}
+.wrap{display:flex;flex-direction:column;height:100vh;padding:14px 16px 12px;gap:10px}
+.hdr{display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.hdr-title{font-size:14px;font-weight:900;display:flex;align-items:center;gap:7px}
+.lr-badge{font-family:var(--fm);font-size:12px;font-weight:700;padding:3px 12px;border-radius:20px;background:var(--orL);color:var(--or);border:1px solid var(--orB);transition:all .2s}
+.chart-area{flex:1;display:flex;flex-direction:column;gap:6px;min-height:0}
+.chart-meta{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--tx3);flex-shrink:0}
+.epoch-disp{font-family:var(--fm)}
+canvas#lossChart{width:100%!important;flex:1;min-height:0;display:block;border-radius:10px;border:1px solid var(--orB)}
+.status{flex-shrink:0;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;gap:6px;transition:all .25s}
+.s-idle{background:#F5F5F5;color:var(--tx3);border:1px solid #E5E5E5}
+.s-ok  {background:var(--grL);color:var(--gr2);border:1px solid #B6EAB3}
+.s-slow{background:var(--yeL);color:var(--ye2);border:1px solid #FCD88A}
+.s-div {background:var(--reL);color:var(--re);border:1px solid #FFBDBD}
+.s-going{background:var(--orL);color:var(--or);border:1px solid var(--orB)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;flex-shrink:0}
+.stat{background:var(--bg2);border-radius:8px;padding:7px 10px;text-align:center;border:1px solid var(--orB)}
+.stat-lbl{font-size:10px;font-weight:800;color:var(--tx3);margin-bottom:3px}
+.stat-num{font-family:var(--fm);font-size:14px;font-weight:700;color:var(--tx)}
+.stat-num.ok{color:var(--gr2)}
+.stat-num.warn{color:var(--or)}
+.stat-num.bad{color:var(--re)}
+.ctrl{flex-shrink:0;background:var(--bg2);border-radius:10px;padding:12px 14px;border:1px solid var(--orB)}
+.ctrl-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.ctrl-lbl{font-size:12px;font-weight:800;color:var(--tx2)}
+.lr-val{font-family:var(--fm);font-size:20px;font-weight:700;color:var(--or)}
+input[type=range]{width:100%;height:5px;-webkit-appearance:none;appearance:none;background:var(--orB);border-radius:3px;outline:none;cursor:pointer;margin-bottom:6px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;background:var(--or);border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 2px var(--orB);cursor:pointer}
+.ticks{display:flex;justify-content:space-between;font-size:10px;font-family:var(--fm);color:var(--tx3);margin-bottom:10px}
+.presets{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.pre{border-radius:7px;padding:7px 4px;font-size:11px;font-weight:800;cursor:pointer;border:1.5px solid;background:transparent;font-family:var(--fm);line-height:1.4;transition:all .15s;text-align:center}
+.pre:hover{transform:translateY(-1px)}
+.p-slow{border-color:var(--ye2);color:var(--ye2)}
+.p-slow:hover{background:var(--yeL)}
+.p-good{border-color:var(--gr2);color:var(--gr2);background:var(--grL)}
+.p-good:hover{background:#DCFCDA}
+.p-div{border-color:var(--re);color:var(--re)}
+.p-div:hover{background:var(--reL)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hdr">
+    <div class="hdr-title"><span>📉</span> BCE Loss 학습 실험</div>
+    <span class="lr-badge" id="lrBadge">lr = 0.0100</span>
+  </div>
+  <div class="chart-area">
+    <div class="chart-meta">
+      <span>BCE Loss</span>
+      <span class="epoch-disp" id="epochDisp">epoch 0 / 200</span>
+    </div>
+    <canvas id="lossChart"></canvas>
+    <div class="status s-idle" id="statusBar">슬라이더를 움직여 실험해보세요</div>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-lbl">최종 Loss</div><div class="stat-num" id="sLoss">—</div></div>
+    <div class="stat"><div class="stat-lbl">학습된 w</div><div class="stat-num" id="sW">—</div></div>
+    <div class="stat"><div class="stat-lbl">학습된 b</div><div class="stat-num" id="sB">—</div></div>
+  </div>
+  <div class="ctrl">
+    <div class="ctrl-row">
+      <span class="ctrl-lbl">Learning Rate</span>
+      <span class="lr-val" id="lrVal">0.0100</span>
+    </div>
+    <input type="range" id="slider" min="-4" max="0.5" step="0.05" value="-2">
+    <div class="ticks"><span>0.0001</span><span>0.001</span><span>0.01</span><span>0.1</span><span>3.0</span></div>
+    <div class="presets">
+      <button class="pre p-slow" onclick="setLr(0.0001)">🐢 너무 느림<br>lr = 0.0001</button>
+      <button class="pre p-good" onclick="setLr(0.01)">✓ 적당<br>lr = 0.01</button>
+      <button class="pre p-div"  onclick="setLr(1.5)">💥 발산<br>lr = 1.5</button>
+    </div>
+  </div>
+</div>
+<script>
+// BCE Loss 시뮬레이션 (이진 분류)
+// y = sigmoid(3x + 2) 기반 이진 분류 데이터
+const XS = [-2,-1,0,1,2,3,4,5];
+const YS = [0,0,0,1,1,1,1,1]; // 이진 레이블
+const EPOCHS = 200;
+
+const canvas = document.getElementById('lossChart');
+const ctx = canvas.getContext('2d');
+const slider = document.getElementById('slider');
+
+function sigmoid(z){ return 1/(1+Math.exp(-z)); }
+
+function simulate(lr){
+  let w=0.1, b=0.1;
+  const losses=[];
+  for(let e=0;e<EPOCHS;e++){
+    const preds = XS.map(x=>sigmoid(w*x+b));
+    let loss = 0;
+    for(let i=0;i<XS.length;i++){
+      const p = Math.max(1e-7, Math.min(1-1e-7, preds[i]));
+      loss += -(YS[i]*Math.log(p) + (1-YS[i])*Math.log(1-p));
+    }
+    loss /= XS.length;
+    if(!isFinite(loss)||loss>100){
+      for(let r=losses.length;r<EPOCHS;r++) losses.push(Infinity);
+      return {losses, w:NaN, b:NaN, divEpoch:e};
+    }
+    losses.push(loss);
+    let dw=0, db=0;
+    for(let i=0;i<XS.length;i++){
+      const err = preds[i]-YS[i];
+      dw += err*XS[i];
+      db += err;
+    }
+    dw/=XS.length; db/=XS.length;
+    w -= lr*dw;
+    b -= lr*db;
+  }
+  return {losses, w, b, divEpoch:null};
+}
+
+function drawChart(data, upTo){
+  const dpr=window.devicePixelRatio||1;
+  const rect=canvas.getBoundingClientRect();
+  canvas.width=rect.width*dpr; canvas.height=rect.height*dpr;
+  ctx.scale(dpr,dpr);
+  const W=rect.width, H=rect.height;
+  const pad={t:10,r:12,b:22,l:46};
+  const cW=W-pad.l-pad.r, cH=H-pad.t-pad.b;
+
+  ctx.fillStyle='#FFF8F4';
+  ctx.beginPath(); ctx.rect(0,0,W,H); ctx.fill();
+
+  const finite=data.losses.slice(0,upTo).filter(isFinite);
+  const maxLoss=finite.length?Math.max(...finite,1):5;
+  const yMax=maxLoss*1.2;
+
+  [0,1,2,3,4].forEach(i=>{
+    const gy=pad.t+(cH/4)*i;
+    ctx.strokeStyle='#FFD0B0'; ctx.lineWidth=0.5;
+    ctx.beginPath(); ctx.moveTo(pad.l,gy); ctx.lineTo(pad.l+cW,gy); ctx.stroke();
+    const lv=yMax*(1-i/4);
+    ctx.fillStyle='#A0A0A0'; ctx.font=`10px 'JetBrains Mono',monospace`; ctx.textAlign='right';
+    ctx.fillText(lv>=1?lv.toFixed(2):lv.toFixed(3), pad.l-4, gy+4);
+  });
+
+  ctx.fillStyle='#A0A0A0'; ctx.textAlign='center';
+  [0,50,100,150,200].forEach(e=>{
+    ctx.fillText(e, pad.l+(e/EPOCHS)*cW, H-4);
+  });
+
+  ctx.strokeStyle='#FFB880'; ctx.lineWidth=1;
+  ctx.beginPath();
+  ctx.moveTo(pad.l,pad.t); ctx.lineTo(pad.l,pad.t+cH); ctx.lineTo(pad.l+cW,pad.t+cH);
+  ctx.stroke();
+
+  if(upTo<2) return;
+
+  let divergedAt=null;
+  const pts=[];
+  for(let i=0;i<upTo;i++){
+    const l=data.losses[i];
+    if(!isFinite(l)||l>100){divergedAt=i;break;}
+    const px=pad.l+(i/(EPOCHS-1))*cW;
+    const py=pad.t+cH-(Math.min(l,yMax)/yMax)*cH;
+    pts.push({x:px,y:py});
+  }
+
+  if(pts.length>1){
+    const lastLoss=finite[finite.length-1]||999;
+    const color=divergedAt!==null?'#FF6B00':lastLoss<0.3?'#3EC934':lastLoss<1?'#FF6B00':'#FFCC00';
+    ctx.beginPath(); ctx.strokeStyle=color; ctx.lineWidth=2.5; ctx.lineJoin='round';
+    ctx.moveTo(pts[0].x,pts[0].y);
+    for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i].x,pts[i].y);
+    ctx.stroke();
+    const last=pts[pts.length-1];
+    ctx.beginPath(); ctx.arc(last.x,last.y,4,0,Math.PI*2);
+    ctx.fillStyle=color; ctx.fill();
+  }
+
+  if(divergedAt!==null && divergedAt<upTo){
+    const dx=pad.l+(divergedAt/(EPOCHS-1))*cW;
+    ctx.strokeStyle='rgba(255,68,68,.6)'; ctx.lineWidth=1.5; ctx.setLineDash([5,4]);
+    ctx.beginPath(); ctx.moveTo(dx,pad.t+6); ctx.lineTo(dx,pad.t+cH); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#FF4444'; ctx.font=`bold 12px 'Nunito',sans-serif`; ctx.textAlign='left';
+    ctx.fillText('💥 발산!',dx+5,pad.t+20);
+  }
+}
+
+function updateUI(data, epoch, lr){
+  const finite=data.losses.slice(0,epoch).filter(isFinite);
+  const lastL=finite[finite.length-1];
+  const isDiv=data.divEpoch!==null && data.divEpoch<epoch;
+  document.getElementById('epochDisp').textContent=`epoch ${epoch} / ${EPOCHS}`;
+  const sL=document.getElementById('sLoss');
+  const sW=document.getElementById('sW');
+  const sB=document.getElementById('sB');
+  const sb=document.getElementById('statusBar');
+
+  if(isDiv){
+    sL.textContent='발산!'; sL.className='stat-num bad';
+    sW.textContent='NaN'; sW.className='stat-num bad';
+    sB.textContent='NaN'; sB.className='stat-num bad';
+    sb.className='status s-div';
+    sb.textContent=`⚠️ ${data.divEpoch}번째 에폭에서 발산! lr이 너무 커요`;
+    return;
+  }
+  if(lastL===undefined) return;
+  const fmt=v=>v<0.01?v.toExponential(2):v<10?v.toFixed(3):Math.round(v);
+  sL.textContent=fmt(lastL);
+
+  if(epoch<EPOCHS){
+    sL.className='stat-num warn';
+    sW.textContent='학습중...'; sW.className='stat-num';
+    sB.textContent='학습중...'; sB.className='stat-num';
+    sb.className='status s-going';
+    sb.textContent=`학습 중... BCE Loss ${fmt(lastL)}`;
+  } else {
+    const {w,b}=data;
+    if(lastL<0.3){
+      sL.className='stat-num ok';
+      sW.textContent=isFinite(w)?w.toFixed(3):'—'; sW.className='stat-num ok';
+      sB.textContent=isFinite(b)?b.toFixed(3):'—'; sB.className='stat-num ok';
+      sb.className='status s-ok';
+      sb.textContent=`✓ 수렴 완료! BCE Loss = ${fmt(lastL)}`;
+    } else if(lr<0.001){
+      sL.className='stat-num warn';
+      sW.textContent=isFinite(w)?w.toFixed(3):'—'; sW.className='stat-num warn';
+      sB.textContent=isFinite(b)?b.toFixed(3):'—'; sB.className='stat-num warn';
+      sb.className='status s-slow';
+      sb.textContent='🐢 lr이 너무 작아요. 0.01 이상으로 올려보세요!';
+    } else {
+      sL.className='stat-num warn';
+      sW.textContent=isFinite(w)?w.toFixed(3):'—'; sW.className='stat-num warn';
+      sB.textContent=isFinite(b)?b.toFixed(3):'—'; sB.className='stat-num warn';
+      sb.className='status s-slow';
+      sb.textContent='에폭을 더 늘리면 수렴할 수 있어요';
+    }
+  }
+}
+
+let raf=null, curData=null;
+
+function run(){
+  if(raf) cancelAnimationFrame(raf);
+  const lr=Math.pow(10,parseFloat(slider.value));
+  const lrStr=lr<0.001?lr.toFixed(4):lr<0.1?lr.toFixed(3):lr.toFixed(2);
+  document.getElementById('lrVal').textContent=lrStr;
+  document.getElementById('lrBadge').textContent=`lr = ${lrStr}`;
+  const data=simulate(lr);
+  curData=data;
+  const fast=data.divEpoch!==null;
+  const step=fast?5:3;
+  let epoch=1;
+  function frame(){
+    drawChart(data,epoch);
+    updateUI(data,epoch,lr);
+    epoch=Math.min(epoch+step,EPOCHS);
+    if(epoch<EPOCHS) raf=requestAnimationFrame(frame);
+    else{ drawChart(data,EPOCHS); updateUI(data,EPOCHS,lr); }
+  }
+  frame();
+}
+
+function setLr(val){
+  slider.value=Math.log10(val);
+  run();
+}
+
+slider.addEventListener('input',()=>{
+  if(raf) cancelAnimationFrame(raf);
+  clearTimeout(slider._t);
+  slider._t=setTimeout(run,120);
+});
+
+window.addEventListener('resize',()=>{ if(curData) drawChart(curData,EPOCHS); });
+run();
+</script>
+</body>
+</html>
